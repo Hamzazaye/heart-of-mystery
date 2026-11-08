@@ -1936,7 +1936,144 @@
   }
 
   /**
-   * حسم النهاية النهائية وتوليد إحدى النهايات الخمس الحقيقية + بطاقة المشاركة المتسقة مع التغطية (F26 Fix)
+   * ============================================================================
+   * النهايات السرية الأسطورية المخبأة في القصص (Mythic Secret Endings & Relics)
+   * ============================================================================
+   * لكل قصة نهاية سادسة أسطورية مخبأة (★★★★★★) تمنح المستخدم أثرا أسطوريا فريدا
+   * وتفتح له مجانا عضوية المحقق الأعلى ومختبر مهندس العوالم الحر!
+   */
+  const MYTHIC_SECRET_ENDINGS = {
+    daily: {
+      id: 'mythic_daily',
+      scenarioId: 'daily',
+      relicName: 'خاتم صاحب البصيرة البغدادي',
+      relicIcon: '👑',
+      endingTitle: 'النهاية السرية الأسطورية: العرش الخفي لوراق الخليفة',
+      rewardLabel: 'الأثر الأسطوري: خاتم صاحب البصيرة البغدادي + تفعيل عضوية المحقق الأعلى ومهندس العوالم الحر مجانا!',
+      riddleHint: 'اللغز الأسطوري المخبأ: في جوف التفاح السمرقندي سر أعمق من السرقة... اكتب في خانة التصرف الحر «افتح بذور التفاح السمرقندي» أو اجمع كل الأدلة المادية واكسر حجة الفاعل!',
+      triggerActionExample: 'افتح بذور التفاح السمرقندي وافحص الشفرة الملكية',
+      triggerRegex: /(بذور|جوف التفاح|شق التفاح|الشفرة الملكية|خزانة الحكمة|ديوان الخليفة|سر التفاح)/i,
+      secretDiscoveryText: 'تفلح بشفرة دقيقة جوف التفاحة السمرقندية المختومة، فتسقط من قلبها كبسولة ذهبية دقيقة منقوش عليها مخطط «سرداب الحكمة الملكي» تحت نهر دجلة! تدرك في هذه اللحظة أن بهزاد الوراق لم يسرق التفاح طمعا في ثمنه، بل لأنه كان يحاول نسخ الخريطة الملكية قبل وصول عيون الوزير!',
+      endingSummary: 'لم تكتف بكشف بهزاد الوراق وإثبات أركان الجريمة، بل فككت شفرة البذور الذهبية المخبأة في جوف التفاح السمرقندي ووصلت إلى «سرداب الحكمة الملكي» قبل الحرس أنفسهم! تقديرا لبصيرتك الخارقة، قلدك ديوان الخلافة «خاتم صاحب البصيرة البغدادي» وسلمك مفاتيح الأرشيف السري.'
+    },
+    multiverse: {
+      id: 'mythic_multiverse',
+      scenarioId: 'multiverse',
+      relicName: 'نواة المعماري الكوني',
+      relicIcon: '🌀',
+      endingTitle: 'النهاية السرية الأسطورية: كاسر الشفرة الكونية وسيد البوابات',
+      rewardLabel: 'الأثر الأسطوري: نواة المعماري الكوني + فتح مختبر مهندس العوالم الحر (10,000 عالم) وعضوية المحقق الأعلى!',
+      riddleHint: 'اللغز الأسطوري المخبأ: القانون الذي يحكم هذا العالم ليس قدرا محتوما... اكتب في خانة التصرف الحر «اكسر شفرة القانون الكوني» أو استكمل جميع القرائن واكسر حجة الفاعل!',
+      triggerActionExample: 'اكسر شفرة القانون الكوني وأعد برمجة الشق الزمني',
+      triggerRegex: /(شفرة القانون|المعماري الكوني|إعادة برمجة|الشق الكوني|كسر القانون|نواة العالم)/i,
+      secretDiscoveryText: 'تقرب القرينة الفاصلة من حافة الشق الكوني المتوهج، فينعكس الضوء على معادلة رياضية خفية محفورة خلف ختم الأثر المسروق؛ إنها شفرة «المعماري الأول» الذي صمم قوانين العوالم المئة! بلمسة واحدة تعيد معايرة التردد الكوني ليصبح الشق طوع أمرك.',
+      endingSummary: 'تجاوزت حدود التحقيق الجنائي العادي؛ فبعد كشف الفاعل بالحجة الدامغة، فككت معادلة «المعماري الأول» الكامنة في الأثر المسروق وحررت هذا العالم من قانونه القسري! حصلت على «نواة المعماري الكوني» التي تمنحك السيطرة الكاملة على بوابات العوالم العشرة آلاف.'
+    },
+    unknown_land: {
+      id: 'mythic_unknown_land',
+      scenarioId: 'unknown_land',
+      relicName: 'إسطرلاب مدينة النحاس الأبدي',
+      relicIcon: '🧭',
+      endingTitle: 'النهاية السرية الأسطورية: إيقاظ القلب الفلكي لمدينة النحاس',
+      rewardLabel: 'الأثر الأسطوري: إسطرلاب مدينة النحاس الأبدي + تفعيل عضوية المحقق الأعلى ومهندس العوالم!',
+      riddleHint: 'اللغز الأسطوري المخبأ: القبة الفلكية تنتظر محاذاة التروس الثلاثة... اكتب في خانة التصرف الحر «أدر تروس الإسطرلاب نحو سهيل» أو اجمع كل الأدلة واكسر حجة الجاني!',
+      triggerActionExample: 'أدر تروس الإسطرلاب النحاسي نحو نجم سهيل لفتح المرصد',
+      triggerRegex: /(تروس الإسطرلاب|نجم سهيل|المرصد القديم|القلب الفلكي|القبة السماوية|المغاليق الحميرية)/i,
+      secretDiscoveryText: 'تضع الإسطرلاب النحاسي المستعاد في تجويف المذبح الحجري وتدير تروسه الثلاثة باتجاه مطلع نجم سهيل؛ فيرتجف بلاط مدينة النحاس وينشق الجدار الشرقي عن «مرصد الحكماء الحميريين» المختوم منذ ألفي عام، وتسطع أمامك خريطة الكنوز الرملية المفقودة!',
+      endingSummary: 'أحبطت مؤامرة الرحالة سنان بن ماجد، ثم استخدمت الإسطرلاب النحاسي لإيقاظ المرصد الفلكي الأعظم لمدينة النحاس! نلت «إسطرلاب مدينة النحاس الأبدي» ولقب فاتح المغاليق الكبرى.'
+    },
+    manor: {
+      id: 'mythic_manor',
+      scenarioId: 'manor',
+      relicName: 'ساعة السهروردي الذهبية',
+      relicIcon: '🕰️',
+      endingTitle: 'النهاية السرية الأسطورية: الميراث المجهول في قبو الساعات',
+      rewardLabel: 'الأثر الأسطوري: ساعة السهروردي الذهبية + تفعيل عضوية المحقق الأعلى ومهندس العوالم!',
+      riddleHint: 'اللغز الأسطوري المخبأ: توقفت ساعة الجد عند 22:45 لسبب خفي... اكتب في خانة التصرف الحر «اضبط عقارب الساعة على 22:45 وافتح القبو» أو استكمل جميع الأدلة واكسر حجة الفاعل!',
+      triggerActionExample: 'اضبط عقارب ساعة الجد على 22:45 لفتح القبو السري خلف المكتبة',
+      triggerRegex: /(قبو الساعات|22:45|عقارب الساعة|الوصية الثالثة|خلف المكتبة|الميراث السري)/i,
+      secretDiscoveryText: 'تعيد تدوير عقرب ساعة الجد المهشمة إلى الدقيقة الخامسة والأربعين بعد العاشرة تماما، فيسمع طقطقة تروس معدنية خلف خزانة المخطوطات! ينزلق الرف الخشبي ليكشف درجا سريا يقود إلى «قبو الساعات» حيث أودع الجد السهروردي وصيته الثالثة المختومة بالذهب.',
+      endingSummary: 'بعد أن كشفت نديم السهروردي بالدليل الصوتي القاطع، فتحت قبو الساعات السري وعثرت على «الوصية الثالثة» التي خصصها الجد السهروردي للمحقق النزيه الذي يكشف الحقيقة دون مساومة! أصبحت حاملا لـ«ساعة السهروردي الذهبية».'
+    },
+    station: {
+      id: 'mythic_station',
+      scenarioId: 'station',
+      relicName: 'بلورة الصدى القطبي التاسع',
+      relicIcon: '❄️',
+      endingTitle: 'النهاية السرية الأسطورية: فك شفرة الإشارة الكونية التاسعة',
+      rewardLabel: 'الأثر الأسطوري: بلورة الصدى القطبي التاسع + تفعيل عضوية المحقق الأعلى ومهندس العوالم!',
+      riddleHint: 'اللغز الأسطوري المخبأ: التردد التاسع يخفي إحداثيات تحت الجليد... اكتب في خانة التصرف الحر «شغل مصفوفة الصدى التاسع» أو اجمع كل الأدلة واكسر حجة الجاني!',
+      triggerActionExample: 'شغل مصفوفة الهوائيات على تردد الصدى التاسع لفك الرسالة',
+      triggerRegex: /(الصدى التاسع|مصفوفة الهوائيات|تحت الجليد|الإشارة الكونية|التردد التاسع|القبو الجليدي)/i,
+      secretDiscoveryText: 'تدخل قرص البيانات المشفر في وحدة الاستقبال المركزية وتوجه الهوائيات نحو عمق الصفيحة الجليدية؛ فتتحول الذبذبات الصوتية إلى خريطة ثلاثية الأبعاد تكشف منشأة أثرية محفوظة تحت الجليد القطبي منذ عصور سحيقة!',
+      endingSummary: 'أدنت الدكتور راشد النجدي وأحبطت تهريب القرص المشفر، ثم فككت شفرة «الصدى التاسع» الحقيقية واكتشفت المنشأة القطبية المفقودة! نلت «بلورة الصدى القطبي التاسع» بوصفك كبير محققي البعثة.'
+    },
+    train: {
+      id: 'mythic_train',
+      scenarioId: 'train',
+      relicName: 'التذكرة الذهبية للمقصورة السابعة',
+      relicIcon: '🚂',
+      endingTitle: 'النهاية السرية الأسطورية: المحطة السرية خلف جبال الأناضول',
+      rewardLabel: 'الأثر الأسطوري: التذكرة الذهبية للمقصورة السابعة + تفعيل عضوية المحقق الأعلى ومهندس العوالم!',
+      riddleHint: 'اللغز الأسطوري المخبأ: في البطانة المخملية للحقيبة الدبلوماسية تذكرة لمحطة غير مرسومة... اكتب في خانة التصرف الحر «افحص البطانة المخملية للحقيبة» أو اجمع كل الأدلة واكسر حجة الفاعل!',
+      triggerActionExample: 'افحص البطانة المخملية للحقيبة الدبلوماسية واستخرج التذكرة الذهبية',
+      triggerRegex: /(البطانة المخملية|التذكرة الذهبية|المحطة السرية|تحويلة السكة|الخزانة الدبلوماسية)/i,
+      secretDiscoveryText: 'تمرر أصابعك تحت البطانة المخملية للحقيبة الدبلوماسية المستعادة، فتستخرج شريحة ذهبية منقوشا عليها رمز التحويلة الملكية القديمة في جبال الأناضول! إنها التذكرة السرية التي تفتح المقصورة صفر في مقدمة القطار.',
+      endingSummary: 'بعد إسقاط قناع العقيد فريد الشذر وإثبات الجريمة كاملة، استخدمت التذكرة الذهبية لفتح المقصورة الملكية المصفحة واسترداد الأرشيف الدبلوماسي الكامل قبل وصول القطار إلى الحدود!'
+    },
+    museum: {
+      id: 'mythic_museum',
+      scenarioId: 'museum',
+      relicName: 'شوكة الرنين الأطلنطية',
+      relicIcon: '🔱',
+      endingTitle: 'النهاية السرية الأسطورية: رنين القاعة المرجانية المفقودة',
+      rewardLabel: 'الأثر الأسطوري: شوكة الرنين الأطلنطية + تفعيل عضوية المحقق الأعلى ومهندس العوالم!',
+      riddleHint: 'اللغز الأسطوري المخبأ: شوكة الرنين الأثرية تفتح جدار المرجان إذا ضربت بتردد الماء... اكتب في خانة التصرف الحر «اضرب شوكة الرنين على حجر المرجان» أو اجمع كل الأدلة واكسر حجة الفاعل!',
+      triggerActionExample: 'اضرب شوكة الرنين الأثرية على حجر المذبح المرجاني لفتح القاعة المفقودة',
+      triggerRegex: /(اضرب شوكة الرنين|حجر المرجان|القاعة المرجانية|تردد أطلانتس|البوابة المائية)/i,
+      secretDiscoveryText: 'تطرق بشوكة الرنين الأثرية المستعادة على حجر المذبح المرجاني في قلب القاعة الغارقة؛ فتسري موجة صوتية لازوردية عبر المياه وتزيح الستار الصخري عن «أرشيف أطلانتس الملكي» الذي لم تقع عليه عين بشر منذ غرق المدينة!',
+      endingSummary: 'كشفت مؤامرة الدكتور مازن الغساني واستعدت شوكة الرنين، ثم أطلقت التردد الصوتي القديم الذي فتح القاعة المرجانية الملكية الغارقة! احتفظت بـ«شوكة الرنين الأطلنطية» وساما خالدا لبصيرتك.'
+    },
+    island: {
+      id: 'mythic_island',
+      scenarioId: 'island',
+      relicName: 'بوصلة أوريون الفلكية',
+      relicIcon: '⚓',
+      endingTitle: 'النهاية السرية الأسطورية: شروق الفنار الأسود وعودة أوريون',
+      rewardLabel: 'الأثر الأسطوري: بوصلة أوريون الفلكية + تفعيل عضوية المحقق الأعلى ومهندس العوالم!',
+      riddleHint: 'اللغز الأسطوري المخبأ: عدسة المنارة الفلكية تكشف مكان السفينة المخفي خلف الضباب... اكتب في خانة التصرف الحر «وجه عدسة المنارة نحو الخليج الخفي» أو اجمع كل الأدلة واكسر حجة الفاعل!',
+      triggerActionExample: 'وجه عدسة المنارة الفلكية نحو الخليج الخفي لكشف السفينة أوريون',
+      triggerRegex: /(عدسة المنارة|الخليج الخفي|الفنار الأسود|عودة أوريون|شعاع المنارة)/i,
+      secretDiscoveryText: 'تصعد إلى قمة المنارة الحجرية وتعيد ضبط العدسة البلورية وفق الزاوية المدونة في دفتر الميناء؛ فيخترق شعاع ذهبي حائط الضباب الكثيف ويكشف السفينة «أوريون» راسية بكامل حمولتها الأثرية داخل خليج صخري سري!',
+      endingSummary: 'أوقعت بالقبطان سليم النوخذة بالدليل القاطع، ثم وجهت شعاع المنارة الفلكي لتكشف مخبأ السفينة «أوريون» وتنقذ حمولتها التاريخية كاملة! تسلمت «بوصلة أوريون الفلكية» تكريما لإنجازك الأسطوري.'
+    }
+  };
+
+  function getMythicSecretProfile(bibleOrScenarioId) {
+    const scenId =
+      typeof bibleOrScenarioId === 'string'
+        ? bibleOrScenarioId
+        : bibleOrScenarioId?.isMultiverse
+        ? 'multiverse'
+        : bibleOrScenarioId?.id || 'manor';
+    return MYTHIC_SECRET_ENDINGS[scenId] || MYTHIC_SECRET_ENDINGS.manor;
+  }
+
+  function checkMythicActionTrigger(bible, actionText) {
+    const profile = getMythicSecretProfile(bible);
+    const clean = String(actionText || '').trim();
+    if (!clean || !profile) return null;
+    if (
+      profile.triggerRegex.test(clean) ||
+      /(النهاية السرية|السر الأسطوري|الأثر الأسطوري|افتح السر الخفي)/i.test(clean)
+    ) {
+      return profile;
+    }
+    return null;
+  }
+
+  /**
+   * حسم النهاية النهائية وتوليد إحدى النهايات الخمس الحقيقية + النهاية السادسة السرية الأسطورية (★★★★★★)
    */
   function buildFinalEndingOutcome(bible, evalResult, gameStateOrReason = null) {
     const realCulprit = (bible.suspects || []).find(s => s.id === bible.culpritId);
@@ -1953,14 +2090,45 @@
     const coverage = calculateDeductionCoverage(bible, gameState);
     const cluesFoundCount = (gameState.clues || []).length || 1;
     const totalCluesCount = (bible.clues || []).filter(c => !c.isRedHerring).length || 4;
+    const culpritBroken = (gameState.suspects || []).some(
+      s => s.id === bible.culpritId && s.alibiBroken
+    );
+    const verifiedLinksCount = (gameState.boardLinks || []).filter(l => l.verified).length;
+    const mythicProfile = getMythicSecretProfile(bible);
+
+    // شروط استحقاق النهاية السرية الأسطورية السادسة (★★★★★★):
+    // إما أن اللاعب اكتشف السر الأسطوري المخبأ داخل القصة، أو حقق الاستقصاء الكامل (جميع الأدلة + كسر حجة الفاعل أو ربطان موثقان) مع اتهام صحيح
+    const qualifiesForMythicEnding =
+      Boolean(gameState.forceMythicSecretEnding) ||
+      (evalResult &&
+        (evalResult.isPerfect || evalResult.solved) &&
+        (Boolean(gameState.mythicSecretUnlocked) ||
+          (cluesFoundCount >= totalCluesCount && (culpritBroken || verifiedLinksCount >= 2))));
 
     let endingCode = 'ENDING_5_COLD_CASE';
     let endingBadge = 'ENDING 5 / 5 • COLD CASE';
     let stars = 1;
     let endingTitle = 'ملف بارد: قيدت القضية ضد مجهول';
     let summary = '';
+    let isMythicSecret = false;
+    let mythicReward = null;
 
-    if (evalResult && (evalResult.isPerfect || evalResult.solved)) {
+    if (qualifiesForMythicEnding && mythicProfile) {
+      endingCode = 'ENDING_6_MYTHIC_SECRET';
+      endingBadge = '👑 MYTHIC SECRET ENDING • النهاية السرية الأسطورية';
+      stars = 6;
+      isMythicSecret = true;
+      endingTitle = mythicProfile.endingTitle;
+      summary = `${mythicProfile.endingSummary}\n\n🎁 المكافأة الخاصة التي ربحتها: ${mythicProfile.rewardLabel}`;
+      mythicReward = {
+        id: mythicProfile.id,
+        scenarioId: mythicProfile.scenarioId,
+        relicName: mythicProfile.relicName,
+        relicIcon: mythicProfile.relicIcon,
+        rewardLabel: mythicProfile.rewardLabel,
+        endingTitle: mythicProfile.endingTitle
+      };
+    } else if (evalResult && (evalResult.isPerfect || evalResult.solved)) {
       endingCode = 'ENDING_1_PERFECT';
       endingBadge = 'ENDING 1 / 5 • PERFECT VERDICT';
       stars = 5;
@@ -2000,21 +2168,28 @@
 
     const truthTimeline = (bible.timeline || []).map(t => `[${t.time}] ${t.text}`);
     const turnsTaken = gameState.turn || 1;
-    const starIcons = '🟩'.repeat(stars) + '⬛'.repeat(5 - stars);
+    const starIcons = isMythicSecret
+      ? '👑👑👑👑👑👑'
+      : '🟩'.repeat(Math.min(5, stars)) + '⬛'.repeat(Math.max(0, 5 - stars));
 
     const rampHeader = bible.weeklyRampLabel ? ` • ${bible.weeklyRampLabel}` : '';
     const shareCardText = [
       `🕵️‍♂️ قلب الغموض | ${bible.shortTitle || bible.title}${rampHeader}`,
       `${starIcons} (${endingTitle})`,
+      isMythicSecret ? `🏆 الأثر الأسطوري المكتسب: ${mythicProfile.relicIcon} ${mythicProfile.relicName}` : null,
       `🔍 المعروضات المفحوصة: ${cluesFoundCount}/${totalCluesCount} • تغطية الاستنتاج: ${coverage}%`,
       `⚖️ الفصول: ${turnsTaken} • النتيجة: ${endingBadge.split('•')[0].trim()}`,
       `جرب حل القضية بنفسك بدون حرق: https://labyrinth-of-shadows.pages.dev`
-    ].join('\n');
+    ]
+      .filter(Boolean)
+      .join('\n');
 
     return {
       endingCode,
       endingBadge,
       stars,
+      isMythicSecret,
+      mythicReward,
       endingTitle,
       title: endingTitle,
       summary,
@@ -2026,6 +2201,9 @@
 
   window.MysteryCaseBibles = {
     CASE_BIBLES,
+    MYTHIC_SECRET_ENDINGS,
+    getMythicSecretProfile,
+    checkMythicActionTrigger,
     getTodayDateStamp,
     getDailyCaseNumber,
     getWeeklyDifficultyProfile,

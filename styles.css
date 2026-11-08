@@ -5113,3 +5113,158 @@ html[data-theme="detective-light"] .narrative-card {
   color: var(--text-primary);
   font-family: var(--font-mono);
 }
+
+/* ==========================================================================
+   6. Mythic Secret Endings (★★★★★★) & Relics Vault Styles
+   ========================================================================== */
+.mythic-finale-btn {
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #b45309 0%, #f59e0b 50%, #9333ea 100%);
+  border: 1px solid rgba(253, 224, 71, 0.85);
+  color: #fffbeb;
+  font-size: 0.92rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 28px -6px rgba(245, 158, 11, 0.55);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.mythic-finale-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px -6px rgba(168, 85, 247, 0.7);
+}
+
+.mythic-reward-showcase {
+  margin: 14px 0 18px;
+  padding: 18px 20px;
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 85% 20%, rgba(251, 191, 36, 0.22), transparent 60%),
+    linear-gradient(145deg, rgba(46, 16, 101, 0.88), rgba(17, 24, 39, 0.96));
+  border: 2px solid rgba(251, 191, 36, 0.78);
+  box-shadow: 0 16px 38px -10px rgba(147, 51, 234, 0.45);
+}
+
+.mythic-reward-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.mythic-relic-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.85rem;
+  background: rgba(251, 191, 36, 0.18);
+  border: 1px solid rgba(251, 191, 36, 0.65);
+  box-shadow: 0 0 22px rgba(251, 191, 36, 0.35);
+}
+
+.mythic-reward-tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  background: rgba(251, 191, 36, 0.2);
+  color: #fde68a;
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  margin-bottom: 4px;
+}
+
+.mythic-reward-head h4 {
+  margin: 0;
+  font-size: 1.18rem;
+  color: #fef08a;
+  font-family: var(--font-story);
+}
+
+.mythic-reward-showcase p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.72;
+  color: #f1f5f9;
+}
+
+.mythic-relics-vault-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+@media (max-width: 720px) {
+  .mythic-relics-vault-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mythic-relic-card {
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: rgba(15, 23, 38, 0.78);
+  border: 1px dashed rgba(148, 163, 184, 0.26);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mythic-relic-card.unlocked {
+  background: linear-gradient(155deg, rgba(46, 16, 101, 0.65), rgba(15, 23, 38, 0.95));
+  border: 1px solid rgba(251, 191, 36, 0.72);
+  box-shadow: 0 10px 26px -10px rgba(251, 191, 36, 0.28);
+}
+
+.mythic-relic-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mythic-relic-top strong {
+  font-size: 0.94rem;
+  color: var(--text-primary);
+}
+
+.mythic-relic-card.unlocked .mythic-relic-top strong {
+  color: #fde047;
+}
+
+.mythic-relic-status {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  background: rgba(148, 163, 184, 0.14);
+  color: var(--text-muted);
+}
+
+.mythic-relic-card.unlocked .mythic-relic-status {
+  background: rgba(251, 191, 36, 0.22);
+  color: #fde68a;
+  border: 1px solid rgba(251, 191, 36, 0.45);
+}
+
+.mythic-relic-card small {
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.secret-item.mythic-riddle-card {
+  border: 1px dashed rgba(251, 191, 36, 0.55);
+  background: linear-gradient(145deg, rgba(46, 16, 101, 0.35), rgba(15, 23, 38, 0.88));
+}
+
+.secret-item.mythic-riddle-card.unlocked {
+  border-style: solid;
+  border-color: rgba(251, 191, 36, 0.85);
+  background: linear-gradient(145deg, rgba(88, 28, 135, 0.55), rgba(15, 23, 38, 0.95));
+}

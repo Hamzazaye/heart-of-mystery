@@ -516,13 +516,99 @@
 
     const syncProUiState = () => {
       const active = ve.isProPassActive();
+      const unlockedRelics = typeof ve.getUnlockedMythicRelics === 'function' ? ve.getUnlockedMythicRelics() : [];
+      const relicsMap = window.MysteryCaseBibles?.MYTHIC_SECRET_ENDINGS || {};
+      const allRelicEntries = Object.entries(relicsMap);
+      const totalRelicsCount = allRelicEntries.length || 8;
+
       if (proHeaderBadgeLabel) {
-        proHeaderBadgeLabel.textContent = active ? 'عضوية المحقق الأعلى ✓' : 'استوديو الانتشار والمحقق الأعلى';
+        if (unlockedRelics.length > 0) {
+          proHeaderBadgeLabel.textContent = `خزنة الأساطير (${unlockedRelics.length}/${totalRelicsCount}) ✓`;
+        } else {
+          proHeaderBadgeLabel.textContent = active ? 'عضوية المحقق الأعلى ✓' : 'استوديو الانتشار والأسرار';
+        }
       }
       if (proStatusPill) {
         proStatusPill.textContent = active ? '👑 عضوية المحقق الأعلى مفعلة' : 'الباقة المجانية نشطة';
       }
+
+      const countBadge = document.getElementById('mythicRelicsCountBadge');
+      if (countBadge) {
+        countBadge.textContent = `${unlockedRelics.length} / ${totalRelicsCount} أسرار مكتشفة`;
+      }
+
+      const vaultGrid = document.getElementById('mythicRelicsVaultGrid');
+      if (vaultGrid && allRelicEntries.length > 0) {
+        vaultGrid.innerHTML = allRelicEntries
+          .map(([scId, prof]) => {
+            const found = unlockedRelics.some(r => r.relicId === prof.relicId);
+            const caseLabel = SCENARIO_PRESETS[scId]?.title || scId;
+            if (found) {
+              return `
+                <div class="mythic-relic-card unlocked">
+                  <div class="mythic-relic-top">
+                    <span class="mythic-relic-icon">${escapeHtml(prof.relicIcon)}</span>
+                    <span class="mythic-relic-title">${escapeHtml(prof.relicName)}</span>
+                  </div>
+                  <p class="mythic-relic-desc">${escapeHtml(prof.rewardPerk)}</p>
+                  <span class="mythic-relic-hint">✓ تم كشف النهاية السرية في: ${escapeHtml(caseLabel)}</span>
+                </div>`;
+            }
+            return `
+              <div class="mythic-relic-card locked">
+                <div class="mythic-relic-top">
+                  <span class="mythic-relic-icon">🔒</span>
+                  <span class="mythic-relic-title">أثر أسطوري مخبأ (${escapeHtml(caseLabel)})</span>
+                </div>
+                <p class="mythic-relic-desc">${escapeHtml(prof.riddleHint)}</p>
+                <span class="mythic-relic-hint">💡 اكتب تصرفا حرا يطابق الشفرة داخل القضية لفتحه</span>
+              </div>`;
+          })
+          .join('');
+      }
     };
+    window.__syncMythicVaultUi = syncProUiState;
+
+    // تهيئة مختبر مهندس العوالم الحر (Custom Multiverse Architect)
+    const lawSelect = document.getElementById('customArchitectLawSelect');
+    const catSelect = document.getElementById('customArchitectCatalystSelect');
+    const launchArchBtn = document.getElementById('launchCustomArchitectWorldBtn');
+    if (lawSelect && catSelect && window.MysteryMultiverse) {
+      const laws = window.MysteryMultiverse.WORLD_LAWS_100 || [];
+      const cats = window.MysteryMultiverse.WORLD_CATALYSTS_100 || [];
+      if (lawSelect.options.length === 0 && laws.length > 0) {
+        lawSelect.innerHTML = laws
+          .map((l, idx) => `<option value="${idx}">قانون #${l.id}: ${escapeHtml(l.title)} (${escapeHtml(l.category)})</option>`)
+          .join('');
+      }
+      if (catSelect.options.length === 0 && cats.length > 0) {
+        catSelect.innerHTML = cats
+          .map((c, idx) => `<option value="${idx}">شرارة #${c.id}: ${escapeHtml(c.title)} (${escapeHtml(c.setting)})</option>`)
+          .join('');
+      }
+      if (launchArchBtn) {
+        launchArchBtn.addEventListener('click', () => {
+          const lawIndex = Number(lawSelect.value) || 0;
+          const catalystIndex = Number(catSelect.value) || 0;
+          pendingMultiverseCombo = window.MysteryMultiverse.rollMultiverseCombination({
+            lawIndex,
+            catalystIndex
+          });
+          if (dom.multiverseRollTitleText && pendingMultiverseCombo) {
+            dom.multiverseRollTitleText.textContent = pendingMultiverseCombo.mergedTitle;
+          }
+          if (SCENARIO_PRESETS.multiverse && pendingMultiverseCombo) {
+            SCENARIO_PRESETS.multiverse.title = `عابر العوالم: ${pendingMultiverseCombo.mergedTitle}`;
+            SCENARIO_PRESETS.multiverse.teaserVoice = pendingMultiverseCombo.mergedTeaser;
+            SCENARIO_PRESETS.multiverse.prompt = pendingMultiverseCombo.mergedPrompt;
+          }
+          if (proModal) proModal.classList.add('hidden');
+          selectScenarioById('multiverse');
+          showToast(`🌌 تم هندسة عالمك الخاص: ${pendingMultiverseCombo.mergedTitle}!`);
+          startNewAdventure();
+        });
+      }
+    }
 
     const refreshViralStudioScript = (options = {}) => {
       currentViralScript = ve.generateViralShortScript(options);
@@ -1921,6 +2007,67 @@
   }
 
   /**
+   * تفعيل اكتشاف السر الأسطوري المخبأ داخل القضية (Mythic Secret Discovery)
+   */
+  async function triggerMythicSecretDiscovery(mythicHit, actionText) {
+    if (!mythicHit) return;
+    gameState.mythicSecretUnlocked = true;
+    gameState.detectiveStyle = 'كاشف الأسرار الأسطورية';
+    gameState.twistProgress = 100;
+
+    const secretTitle = `👑 السر الأسطوري المخبأ: ${mythicHit.relicName}`;
+    const alreadyAdded = (gameState.secrets || []).some(s => s.title === secretTitle);
+    if (!alreadyAdded) {
+      gameState.secrets.unshift({
+        title: secretTitle,
+        revelation: mythicHit.secretDiscoveryText
+      });
+    }
+
+    if (window.MysteryViralEngine && typeof window.MysteryViralEngine.recordUnlockedMythicRelic === 'function') {
+      window.MysteryViralEngine.recordUnlockedMythicRelic(mythicHit);
+      if (typeof window.__syncMythicVaultUi === 'function') {
+        window.__syncMythicVaultUi();
+      }
+    }
+
+    if (dom.vocalSpeakerLabel) dom.vocalSpeakerLabel.textContent = `👑 ${mythicHit.relicIcon} ${mythicHit.relicName}`;
+    if (dom.vocalEmotionBadge) dom.vocalEmotionBadge.textContent = 'كشف أسطوري مهيب';
+    if (dom.vocalReactionText) dom.vocalReactionText.textContent = `«${mythicHit.secretDiscoveryText}»`;
+
+    if (dom.narrativeBody) {
+      const p = document.createElement('p');
+      p.className = 'interrogation-transcript-para';
+      p.style.borderColor = 'rgba(229, 184, 92, 0.72)';
+      p.style.background = 'linear-gradient(135deg, rgba(88, 28, 135, 0.28), rgba(229, 184, 92, 0.14))';
+      p.textContent = `👑 [كشف الشفرة السرية الأسطورية: «${actionText}»]: ${mythicHit.secretDiscoveryText}`;
+      dom.narrativeBody.appendChild(p);
+      p.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    gameState.history.unshift({
+      turn: gameState.turn || 1,
+      title: `👑 كشف الأثر الأسطوري: ${mythicHit.relicName}`,
+      choice: actionText,
+      summary: mythicHit.secretDiscoveryText
+    });
+
+    audioEngine.playTwistSound();
+    triggerDramaticTwistOverlay(
+      `👑 انكشف الأثر الأسطوري: ${mythicHit.relicName}`,
+      `${mythicHit.secretDiscoveryText}\n\n✨ مكافأتك الفورية: ${mythicHit.rewardPerk} + فتح زر الخاتمة السرية الأسطورية (6 نجوم ★★★★★★) في غرفة الاتهام!`
+    );
+
+    renderSidebarState();
+    saveGameState();
+    showToast(`👑 مبروك! كشفت الأثر الأسطوري «${mythicHit.relicName}» وحصلت على مكافأة خاصة!`);
+
+    if (audioEngine.autoTtsEnabled) {
+      await audioEngine.speakSingleText(mythicHit.secretDiscoveryText, 'رهبة وذهول درامي', true);
+    }
+  }
+
+  /**
    * تنفيذ اختيار اللاعب وتحديث النهج الاستقصائي (مع معالجة الصمت/الانتظار F04 والأسئلة المباشرة F05)
    */
   async function handlePlayerChoice(choiceText, choiceTag = '') {
@@ -1965,6 +2112,19 @@
         await audioEngine.speakSingleText(waitMsg, 'ترقب وتوتر', true);
       }
       return;
+    }
+
+    // فحص ما إذا كان التصرف الحر يفتح النهاية السرية الأسطورية المخبأة في القضية (Mythic Secret Trigger)
+    if (
+      choiceTag === 'تصرف حر' &&
+      window.MysteryCaseBibles &&
+      typeof window.MysteryCaseBibles.checkMythicActionTrigger === 'function'
+    ) {
+      const mythicHit = window.MysteryCaseBibles.checkMythicActionTrigger(gameState.caseBible, choiceText);
+      if (mythicHit) {
+        await triggerMythicSecretDiscovery(mythicHit, choiceText);
+        return;
+      }
     }
 
     // F05 Fix: إذا طرح اللاعب سؤالا مباشرا في حقل التصرف الحر، نجيب عليه مباشرة من ملف القضية أو المشتبه به دون قفز قسري للفصل
@@ -2948,21 +3108,61 @@
         String(s.revelation || '').toLowerCase().includes(searchQuery)
     );
 
+    const mythicProfile =
+      window.MysteryCaseBibles && typeof window.MysteryCaseBibles.getMythicSecretProfile === 'function'
+        ? window.MysteryCaseBibles.getMythicSecretProfile(gameState.caseBible || gameState.scenarioId)
+        : null;
+
+    let mythicRiddleHtml = '';
+    if (mythicProfile && !searchQuery) {
+      if (gameState.mythicSecretUnlocked) {
+        mythicRiddleHtml = `
+          <li class="secret-item" style="border-color:rgba(229,184,92,0.75);background:linear-gradient(135deg,rgba(88,28,135,0.28),rgba(229,184,92,0.14));">
+            <strong style="color:#f5d078;">👑 ${escapeHtml(mythicProfile.relicIcon)} الأثر الأسطوري المكتشف: ${escapeHtml(mythicProfile.relicName)}</strong>
+            <span>${escapeHtml(mythicProfile.rewardPerk)}</span>
+          </li>`;
+      } else {
+        mythicRiddleHtml = `
+          <li class="secret-item" style="border-color:rgba(168,85,247,0.55);background:rgba(46,16,101,0.28);">
+            <strong style="color:#d8b4fe;">🔮 شفرة النهاية السرية الأسطورية المخبأة (★★★★★★)</strong>
+            <span>${escapeHtml(mythicProfile.riddleHint)}</span>
+            <div class="notebook-item-actions" style="margin-top:6px;">
+              <button type="button" class="notebook-quick-action-btn" data-try-mythic-riddle="1" style="border-color:rgba(229,184,92,0.55);color:#f5d078;">👑 تنفيذ الشفرة السرية الآن (${escapeHtml(mythicProfile.triggerActionExample)})</button>
+            </div>
+          </li>`;
+      }
+    }
+
     if (filteredSecrets.length === 0) {
-      dom.secretList.innerHTML = searchQuery
-        ? '<li class="empty-note">لا توجد أسرار تطابق كلمة البحث الحالية.</li>'
-        : '<li class="empty-note">الأسرار الكبرى تتكشف عندما تجمع الأدلة المشروطة أو تكسر حجة المشتبه به!</li>';
+      dom.secretList.innerHTML =
+        (searchQuery
+          ? '<li class="empty-note">لا توجد أسرار تطابق كلمة البحث الحالية.</li>'
+          : '<li class="empty-note">الأسرار الكبرى تتكشف عندما تجمع الأدلة المشروطة أو تكسر حجة المشتبه به!</li>') +
+        mythicRiddleHtml;
     } else {
-      dom.secretList.innerHTML = filteredSecrets
-        .map(
-          s => `
+      dom.secretList.innerHTML =
+        filteredSecrets
+          .map(
+            s => `
         <li class="secret-item">
           <strong>⚡ ${escapeHtml(s.title)}</strong>
           <span>${escapeHtml(s.revelation)}</span>
         </li>`
-        )
-        .join('');
+          )
+          .join('') + mythicRiddleHtml;
     }
+
+    dom.secretList.querySelectorAll('[data-try-mythic-riddle]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!mythicProfile) return;
+        if ((gameState.clues || []).length < 1) {
+          showToast('🔍 اكتشف دليلا ماديا واحدا على الأقل من المشهد قبل فك الشفرة الأسطورية!');
+          return;
+        }
+        setMobileDrawerOpen(false);
+        await triggerMythicSecretDiscovery(mythicProfile, mythicProfile.triggerActionExample);
+      });
+    });
 
     const filteredSuspects = gameState.suspects.filter(
       s =>
@@ -3156,6 +3356,16 @@
     if (dom.verdictMotiveSelect) dom.verdictMotiveSelect.onchange = updateVerdictReadinessChecklist;
     if (dom.verdictClueSelect) dom.verdictClueSelect.onchange = updateVerdictReadinessChecklist;
 
+    // إظهار زر النهاية السرية الأسطورية إذا كشف اللاعب الشفرة السرية أو بلغ اكتمال الحقيقة (85%+)
+    const mythicBtn = document.getElementById('mythicSecretFinaleBtn');
+    if (mythicBtn) {
+      const canUnlockMythic =
+        Boolean(gameState.mythicSecretUnlocked) ||
+        ((gameState.twistProgress || 0) >= 85 && (gameState.clues || []).length >= 3);
+      mythicBtn.classList.toggle('hidden', !canUnlockMythic);
+      mythicBtn.onclick = handleMythicSecretFinale;
+    }
+
     dom.verdictModal.classList.remove('hidden');
 
     // F23 Fix: نقل التركيز للوحة المفاتيح داخل نافذة الاتهام فور فتحها
@@ -3343,6 +3553,83 @@
     }
   }
 
+  /**
+   * تفعيل النهاية السرية الأسطورية المخبأة (6 نجوم ★★★★★★) ومنح اللاعب الأثر الأسطوري والرتبة الملكية
+   */
+  async function handleMythicSecretFinale() {
+    ensureGameStateHasLockedBible();
+    const bible = gameState.caseBible;
+    gameState.mythicSecretUnlocked = true;
+    gameState.forceMythicSecretEnding = true;
+
+    const suspectId = bible.culpritId || (dom.verdictSuspectSelect ? dom.verdictSuspectSelect.value : '');
+    const motiveId = bible.motiveId || (dom.verdictMotiveSelect ? dom.verdictMotiveSelect.value : '');
+    const clueId = (bible.decisiveClueIds && bible.decisiveClueIds[0]) || (dom.verdictClueSelect ? dom.verdictClueSelect.value : '');
+
+    const evalResult = window.MysteryCaseBibles.evaluateVerdict(
+      bible,
+      { suspectId, motiveId, clueId },
+      gameState
+    );
+
+    const baseOutcome = window.MysteryCaseBibles.buildFinalEndingOutcome(
+      bible,
+      evalResult,
+      gameState
+    );
+
+    const mythicBtn = document.getElementById('mythicSecretFinaleBtn');
+    const prevMythicHtml = mythicBtn ? mythicBtn.innerHTML : '';
+    if (mythicBtn) {
+      mythicBtn.disabled = true;
+      mythicBtn.innerHTML = '<span>👑 جاري صياغة النهاية السرية الأسطورية (★★★★★★)...</span>';
+    }
+    if (dom.submitVerdictBtn) dom.submitVerdictBtn.disabled = true;
+    if (dom.freeFinaleBtn) dom.freeFinaleBtn.disabled = true;
+
+    let finalOutcome = baseOutcome;
+    try {
+      finalOutcome = await aiEngine.generateAIEndingFinale(gameState, baseOutcome, {
+        suspectId,
+        motiveId,
+        clueId
+      });
+      // الحفاظ على وسام ونجوم ومكافأة النهاية السرية الأسطورية
+      finalOutcome.endingCode = baseOutcome.endingCode;
+      finalOutcome.endingBadge = baseOutcome.endingBadge;
+      finalOutcome.stars = 6;
+      finalOutcome.isMythicSecret = true;
+      finalOutcome.mythicReward = baseOutcome.mythicReward;
+      finalOutcome.shareCardText = baseOutcome.shareCardText;
+    } finally {
+      if (mythicBtn) {
+        mythicBtn.disabled = false;
+        mythicBtn.innerHTML = prevMythicHtml;
+      }
+      if (dom.submitVerdictBtn) dom.submitVerdictBtn.disabled = false;
+      if (dom.freeFinaleBtn) dom.freeFinaleBtn.disabled = false;
+    }
+
+    gameState.caseSolved = true;
+    gameState.finalVerdictResult = finalOutcome;
+    saveGameState();
+    updateResumeBannerVisibility();
+    recordCaseOutcomeInLibrary(bible, finalOutcome);
+    updateHeaderStreakBadge();
+
+    renderVerdictOutcomeView(finalOutcome);
+
+    audioEngine.stopSpeaking();
+    audioEngine.playTwistSound();
+
+    if (audioEngine.autoTtsEnabled) {
+      const spokenClosing = finalOutcome.vocalClosingLine
+        ? `${finalOutcome.vocalClosingLine} ${finalOutcome.summary}`
+        : `${finalOutcome.endingTitle}. ${finalOutcome.summary}`;
+      await audioEngine.speakSingleText(spokenClosing, 'رهبة وذهول درامي', true);
+    }
+  }
+
   function renderVerdictOutcomeView(outcome) {
     if (!outcome) return;
     dom.verdictBuilderSection.classList.add('hidden');
@@ -3352,9 +3639,41 @@
       dom.verdictEndingBadge.textContent = outcome.endingBadge || outcome.endingCode;
     }
     if (dom.verdictEndingStars) {
-      const stars = Math.max(1, Math.min(5, Number(outcome.stars) || 1));
-      dom.verdictEndingStars.textContent = '★'.repeat(stars) + '☆'.repeat(5 - stars);
+      const rawStars = Number(outcome.stars) || 1;
+      if (rawStars >= 6 || outcome.isMythicSecret) {
+        dom.verdictEndingStars.textContent = '👑 ★ ★ ★ ★ ★ ★ 👑';
+      } else {
+        const stars = Math.max(1, Math.min(5, rawStars));
+        dom.verdictEndingStars.textContent = '★'.repeat(stars) + '☆'.repeat(5 - stars);
+      }
     }
+
+    const mythicBanner = document.getElementById('verdictMythicRewardBanner');
+    const mythicIconEl = document.getElementById('verdictMythicRelicIcon');
+    const mythicTitleEl = document.getElementById('verdictMythicRelicTitle');
+    const mythicDescEl = document.getElementById('verdictMythicRewardDesc');
+
+    if (mythicBanner) {
+      if (outcome.isMythicSecret && outcome.mythicReward) {
+        mythicBanner.classList.remove('hidden');
+        if (mythicIconEl) mythicIconEl.textContent = outcome.mythicReward.relicIcon || '👑';
+        if (mythicTitleEl) {
+          mythicTitleEl.textContent = `الأثر الأسطوري المكتسب: ${outcome.mythicReward.relicName}`;
+        }
+        if (mythicDescEl) {
+          mythicDescEl.textContent = `${outcome.mythicReward.rewardPerk} (تم تفعيل عضوية المحقق الأعلى ومختبر مهندس العوالم الحر في حسابك تلقائيا!)`;
+        }
+        if (window.MysteryViralEngine && typeof window.MysteryViralEngine.recordUnlockedMythicRelic === 'function') {
+          window.MysteryViralEngine.recordUnlockedMythicRelic(outcome.mythicReward);
+          if (typeof window.__syncMythicVaultUi === 'function') {
+            window.__syncMythicVaultUi();
+          }
+        }
+      } else {
+        mythicBanner.classList.add('hidden');
+      }
+    }
+
     if (dom.verdictEndingTitle) {
       dom.verdictEndingTitle.textContent = outcome.endingTitle;
     }

@@ -1294,6 +1294,9 @@
             <button type="button" class="secondary-btn" id="freeFinaleBtn" title="اختتم القصة بنهاية روائية مفتوحة يكتبها الذكاء الاصطناعي من قراراتك وأدلتك دون تقييد بمحاكمة رسمية">
               <span>✨ خاتمة روائية حرة بالذكاء الاصطناعي</span>
             </button>
+            <button type="button" class="mythic-finale-btn hidden" id="mythicSecretFinaleBtn" title="كشفت السر الأسطوري المخبأ في القصة! اضغط لفتح النهاية السرية الأسطورية (6 نجوم) واستلام الأثر الأسطوري">
+              <span>👑 فتح النهاية السرية الأسطورية (★★★★★★)</span>
+            </button>
             <button type="button" class="start-adventure-btn" id="submitVerdictBtn">
               <span>🔨 تقديم لائحة الاتهام وإصدار الحكم</span>
             </button>
@@ -1302,11 +1305,25 @@
 
         <!-- Final Ending & Truth Reveal Outcome Box (Shown when solved or attempts exhausted) -->
         <div class="verdict-outcome-box hidden" id="verdictOutcomeBox">
-          <div class="ending-header-banner">
+          <div class="ending-header-banner" id="endingHeaderBanner">
             <span class="ending-code-badge mono-stat" id="verdictEndingBadge">ENDING 1 / 5</span>
             <div class="ending-stars" id="verdictEndingStars">★★★★★</div>
             <h3 id="verdictEndingTitle">عدالة كاملة: الحقيقة الدامغة</h3>
             <p id="verdictEndingSummary"></p>
+          </div>
+
+          <!-- Special Mythic Secret Reward Showcase Box -->
+          <div class="mythic-reward-showcase hidden" id="verdictMythicRewardBanner">
+            <div class="mythic-reward-head">
+              <span class="mythic-relic-icon" id="verdictMythicRelicIcon">👑</span>
+              <div>
+                <span class="mythic-reward-tag">🏆 مكافأة النهاية السرية الأسطورية المميزة</span>
+                <h4 id="verdictMythicRelicTitle">خاتم صاحب البصيرة البغدادي</h4>
+              </div>
+            </div>
+            <p id="verdictMythicRewardDesc">
+              حصلت على الأثر الأسطوري النادر لهذه القصة، وتم تفعيل عضوية المحقق الأعلى ومختبر مهندس العوالم الحر (10,000 عالم) مجانا في حسابك!
+            </p>
           </div>
 
           <div class="verdict-truth-grid">
@@ -1560,10 +1577,48 @@
       </div>
 
       <div class="modal-body">
+        <!-- Section 0: Vault of Hidden Mythic Secret Endings & Relics -->
+        <div class="settings-section mythic-vault-section">
+          <div class="section-badge-row">
+            <h3>🏆 1. خزنة الآثار والنهايات السرية الأسطورية المخبأة (★★★★★★)</h3>
+            <span class="version-chip" id="mythicRelicsCountBadge">الآثار المكتشفة: 0 / 8</span>
+          </div>
+          <p class="settings-desc">
+            في كل قصة من القصص الثماني نهاية سادسة أسطورية مخبأة! اكشفها عبر كتابة الشفرة السرية في خانة «تصرف حر» أو استكمال جميع القرائن وكسر حجة الفاعل، لتربح الأثر الأسطوري وتفعل عضوية المحقق الأعلى ومختبر مهندس العوالم مجانا!
+          </p>
+          <div class="mythic-relics-vault-grid" id="mythicRelicsVaultGrid"></div>
+        </div>
+
+        <!-- Section 0.5: Custom Multiverse World Architect (Reward for Mythic Ending / Pro Pass) -->
+        <div class="settings-section mythic-architect-section" id="customMultiverseArchitectBox">
+          <div class="section-badge-row">
+            <h3>🌌 2. مختبر مهندس العوالم الحر (دمج يدوي من 100 قانون × 100 عقدة)</h3>
+            <span class="version-chip" id="architectUnlockStatusBadge">مكافأة المحقق الأسطوري</span>
+          </div>
+          <p class="settings-desc">
+            صمم عالمك الموازي الخاص يدويا باختيار أي قانون كوني من المصفوفة الأولى مع أي مسرح جريمة من المصفوفة الثانية، وابدأ المغامرة فورا:
+          </p>
+          <div class="form-row two-col">
+            <div>
+              <label for="customArchitectLawSelect">اختر القانون الكوني (المصفوفة أ: 100 قانون):</label>
+              <select id="customArchitectLawSelect"></select>
+            </div>
+            <div>
+              <label for="customArchitectCatalystSelect">اختر العقدة ومسرح الحدث (المصفوفة ب: 100 عقدة):</label>
+              <select id="customArchitectCatalystSelect"></select>
+            </div>
+          </div>
+          <div class="pro-activation-controls" style="margin-top: 10px;">
+            <button type="button" class="start-adventure-btn" id="launchCustomArchitectWorldBtn">
+              <span>🌀 افتح هذا العالم المخصص وابدأ اللعب فورا ←</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Section 1: Viral Short-Video Hook & Script Studio (TikTok / Reels / Shorts) -->
         <div class="settings-section viral-studio-box">
           <div class="section-badge-row">
-            <h3>🎬 1. استوديو صناع المحتوى الفيروسي (TikTok / Reels / Shorts)</h3>
+            <h3>🎬 3. استوديو صناع المحتوى الفيروسي (TikTok / Reels / Shorts)</h3>
             <div class="share-social-actions">
               <button type="button" class="small-btn accent" id="rerollViralScriptBtn">🎲 توليد سيناريو عالم جديد</button>
               <button type="button" class="small-btn" id="speakViralScriptBtn">🔊 سماع الأداء الصوتي للمقطع</button>
