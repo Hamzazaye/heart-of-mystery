@@ -1,0 +1,7 @@
+name = "labyrinth-of-shadows"
+pages_build_output_dir = "."
+compatibility_date = "2026-05-01"
+
+[vars]
+GEMINI_MODEL = "gemini-3.8-flash"
+ALLOWED_ORIGIN = "*"

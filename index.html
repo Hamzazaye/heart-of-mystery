@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="cinema-dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>قلب الغموض | لعبة تحقيق واستنتاج جنائي تفاعلية بالصوت</title>
+  <meta name="description" content="قلب الغموض: لعبة تحقيق واستنتاج جنائي عربية تفاعلية بالصوت. استجوب المشتبه بهم، اربط الأدلة الجنائية لكشف الأكاذيب، واصدر حكمك النهائي لفتح 5 نهايات حقيقية." />
+  <meta name="theme-color" content="#07080d" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="ar_AR" />
+  <meta property="og:title" content="قلب الغموض | لعبة تحقيق واستنتاج جنائي تفاعلية" />
+  <meta property="og:description" content="حقق في مسرح الجريمة، واجه المشتبه بهم بالأدلة الدامغة، واكشف الجاني والدافع والدليل القاطع في 6 قضايا غامضة مع تمثيل صوتي متعدد الشخصيات." />
+  <meta property="og:image" content="assets/logo.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="قلب الغموض | تحقيق واستنتاج جنائي تفاعلي" />
+  <meta name="twitter:description" content="كل قضية مبنية على حقيقة جنائية ثابتة، 3 مشتبه بهم لكل منهم صوته وكذبته، و5 نهايات حقيقية يحسمها استنتاجك." />
+  <meta name="twitter:image" content="assets/logo.png" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "قلب الغموض: مسرح التحقيق الصوتي التفاعلي وعابر العوالم",
+    "description": "أول لعبة تحقيق واستنتاج جنائي عربية تفاعلية بالصوت مع طور عابر العوالم الذي يولد 10,000 عالم فريد بقوانين كونية متغيرة.",
+    "inLanguage": "ar",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+  <!-- Google Fonts: Amiri & Cairo for Arabic, Orbitron & JetBrains Mono for HUD/Telemetry -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&family=Orbitron:wght@700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Skip to Main Content for Keyboard Accessibility (WCAG AA) -->
+  <a href="#mainWorkspace" class="skip-link">تخطي إلى محتوى اللعبة الرئيسي</a>
+
+  <!-- Professional Cinematic Initial App Preloader -->
+  <div class="app-preloader" id="appPreloader" role="status" aria-live="polite">
+    <div class="preloader-card">
+      <div class="preloader-emblem" aria-hidden="true">
+        <div class="preloader-ring outer"></div>
+        <div class="preloader-ring inner"></div>
+        <img src="assets/logo.png" alt="شعار قلب الغموض" class="preloader-logo-img" onerror="this.style.display='none'" />
+      </div>
+
+      <span class="preloader-badge mono-stat">HEART OF MYSTERY • DEDUCTION NOIR</span>
+      <h2 class="preloader-title">قلب الغموض</h2>
+      <p class="preloader-subtitle" id="preloaderStageText">حقيقة جنائية ثابتة... استجوب المشتبه بهم واحسم القضية</p>
+
+      <div class="preloader-progress-wrap">
+        <div class="preloader-progress-track">
+          <div class="preloader-progress-fill" id="bootProgressBar" style="width: 15%"></div>
+        </div>
+        <div class="preloader-progress-meta">
+          <span id="bootStatusSub">تهيئة ملفات القضايا والأجواء السينمائية...</span>
+          <span class="mono-stat" id="bootPercentText">15%</span>
+        </div>
+      </div>
+
+      <ul class="preloader-checklist" aria-hidden="true">
+        <li class="boot-item active" id="bootCheckFonts">
+          <span class="boot-dot"></span>
+          <span>تحميل الخطوط الروائية والمؤثرات البصرية</span>
+        </li>
+        <li class="boot-item" id="bootCheckApi">
+          <span class="boot-dot"></span>
+          <span>تثبيت ملفات الحقيقة الجنائية والأدلة المتشابكة</span>
+        </li>
+        <li class="boot-item" id="bootCheckAudio">
+          <span class="boot-dot"></span>
+          <span>معايرة الأصوات التمثيلية للشخصيات والأجواء المحيطية</span>
+        </li>
+      </ul>
+
+      <button type="button" class="preloader-skip-btn" id="skipPreloaderBtn">دخول فوري إلى قلب الغموض ←</button>
+    </div>
+  </div>
+
+  <!-- Background Ambient Layer + 60fps Weather Particle System Canvas -->
+  <div class="ambient-bg" id="ambientBg" aria-hidden="true">
+    <div class="ambient-blob blob-violet"></div>
+    <div class="ambient-blob blob-rose"></div>
+    <div class="ambient-blob blob-gold"></div>
+    <canvas id="weatherParticlesCanvas" class="weather-particles-canvas"></canvas>
+    <div class="noise-overlay"></div>
+    <div class="vignette-overlay"></div>
+  </div>
+
+  <!-- Dramatic Plot Twist Flash Overlay -->
+  <div class="twist-overlay hidden" id="twistOverlay" aria-hidden="true">
+    <div class="twist-banner">
+      <div class="twist-icon-ring">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+        </svg>
+      </div>
+      <span class="twist-label">انكشاف جنائي موثق بالأدلة • TWIST UNLOCKED</span>
+      <h2 id="twistOverlayTitle">الحقيقة لم تكن كما تظن...</h2>
+      <p id="twistOverlaySub">تتكشف الخيوط الخفية الآن بعد ربط الأدلة</p>
+      <button type="button" class="skip-twist-btn" id="skipTwistBtn">متابعة التحقيق والعودة للقصة</button>
+    </div>
+  </div>
+
+  <!-- Top Header Navigation -->
+  <header class="top-header">
+    <div class="brand-area">
+      <div class="logo-mark" aria-hidden="true">
+        <img src="assets/logo.png" alt="قلب الغموض" class="brand-logo-img" onerror="this.style.display='none'" />
+      </div>
+      <div class="brand-text">
+        <div class="brand-title-row">
+          <h1>قلب الغموض</h1>
+          <span class="version-chip">روايات بوليسية صوتية</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <!-- Viral Creator Studio & Pro Detective Pass Button -->
+      <button class="secondary-btn pro-header-btn" id="openProViralModalBtn" type="button" title="استوديو صناع المحتوى الفيروسي وعضوية المحقق الأعلى">
+        <span aria-hidden="true">👑</span>
+        <span id="proHeaderBadgeLabel">استوديو الانتشار والمحقق الأعلى</span>
+      </button>
+
+      <!-- Case Library & Solved Endings Button -->
+      <button class="secondary-btn" id="openLibraryBtn" type="button" title="سجل القضايا والنهايات المكتشفة">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+        <span>سجل القضايا</span>
+        <span class="streak-pill mono-stat" id="dailyStreakBadge" title="سلسلة حل القضايا">🔥 0</span>
+      </button>
+
+      <!-- Main Menu Button -->
+      <button class="secondary-btn" id="newGameBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span>القضايا</span>
+      </button>
+
+      <!-- Single Unified Settings Button -->
+      <button class="primary-outline-btn" id="openSettingsBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        <span>الإعدادات</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Workspace Layout -->
+  <main class="game-layout main-menu-mode" id="mainWorkspace">
+    <!-- Right Column (in RTL): Story & Choices Viewport -->
+    <section class="story-column">
+      <!-- Scenario Selection Screen -->
+      <div class="scenario-screen" id="scenarioScreen">
+        <!-- Full-Bleed Atmospheric Noir Spotlight Hero -->
+        <div class="scenario-hero cinematic-hero-showcase" id="heroSpotlightBanner">
+          <div class="hero-backdrop-art" aria-hidden="true"></div>
+          <div class="hero-backdrop-vignette" aria-hidden="true"></div>
+
+          <div class="hero-editorial-content">
+            <div class="hero-eyebrow-pill" id="heroCaseCategoryBadge">
+              <span class="hero-eyebrow-dot"></span>
+              <span id="heroCaseCategoryText">مستوحاة من ألف ليلة وليلة • بغداد • 5 دقائق</span>
+            </div>
+
+            <h2 class="hero-display-title" id="heroDynamicTitle">قضية اليوم: لغز التفاحات الثلاث</h2>
+
+            <p class="hero-concise-lead" id="heroDynamicLead">
+              تلفظ أمواج دجلة عند الفجر صندوقا خشبيا مطعما بالصدف تفوح منه رائحة العنبر المحروق، وبداخله ثلاث تفاحات سمرقندية مختومة بالشمع، فيما تحوم الشبهات حول ثلاثة رجال تبتلعهم عتمة سوق الوراقين.
+            </p>
+
+            <div class="hero-spotlight-chips" id="heroDynamicMetaRow">
+              <span class="hero-spotlight-chip" id="heroChipSuspects">👥 3 مشتبه بهم</span>
+              <span class="hero-spotlight-chip" id="heroChipClues">🔍 4 أدلة حاسمة</span>
+              <span class="hero-spotlight-chip">🎙️ تمثيل صوتي درامي</span>
+            </div>
+
+            <div class="hero-cta-row">
+              <button type="button" class="hero-primary-cta" id="heroQuickStartBtn">
+                <span id="heroQuickStartLabel">ابدأ التحقيق في هذه القضية</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 12H5"/>
+                  <path d="M12 19l-7-7 7-7"/>
+                </svg>
+              </button>
+              <button type="button" class="hero-secondary-cta" id="heroListenTeaserBtn">
+                <span>🔊 سماع مقدمة القضية</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="hero-artwork-stage" aria-hidden="true">
+            <div class="medallion-active-case-tag" id="heroSelectedCasePill">
+              <span>🕯️ الملف النشط: لغز التفاحات الثلاث</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compact Single-Row Resume Saved Game Bar (Outside Hero so it never clutters the banner) -->
+        <div class="resume-saved-banner hidden" id="resumeSavedBanner">
+          <div class="resume-saved-info">
+            <span class="resume-saved-badge">📂 متابعة تحقيق سابق</span>
+            <strong id="resumeSavedTitle">قصر آل السهروردي: الفصل 1</strong>
+          </div>
+          <button type="button" class="resume-saved-btn" id="resumeSavedBtn">
+            <span>استئناف التحقيق ←</span>
+          </button>
+        </div>
+
+        <!-- Scenario Category Filter Bar -->
+        <div class="scenario-filter-bar" id="scenarioFilterBar" role="toolbar" aria-label="تصنيف ملفات القضايا">
+          <div class="scenario-filter-pills">
+            <button type="button" class="scenario-filter-pill active" data-filter="all">🗂️ جميع القضايا (8)</button>
+            <button type="button" class="scenario-filter-pill" data-filter="beginner">⚡ سريعة للمبتدئين</button>
+            <button type="button" class="scenario-filter-pill" data-filter="expedition">🌀 عوالم واستكشاف</button>
+            <button type="button" class="scenario-filter-pill" data-filter="classic">🔍 قضايا كلاسيكية</button>
+            <button type="button" class="scenario-filter-pill" data-filter="custom">✍️ قضيتك الخاصة</button>
+          </div>
+        </div>
+
+        <div class="scenario-grid" id="scenarioGrid">
+          <!-- Card 0: Daily Quick Mystery -->
+          <article class="scenario-card daily-featured-card selected" data-scenario="daily" data-category="beginner" tabindex="0" role="button" aria-pressed="true">
+            <div class="case-dossier-ribbon">
+              <span class="case-code mono-stat">DAILY CASE • BAGHDAD NOIR</span>
+              <span class="case-difficulty-badge">⚡ قضية اليوم السريعة (★★☆☆☆ • 5 دقائق)</span>
+            </div>
+            <div class="scenario-card-header">
+              <span class="scenario-tag">مستوحاة من ألف ليلة وليلة • بغداد</span>
+              <div class="scenario-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M12 2a9 9 0 0 0-9 9c0 4.97 4.03 9 9 9s9-4.03 9-9a9 9 0 0 0-9-9z"/>
+                  <path d="M12 6v6l4 2"/>
+                </svg>
+              </div>
+            </div>
+            <h3>قضية اليوم: لغز التفاحات الثلاث</h3>
+            <p>
+              تلفظ أمواج دجلة عند الفجر صندوقا خشبيا مطعما بالصدف تفوح منه رائحة العنبر المحروق، وبداخله ثلاث تفاحات سمرقندية مختومة بالشمع، فيما تحوم الشبهات حول ثلاثة رجال تبتلعهم عتمة سوق الوراقين.
+            </p>
+            <div class="case-telemetry-row">
+              <div class="case-stat">
+                <span class="case-stat-label">المشتبه بهم</span>
+                <strong>3 شخصيات</strong>
+              </div>
+              <div class="case-stat">
+                <span class="case-stat-label">الأدلة الجنائية</span>
+                <strong>4 أدلة</strong>
+              </div>
+              <div class="case-stat">
+                <span class="case-stat-label">الحسم النهائي</span>
+                <strong>5 نهايات حقيقية</strong>
+              </div>
+            </div>
+            <div class="scenario-card-footer">
+              <div class="scenario-meta">
+                <span class="meta-pill">موصى بها للبداية</span>
+                <span class="meta-pill">3 فصول مكثفة</span>
+              </div>
+              <div class="card-footer-actions">
+                <button type="button" class="case-voice-preview-btn" data-preview-scenario="daily" title="استمع لمقدمة القضية بصوت الراوي">
+                  <span>🔊 المقدمة</span>
+                </button>
+                <button type="button" class="card-start-action-btn" data-start-scenario="daily">
+                  <span>ابدأ الآن ←</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 0.25: NEW Multiverse Rule-Shift Mode (100 Laws x 100 Catalysts = 10,000 Worlds) -->
+          <article class="scenario-card daily-featured-card multiverse-featured-card" data-scenario="multiverse" data-category="expedition beginner" tabindex="0" role="button" aria-pressed="false">
+            <div class="case-dossier-ribbon">
+              <span class="case-code mono-stat">MULTIVERSE • 100×100 WORLDS</span>
+              <span class="case-difficulty-badge">🌀 طور تنقل العوالم (10,000 عالم متغير)</span>
+            </div>
+            <div class="scenario-card-header">
+              <span class="scenario-tag">كل قفزة تغير قانونا كونيا واحدا • اندماج عشوائي</span>
+              <div class="scenario-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <circle cx="12" cy="12" r="9"/>
+                  <path d="M12 3c2.5 3 4 6 4 9s-1.5 6-4 9c-2.5-3-4-6-4-9s1.5-6 4-9z"/>
+                  <path d="M3 12h18"/>
+                </svg>
+              </div>
+            </div>
+            <h3>عابر العوالم: شذوذ القوانين الكونية</h3>
+            <p id="multiverseCardDescText">
+              في كل مرة تبدأ فيها أو تقفز عبر البوابة، تستيقظ في عالم مواز انقلبت فيه قاعدة واحدة: عالم تسوده سلالة الدم AB بوصفها دم آدم الحاكم، أو عالم يستعبد فيه الكريستاليون البشر، أو تحكمه خوارزمية مطلقة! يدمج النظام عشوائيا بين 100 قانون عالمي و100 عقدة جنائية.
+            </p>
+            <div class="multiverse-roll-banner" id="multiverseCardRollPreview">
+              <span class="multiverse-roll-label">🎲 الدمج العشوائي الجاهز للقفزة:</span>
+              <strong id="multiverseRollTitleText">سلالة دم آدم الحاكمة (AB) × اغتيال ناسخ الشفرات في قطار البرق</strong>
+            </div>
+            <div class="case-telemetry-row">
+              <div class="case-stat">
+                <span class="case-stat-label">قوانين العوالم</span>
+                <strong>100 قانون فريد</strong>
+              </div>
+              <div class="case-stat">
+                <span class="case-stat-label">العقد الجنائية</span>
+                <strong>100 مسرح جريمة</strong>
+              </div>
+              <div class="case-stat">
+                <span class="case-stat-label">الاحتمالات المولدة</span>
+                <strong>10,000 عالم</strong>
+              </div>
+            </div>
+            <div class="scenario-card-footer">
+              <div class="scenario-meta">
+                <button type="button" class="multiverse-reroll-chip" id="rerollMultiverseCardBtn" title="ادمج قانونا كونيا جديدا مع عقدة جنائية جديدة">
+                  <span>🎲 دمج عالم جديد</span>
+                </button>
+                <button type="button" class="multiverse-reroll-chip" id="shareMultiverseWorldBtn" title="انسخ رابطا مباشرا لتحدي أصدقائك في هذا العالم تحديدا">
+                  <span>🔗 رابط التحدي</span>
+                </button>
+              </div>
+              <div class="card-footer-actions">
+                <button type="button" class="case-voice-preview-btn" data-preview-scenario="multiverse" title="استمع لمقدمة العالم المدمج بصوت الراوي">
+                  <span>🔊 المقدمة</span>
+                </button>
+                <button type="button" class="card-start-action-btn" data-start-scenario="multiverse">
+                  <span>ابدأ الآن ←</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 0.5: Featured Adventure in an Unknown Land -->
+          <article class="scenario-card daily-featured-card" data-scenario="unknown_land" data-category="expedition" tabindex="0" role="button" aria-pressed="false">
+            <div class="case-dossier-ribbon">
+              <span class="case-code mono-stat">EXPEDITION • UNKNOWN LAND</span>
+              <span class="case-difficulty-badge">🧭 مغامرة في أرض مجهولة (★★★★☆)</span>
+            </div>
+            <div class="scenario-card-header">
+              <span class="scenario-tag">استكشاف وغموض أثري • الربع الخالي</span>
+              <div class="scenario-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+                </svg>
+              </div>
+            </div>
+            <h3>أرض السراب المجهولة: مدينة النحاس المفقودة</h3>
+            <p>
+              تشق قافلتك عاصفة رملية حمراء كأنها جدار من الجمر، لتستيقظ أمام أسوار مدينة نحاسية مفقودة وراء حدود الخرائط. وعند الفجر يختفي «لوح الإحداثيات الذهبي» وتنحرف البوصلة الفلكية الكبرى بفعل يد خفية!
+            </p>
+            <div class="case-telemetry-row">
+              <div class="case-stat">
+                <span class="case-stat-label">المشتبه بهم</span>
+                <strong>3 مستكشفين</strong>
+              </div>
+              <div class="case-stat">
+                <span class="case-stat-label">الأدلة الجنائية</span>
+                <strong>5 أدلة (1 تمويه)</strong>
+              </div>
+              <div class="case-stat">
+                <span class="case-stat-label">الحسم النهائي</span>
+                <strong>5 نهايات حقيقية</strong>
+              </div>
+            </div>
+            <div class="scenario-card-footer">
+              <div class="scenario-meta">
+                <span class="meta-pill">الإسطرلاب النحاسي</span>
+                <span class="meta-pill">أرض مجهولة</span>
+              </div>
+              <div class="card-footer-actions">
+                <button type="button" class="case-voice-preview-btn" data-preview-scenario="unknown_land" title="استمع لمقدمة المغامرة بصوت الراوي">
+                  <span>🔊 المقدمة</span>
+                </button>
+                <button type="button" class="card-start-action-btn" data-start-scenario="unknown_land">
+                  <span>ابدأ الآن ←</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 1 -->
+          <article class="scenario-card" data-scenario="manor" data-category="beginner classic" tabindex="0" role="button" aria-pressed="false">
+            <div class="case-dossier-ribbon">
+              <span class="case-code mono-stat">CASE #01 • MANOR</span>
+              <span class="case-difficulty-badge">درجة الغموض: ★★★☆☆</span>
+            </div>
+            <div class="scenario-card-header">
+              <span class="scenario-tag">غموض نفسي • قصر العاصفة</span>
+              <div class="scenario-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M3 21h18"/>
+                  <path d="M5 21V7l7-4 7 4v14"/>
+                  <path d="M9 21v-6h6v6"/>
+                </svg>
+              </div>
+            </div>
+            <h3>قصر آل السهروردي: الوصية المحرمة</h3>
+            <p>
+              تفتح عينيك داخل قصر جبلي معزول تجلده سياط البرق والمطر، وفي قبضتك مفتاح نحاسي بارد ورسالة خطتها يدك المرتجفة قبل غيابك عن الوعي: «لا تثق بمن يدعي أنه أنقذك الليلة».
+            </p>
+            <div class="case-telemetry-row">
+              <div class="case-stat">
+                <span class="case-stat-label">المشتبه بهم</span>
+                <strong>3 شخصيات</strong>
+              </div>
+              <div class="case-stat">
+                <span class="case-stat-label">الأدلة الجنائية</span>
+                <strong>5 أدلة (1 تمويه)</strong>
+              </div>
+              <div class="case-stat">
+                <span class="case-stat-label">الحسم النهائي</span>
+                <strong>5 نهايات حقيقية</strong>
+              </div>
+            </div>
+            <div class="scenario-card-footer">
+              <div class="scenario-meta">
+                <span class="meta-pill">المركب السابع</span>
+                <span class="meta-pill">الوصية السرية</span>
+              </div>
+              <div class="card-footer-actions">
+                <button type="button" class="case-voice-preview-btn" data-preview-scenario="manor" title="استمع لمقدمة القضية بصوت الراوي">
+                  <span>🔊 المقدمة</span>
+                </button>
+                <button type="button" class="card-start-action-btn" data-start-scenario="manor">
+                  <span>ابدأ الآن ←</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 2 -->
+          <article class="scenario-card" data-scenario="station" data-category="expedition classic" tabindex="0" role="button" aria-pressed="false">
+            <div class="case-dossier-ribbon">
+              <span class="case-code mono-stat">CASE #02 • ARCTIC</span>
+              <span class="case-difficulty-badge">درجة الغموض: ★★★★☆</span>
+            </div>
+            <div class="scenario-card-header">
+              <span class="scenario-tag">إثارة وتشويق • صقيع قطبي</span>
+              <div class="scenario-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+                  <path d="M2 12h20"/>
+                </svg>
+              </div>
+            </div>
+            <h3>المحطة القطبية: الصدى التاسع</h3>
+            <p>
+              تهبط وسط عاصفة جليدية عاتية إلى محطة أبحاث مدفونة تحت الثلوج بعد انقطاع اتصالها بالعالم. ينكر العلماء إرسال نداء الاستغاثة، غير أن سجل الخادم يفضح نشاطا ليليا مريبا خلف البوابة المصفحة.
+            </p>
+            <div class="case-telemetry-row">
+              <div class="case-stat">
+                <span class="case-stat-label">المشتبه بهم</span>
+                <strong>3 شخصيات</strong>
+              </div>
+              <div class="case-stat">
+                <span class="case-stat-label">الأدلة الجنائية</span>
+                <strong>4 أدلة</strong>
+              </div>
+              <div class="case-stat">
+                <span class="case-stat-label">الحسم النهائي</span>
+                <strong>5 نهايات حقيقية</strong>
+              </div>
+            </div>
+            <div class="scenario-card-footer">
+              <div class="scenario-meta">
+                <span class="meta-pill">القبو الحراري B4</span>
+                <span class="meta-pill">ترددات مزيفة</span>
+              </div>
+              <div class="card-footer-actions">
+                <button type="button" class="case-voice-preview-btn" data-preview-scenario="station" title="استمع لمقدمة القضية بصوت الراوي">
+                  <span>🔊 المقدمة</span>
+                </button>
+                <button type="button" class="card-start-action-btn" data-start-scenario="station">
+                  <span>ابدأ الآن ←</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 3 -->
+          <article class="scenario-card" data-scenario="train" data-category="classic" tabindex="0" role="button" aria-pressed="false">
+            <div class="case-dossier-ribbon">
+              <span class="case-code mono-stat">CASE #03 • EXPRESS 404</span>
+              <span class="case-difficulty-badge">درجة الغموض: ★★★★☆</span>
+            </div>
+            <div class="scenario-card-header">
+              <span class="scenario-tag">تحقيق جنائي • قطار الضباب</span>
+              <div class="scenario-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <rect x="4" y="3" width="16" height="16" rx="2"/>
+                  <path d="M4 11h16"/>
+                  <path d="M12 3v8"/>
+                  <path d="m8 19-2 3"/>
+                  <path d="m18 22-2-3"/>
+                </svg>
+              </div>
+            </div>
+            <h3>قطار منتصف الليل: الرحلة 404</h3>
+            <p>
+              يشق قطار فخم ستائر الضباب الكثيف دون أن يتوقف في محطة واحدة. وفي المقصورة رقم 7 يختفي القاضي سليمان العلام خلف باب موصد بالسلسلة من الداخل، بينما يخفي كل راكب في العربة سرا يخشى افتضاحه قبل الفجر.
+            </p>
+            <div class="case-telemetry-row">
+              <div class="case-stat">
+                <span class="case-stat-label">المشتبه بهم</span>
+                <strong>3 شخصيات</strong>
+              </div>
+              <div class="case-stat">
+                <span class="case-stat-label">الأدلة الجنائية</span>
+                <strong>4 أدلة</strong>
+              </div>
+              <div class="case-stat">
+                <span class="case-stat-label">الحسم النهائي</span>
+                <strong>5 نهايات حقيقية</strong>
+              </div>
+            </div>
+            <div class="scenario-card-footer">
+              <div class="scenario-meta">
+                <span class="meta-pill">خدعة الغرفة المغلقة</span>
+                <span class="meta-pill">فصل العربات</span>
+              </div>
+              <div class="card-footer-actions">
+                <button type="button" class="case-voice-preview-btn" data-preview-scenario="train" title="استمع لمقدمة القضية بصوت الراوي">
+                  <span>🔊 المقدمة</span>
+                </button>
+                <button type="button" class="card-start-action-btn" data-start-scenario="train">
+                  <span>ابدأ الآن ←</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 4: Sunken Museum -->
+          <article class="scenario-card" data-scenario="museum" data-category="expedition classic" tabindex="0" role="button" aria-pressed="false">
+            <div class="case-dossier-ribbon">
+              <span class="case-code mono-stat">CASE #04 • SUNKEN ARCHIVE</span>
+              <span class="case-difficulty-badge">درجة الغموض: ★★★★★</span>
+            </div>
+            <div class="scenario-card-header">
+              <span class="scenario-tag">غموض أثري • الجناح الغارق</span>
+              <div class="scenario-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M3 21h18"/>
+                  <path d="M5 21V7l7-4 7 4v14"/>
+                  <path d="M9 21v-8h6v8"/>
+                </svg>
+              </div>
+            </div>
+            <h3>متحف الإسكندرية الغارق: المخطوطة السابعة</h3>
+            <p>
+              في جناح زجاجي شيد تحت قاع بحر الإسكندرية، يعثر الغواصون على كبير المرممين الأستاذ يونس فاقدا للوعي داخل الخزانة المفرغة من الهواء، وقد رسم بأنفاسه الأخيرة رمزا غامضا على الزجاج قبل اختفاء المخطوطة السابعة!
+            </p>
+            <div class="case-telemetry-row">
+              <div class="case-stat">
+                <span class="case-stat-label">المشتبه بهم</span>
+                <strong>3 شخصيات</strong>
+              </div>
+              <div class="case-stat">
+                <span class="case-stat-label">الأدلة الجنائية</span>
+                <strong>4 أدلة</strong>
+              </div>
+              <div class="case-stat">
+                <span class="case-stat-label">الحسم النهائي</span>
+                <strong>5 نهايات حقيقية</strong>
+              </div>
+            </div>
+            <div class="scenario-card-footer">
+              <div class="scenario-meta">
+                <span class="meta-pill">تلاعب بالكاميرات</span>
+                <span class="meta-pill">فنار مقلوب</span>
+              </div>
+              <div class="card-footer-actions">
+                <button type="button" class="case-voice-preview-btn" data-preview-scenario="museum" title="استمع لمقدمة القضية بصوت الراوي">
+                  <span>🔊 المقدمة</span>
+                </button>
+                <button type="button" class="card-start-action-btn" data-start-scenario="museum">
+                  <span>ابدأ الآن ←</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 5: Black Fog Island -->
+          <article class="scenario-card" data-scenario="island" data-category="classic" tabindex="0" role="button" aria-pressed="false">
+            <div class="case-dossier-ribbon">
+              <span class="case-code mono-stat">CASE #05 • BLACK FOG ISLAND</span>
+              <span class="case-difficulty-badge">درجة الغموض: ★★★★★</span>
+            </div>
+            <div class="scenario-card-header">
+              <span class="scenario-tag">إثارة نفسية • عزلة تامة</span>
+              <div class="scenario-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                  <path d="M2 17l10 5 10-5"/>
+                  <path d="M2 12l10 5 10-5"/>
+                </svg>
+              </div>
+            </div>
+            <h3>جزيرة الضباب الأسود: المحكمة الأخيرة</h3>
+            <p>
+              تجمع رسائل مجهولة شهود الماضي داخل فنار صخري تحاصره الأمواج السوداء. وعند منتصف الليل تلتهم النيران قارب النجاة الوحيد في المرفأ، فينطلق عبر المذياع صوت بارد كالصقيع ليحاكم الجميع على جريمة غرق السفينة «أوريون».
+            </p>
+            <div class="case-telemetry-row">
+              <div class="case-stat">
+                <span class="case-stat-label">المشتبه بهم</span>
+                <strong>3 شخصيات</strong>
+              </div>
+              <div class="case-stat">
+                <span class="case-stat-label">الأدلة الجنائية</span>
+                <strong>4 أدلة</strong>
+              </div>
+              <div class="case-stat">
+                <span class="case-stat-label">الحسم النهائي</span>
+                <strong>5 نهايات حقيقية</strong>
+              </div>
+            </div>
+            <div class="scenario-card-footer">
+              <div class="scenario-meta">
+                <span class="meta-pill">بث مؤجل</span>
+                <span class="meta-pill">شهادة زور</span>
+              </div>
+              <div class="card-footer-actions">
+                <button type="button" class="case-voice-preview-btn" data-preview-scenario="island" title="استمع لمقدمة القضية بصوت الراوي">
+                  <span>🔊 المقدمة</span>
+                </button>
+                <button type="button" class="card-start-action-btn" data-start-scenario="island">
+                  <span>ابدأ الآن ←</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 6: Custom Mystery -->
+          <article class="scenario-card" data-scenario="custom" data-category="custom" tabindex="0" role="button" aria-pressed="false">
+            <div class="case-dossier-ribbon">
+              <span class="case-code mono-stat">CASE #06 • CUSTOM BIBLE</span>
+              <span class="case-difficulty-badge">بناء ملف قضية مخصص</span>
+            </div>
+            <div class="scenario-card-header">
+              <span class="scenario-tag">حكايتك الخاصة • دستور جنائي ثابت</span>
+              <div class="scenario-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M12 20h9"/>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+              </div>
+            </div>
+            <h3>ابتكر ملف قضيتك الخاصة</h3>
+            <p>
+              اكتب فكرتك وأسماء المشتبه بهم أو آلية اللغز التي تتخيلها، وسيقوم النظام باعتمادها وتثبيت دستور جنائي كامل قابل للاستنتاج والحل.
+            </p>
+            <div class="case-telemetry-row">
+              <div class="case-stat">
+                <span class="case-stat-label">المشتبه بهم</span>
+                <strong>3 شخصيات</strong>
+              </div>
+              <div class="case-stat">
+                <span class="case-stat-label">الأدلة الجنائية</span>
+                <strong>4 أدلة مترابطة</strong>
+              </div>
+              <div class="case-stat">
+                <span class="case-stat-label">الحسم النهائي</span>
+                <strong>5 نهايات حقيقية</strong>
+              </div>
+            </div>
+            <div class="scenario-card-footer">
+              <div class="scenario-meta">
+                <span class="meta-pill">حبكة ثابتة</span>
+                <span class="meta-pill">قابلة للاستنتاج</span>
+              </div>
+              <div class="card-footer-actions">
+                <button type="button" class="case-voice-preview-btn" data-preview-scenario="custom" title="استمع لمقدمة القضية بصوت الراوي">
+                  <span>🔊 المقدمة</span>
+                </button>
+                <button type="button" class="card-start-action-btn" data-start-scenario="custom">
+                  <span>ابدأ الآن ←</span>
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Custom Scenario Input -->
+        <div class="custom-scenario-box hidden" id="customScenarioBox">
+          <label for="customScenarioInput">صف عالم المغامرة أو مسرح الجريمة الذي ترغب في خوضه (الحد الأقصى 500 حرف):</label>
+          <textarea id="customScenarioInput" rows="3" maxlength="500" placeholder="مثال: جريمة غامضة في مرصد فلكي فوق جبال الأطلس ليلة كسوف القمر، حيث سقط كبير الفلكيين بجوار التلسكوب الرئيسي..."></textarea>
+          <div class="custom-bible-preview" id="customBiblePreviewBox">
+            <span class="mono-stat">🔒 CASE BIBLE LOCKED ON START</span>
+            <span>سيتم توليد وتجميد هوية الجاني الحقيقي، الدافع، والـ 4 أدلة الجنائية قبل الفصل الأول لضمان عدالة الاستنتاج.</span>
+          </div>
+        </div>
+
+        <!-- Upgraded Detective Identity & Launch Command Bar -->
+        <div class="scenario-start-bar">
+          <div class="detective-profile-group">
+            <div class="player-name-field">
+              <label for="playerNameInput">اسم المحقق / بطل القصة:</label>
+              <input type="text" id="playerNameInput" value="آدم" placeholder="أدخل اسمك في القصة..." maxlength="25" />
+            </div>
+            <div class="detective-preset-chips" aria-label="أسماء مقترحة سريعة">
+              <span class="preset-chip-label">اختيار سريع:</span>
+              <button type="button" class="name-preset-chip active" data-name="آدم">آدم</button>
+              <button type="button" class="name-preset-chip" data-name="ليلى">ليلى</button>
+              <button type="button" class="name-preset-chip" data-name="راشد">راشد</button>
+              <button type="button" class="name-preset-chip" data-name="نور">نور</button>
+            </div>
+          </div>
+
+          <div class="launch-action-group">
+            <div class="selected-case-summary">
+              <span class="selected-case-dot"></span>
+              <span id="selectedCaseSummaryText">الملف المختار: قضية اليوم: لغز التفاحات الثلاث</span>
+            </div>
+            <button class="start-adventure-btn" id="startAdventureBtn" type="button">
+              <span>ابدأ التحقيق وافتح ملف القضية</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5"/>
+                <path d="M12 19l-7-7 7-7"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Game Stage (Hidden until adventure starts) -->
+      <div class="game-stage hidden" id="gameStage">
+        <!-- Chapter & Location Banner -->
+        <div class="scene-header-bar">
+          <div class="scene-location">
+            <span class="chapter-badge" id="chapterBadge">الفصل 1</span>
+            <h2 id="sceneTitle" tabindex="-1">الاستيقاظ في الظل</h2>
+          </div>
+          <div class="scene-header-actions">
+            <div class="detective-style-pill" id="detectiveProfileBadge" title="يتطور نهجك الاستقصائي حسب نوعية القرارات التي تتخذها">
+              <span>نهج المحقق:</span>
+              <strong id="detectiveStyleText">تحليلي حذر</strong>
+            </div>
+            <div class="scene-atmosphere-tag" id="sceneMoodTag">
+              <span class="mood-dot"></span>
+              <span id="sceneMoodText">توتر غامض</span>
+            </div>
+            <button type="button" class="multiverse-jump-btn hidden" id="jumpMultiverseWorldBtn" title="اقفز الآن إلى عالم مواز جديد بقاعدة كونية مختلفة وعقدة جنائية جديدة">
+              <span>🌀 قفزة لعالم مواز آخر</span>
+            </button>
+            <button type="button" class="small-ghost-btn hidden" id="undoTurnBtn" title="التراجع خطوة واحدة للخلف لتجربة خيار آخر">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M9 14 4 9l5-5"/>
+                <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/>
+              </svg>
+              <span>تراجع عن القرار</span>
+            </button>
+            <button type="button" class="verdict-trigger-btn" id="openVerdictBtn" title="تقديم الاتهام النهائي وحسم الجاني والدافع والدليل القاطع">
+              <span>⚖️ غرفة الاتهام والحكم</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Narrator Vocal Reaction & Live Emotion Bar -->
+        <div class="vocal-reaction-card" id="vocalReactionCard">
+          <div class="vocal-avatar-wrap">
+            <div class="vocal-pulse-ring" id="vocalPulseRing"></div>
+            <div class="vocal-avatar" id="vocalAvatarIcon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="vocal-content">
+            <div class="vocal-top-row">
+              <span class="vocal-speaker-label" id="vocalSpeakerLabel">الراوي التفاعلي</span>
+              <span class="vocal-emotion-badge" id="vocalEmotionBadge">همس مريب</span>
+              <span class="tts-provider-tag" id="activeTtsEngineTag">أداء درامي متعدد المشاعر</span>
+            </div>
+            <p class="vocal-reaction-text" id="vocalReactionText">
+              «انظر جيدا حولك... كل تفصيل في هذه الغرفة وضع لسبب، لكن إياك أن تصدق أول ما تراه عيناك.»
+            </p>
+
+            <!-- Thematic Mystery Audio Tape & Frequency Decoder Loading Bar -->
+            <div class="tts-decoding-bar hidden" id="ttsDecodingBar" role="status" aria-live="polite">
+              <div class="tape-reels-icon" aria-hidden="true">
+                <svg class="reel-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <circle cx="12" cy="12" r="9"/>
+                  <circle cx="12" cy="12" r="3"/>
+                  <line x1="12" y1="3" x2="12" y2="9"/>
+                  <line x1="4.2" y1="16.5" x2="9.4" y2="13.5"/>
+                  <line x1="19.8" y1="16.5" x2="14.6" y2="13.5"/>
+                </svg>
+                <svg class="reel-spin reverse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <circle cx="12" cy="12" r="9"/>
+                  <circle cx="12" cy="12" r="3"/>
+                  <line x1="12" y1="3" x2="12" y2="9"/>
+                  <line x1="4.2" y1="16.5" x2="9.4" y2="13.5"/>
+                  <line x1="19.8" y1="16.5" x2="14.6" y2="13.5"/>
+                </svg>
+              </div>
+              <div class="tts-decoding-info">
+                <span class="tts-decoding-title" id="ttsDecodingText">جاري ضبط المشاعر الصوتية واسترجاع الشريط المسجل...</span>
+                <div class="tts-freq-track" aria-hidden="true">
+                  <span class="tts-freq-fill"></span>
+                </div>
+              </div>
+              <span class="tts-freq-badge mono-stat" id="ttsFreqBadge">VOICE • LIVE</span>
+            </div>
+          </div>
+
+          <div class="vocal-controls">
+            <canvas id="ttsWaveformCanvas" width="96" height="36" aria-label="موجات الصوت"></canvas>
+            <button class="tts-control-btn" id="replayReactionBtn" type="button" title="إعادة سماع رد الفعل الصوتي">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+              <span>رد الفعل</span>
+            </button>
+            <button class="tts-control-btn primary" id="speakSceneBtn" type="button" title="قراءة نص المشهد كاملا بالصوت">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              </svg>
+              <span id="speakSceneBtnText">قراءة المشهد</span>
+            </button>
+            <button class="tts-control-btn stop hidden" id="stopTtsBtn" type="button" title="إيقاف الصوت" aria-label="إيقاف الصوت">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="6" y="6" width="12" height="12" rx="2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Quick Evidence & Suspects Status Strip (UI/UX Upgrade for Fast Deduction) -->
+        <div class="scene-quick-evidence-strip" id="sceneQuickEvidenceStrip" aria-label="شريط الأدلة والمشتبه بهم السريع">
+          <div class="quick-evidence-group" id="quickEvidencePillsGroup">
+            <span class="quick-evidence-label">📂 خيوط القضية النشطة:</span>
+            <span class="quick-evidence-pill">افحص المشهد لاكتشاف أول دليل مادي</span>
+          </div>
+        </div>
+
+        <!-- Main Narrative Viewport -->
+        <article class="narrative-card" id="narrativeCard">
+          <!-- Twist Alert Ribbon inside Narrative if a twist just happened -->
+          <div class="narrative-twist-ribbon hidden" id="narrativeTwistRibbon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <span id="narrativeTwistText">انكشف سر خطير يغير مجرى القصة!</span>
+          </div>
+
+          <div class="narrative-body" id="narrativeBody">
+            <!-- Story paragraphs injected dynamically -->
+          </div>
+
+          <!-- Inspectable Secret Detail (Hotspot inside the scene with risk trade-off) -->
+          <div class="suspicious-hotspot" id="suspiciousHotspot">
+            <div class="hotspot-header">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                <line x1="11" y1="8" x2="11" y2="14"/>
+                <line x1="8" y1="11" x2="14" y2="11"/>
+              </svg>
+              <span>تفصيل مريب في المشهد (مخاطرة استقصائية: +10% خطر مقابل دليل):</span>
+              <button class="hotspot-trigger-btn" id="inspectHotspotBtn" type="button">فحص وتحليل الآن (I)</button>
+            </div>
+            <p class="hotspot-preview" id="hotspotPreviewText">يوجد أثر غريب بالقرب منك يستحق التمحيص...</p>
+            <div class="hotspot-reveal hidden" id="hotspotRevealBox">
+              <p id="hotspotRevealText"></p>
+            </div>
+          </div>
+        </article>
+
+        <!-- Segmented Multi-Stage Loading Screen -->
+        <div class="ai-loading-box hidden" id="aiLoadingBox" role="status" aria-live="polite">
+          <div class="loading-top-row">
+            <div class="detective-radar-orb" aria-hidden="true">
+              <div class="spinner-orb"></div>
+              <svg class="radar-center-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="11" cy="11" r="7"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </div>
+            <div class="loading-texts">
+              <div class="loading-badge-row">
+                <span class="loading-case-tag" id="loadingPuzzleCategory">تجهيز المشهد والمقاطع الصوتية على أقسام</span>
+                <span class="loading-step-pill mono-stat" id="loadingStepCounter">التحميل: 0%</span>
+              </div>
+              <h4 id="loadingTitle">جاري نسج أحداث الفصل وتشغيل الكلام الجاهز فور اكتماله...</h4>
+              <p id="loadingSub">يتم تقسيم التحميل إلى 3 أقسام متتابعة لبدء السرد الصوتي بأسرع وقت ممكن</p>
+            </div>
+          </div>
+
+          <!-- Overall Ascending Progress Bar (0% -> 100%) -->
+          <div class="preload-live-bar-wrap">
+            <div class="preload-live-bar-track">
+              <div class="preload-live-bar-fill" id="turnPreloadProgressBar" style="width: 0%"></div>
+            </div>
+            <div class="preload-live-bar-meta">
+              <span id="preloadStageLabel">القسم 1/3: جاري تحليل القرار وبناء الحبكة...</span>
+              <span class="mono-stat" id="preloadRemainingText">0% / 100%</span>
+            </div>
+          </div>
+
+          <!-- 3 Divided Loading Sections -->
+          <div class="segmented-loading-grid" aria-hidden="true">
+            <div class="seg-load-card active" id="invStep1">
+              <div class="seg-load-head">
+                <span class="seg-load-num mono-stat">01</span>
+                <span class="seg-load-title">تحليل القرار والحبكة</span>
+                <span class="seg-load-state" id="segState1">جاري...</span>
+              </div>
+              <div class="seg-load-track">
+                <div class="seg-load-fill" id="segFill1" style="width: 25%"></div>
+              </div>
+            </div>
+
+            <div class="seg-load-card" id="invStep2">
+              <div class="seg-load-head">
+                <span class="seg-load-num mono-stat">02</span>
+                <span class="seg-load-title">صياغة المشهد والأدلة</span>
+                <span class="seg-load-state" id="segState2">انتظار</span>
+              </div>
+              <div class="seg-load-track">
+                <div class="seg-load-fill" id="segFill2" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="seg-load-card" id="invStep3">
+              <div class="seg-load-head">
+                <span class="seg-load-num mono-stat">03</span>
+                <span class="seg-load-title">تشغيل الكلام الجاهز</span>
+                <span class="seg-load-state" id="segState3">انتظار</span>
+              </div>
+              <div class="seg-load-track">
+                <div class="seg-load-fill" id="segFill3" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <blockquote class="loading-mystery-quote" id="loadingMysteryQuote">
+            «في قلب الغموض، كل همسة عابرة قد تكون المفتاح الوحيد للنجاة...»
+          </blockquote>
+        </div>
+
+        <!-- Player Choices & Cross-Examination Section (Progressive Disclosure : 1 Active Mode at a Time) -->
+        <section class="choices-section" id="choicesSection" aria-label="خيارات اللاعب">
+          <div class="choices-header">
+            <h3>ماذا ستفعل الآن؟</h3>
+            <div class="action-mode-tabs" id="actionModeTabs" role="tablist" aria-label="نمط اتخاذ القرار">
+              <button type="button" class="action-mode-tab active" data-action-mode="choices" role="tab" aria-selected="true">
+                <span>🧭 مسارات التحقيق (3)</span>
+              </button>
+              <button type="button" class="action-mode-tab" data-action-mode="interrogate" role="tab" aria-selected="false">
+                <span>🗣️ استجواب ومواجهة بالدليل</span>
+              </button>
+              <button type="button" class="action-mode-tab" data-action-mode="custom" role="tab" aria-selected="false">
+                <span>✍️ تصرف أو سؤال حر</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="choices-grid" id="choicesGrid">
+            <!-- Dynamically populated choice buttons -->
+          </div>
+
+          <!-- Direct Suspect Cross-Examination / Interrogation Bar (Shown when 'interrogate' tab is active) -->
+          <div class="interrogation-bar hidden" id="interrogationBar">
+            <div class="interrogation-bar-head">
+              <span class="interrogation-badge">🗣️ استجواب ومواجهة مباشرة بالدليل</span>
+              <span class="interrogation-sub">اختر مشتبها به وواجهه بدليل مادي لكسر حجته بصوته الخاص</span>
+            </div>
+            <div class="interrogation-controls">
+              <select id="interrogateSuspectSelect" aria-label="اختر المشتبه به للاستجواب">
+                <option value="">اختر المشتبه به...</option>
+              </select>
+              <select id="interrogateClueSelect" aria-label="اختر الدليل لمواجهته به">
+                <option value="">اختر الدليل المادي...</option>
+              </select>
+              <button type="button" class="interrogate-submit-btn" id="interrogateSubmitBtn">
+                <span>واجه المشتبه به بالدليل</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Custom Free-Form Action Bar (Shown when 'custom' tab is active) -->
+          <form class="custom-action-form hidden" id="customActionForm">
+            <label for="customActionInput" class="custom-action-label">
+              ✍️ تصرف حر أو سؤال مباشر توجهه للشخصيات:
+            </label>
+            <div class="custom-action-input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              <input
+                type="text"
+                id="customActionInput"
+                placeholder="مثال: اسأل فيروز عن خاتمه، أو أفتش جيب المعطف المعلق وأختبر القفل..."
+                maxlength="220"
+              />
+            </div>
+            <button type="submit" class="custom-action-submit" id="customActionSubmitBtn">
+              <span>تنفيذ</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+            </button>
+          </form>
+
+          <!-- Final Verdict Call-to-Action Banner -->
+          <div class="verdict-cta-strip">
+            <div class="verdict-cta-text">
+              <strong>⚖️ هل اكتملت أركان الجريمة لديك؟</strong>
+              <span>يمكنك في أي لحظة دخول غرفة الاتهام لتسمية الجاني وتحديد الدافع والدليل الجنائي القاطع.</span>
+            </div>
+            <button type="button" class="verdict-cta-btn" id="choicesVerdictBtn">
+              <span>إصدار الاتهام النهائي وحسم القضية ←</span>
+            </button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- Left Column (in RTL): Mystery Board, Deduction Coverage, Corkboard & Notebook -->
+    <aside class="mystery-sidebar" id="mysterySidebar">
+      <!-- Mobile Drawer Header -->
+      <div class="mobile-sidebar-header" id="mobileSidebarHeader">
+        <div class="mobile-sidebar-title">
+          <span>🔍 دفتر التحقيق ولوحة ربط الأدلة</span>
+        </div>
+        <button type="button" class="mobile-sidebar-close-btn" id="closeMobileSidebarBtn">
+          <span>العودة للقصة</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Meters Card: Real Deduction Coverage & Danger / Time Pressure -->
+      <div class="sidebar-card meters-card">
+        <h3 class="sidebar-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+            <polyline points="2 17 12 22 22 17"/>
+            <polyline points="2 12 12 17 22 12"/>
+          </svg>
+          <span>تغطية الاستنتاج ومستوى الخطر</span>
+        </h3>
+
+        <div class="meter-group">
+          <div class="meter-label-row">
+            <span>تغطية الاستنتاج الجنائي (Deduction)</span>
+            <strong class="mono-stat" id="twistMeterValue">15%</strong>
+          </div>
+          <div class="meter-track" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+            <div class="meter-fill twist-fill" id="twistMeterBar" style="width: 15%"></div>
+          </div>
+          <small class="meter-caption" id="twistMeterHint">اجمع الأدلة، اكسر الحجج، واربط الخيوط لرفع نسبة الاستنتاج.</small>
+          <div class="deduction-breakdown-row" id="deductionBreakdownRow" aria-label="تفصيل أركان الاستنتاج">
+            <span class="deduction-chip" id="dedChipClues">🔍 الأدلة: 0/4</span>
+            <span class="deduction-chip" id="dedChipAlibis">💥 الحجج: 0</span>
+            <span class="deduction-chip" id="dedChipLinks">📌 الروابط: 0</span>
+          </div>
+        </div>
+
+        <div class="meter-group">
+          <div class="meter-label-row">
+            <span>مستوى الخطر وضغط الوقت (100% = إغلاق الملف)</span>
+            <strong class="mono-stat" id="dangerMeterValue">15%</strong>
+          </div>
+          <div class="meter-track" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+            <div class="meter-fill danger-fill" id="dangerMeterBar" style="width: 15%"></div>
+          </div>
+        </div>
+
+        <div class="quick-stats-grid">
+          <div class="stat-box">
+            <span class="stat-num mono-stat" id="statChapterNum">1</span>
+            <span class="stat-label">الفصل</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-num mono-stat" id="statCluesCount">0</span>
+            <span class="stat-label">أدلة مكتشفة</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-num mono-stat" id="statSecretsCount">0</span>
+            <span class="stat-label">حجج مكسورة</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detective Notebook Tabs: Clues & Corkboard | Secrets | Suspects | Log -->
+      <div class="sidebar-card notebook-card">
+        <div class="notebook-tabs" role="tablist">
+          <button class="notebook-tab active" data-tab="clues" role="tab" aria-selected="true" type="button">
+            <span>الأدلة والربط</span>
+            <span class="tab-count mono-stat" id="tabCountClues">0</span>
+          </button>
+          <button class="notebook-tab" data-tab="suspects" role="tab" aria-selected="false" type="button">
+            <span>المشتبه بهم</span>
+            <span class="tab-count mono-stat" id="tabCountSuspects">0</span>
+          </button>
+          <button class="notebook-tab" data-tab="secrets" role="tab" aria-selected="false" type="button">
+            <span>الأسرار</span>
+            <span class="tab-count mono-stat" id="tabCountSecrets">0</span>
+          </button>
+          <button class="notebook-tab" data-tab="history" role="tab" aria-selected="false" type="button">
+            <span>السجل</span>
+            <span class="tab-count mono-stat" id="tabCountHistory">0</span>
+          </button>
+        </div>
+
+        <!-- Her Story Style Search Bar inside Notebook (Game Changer 4) -->
+        <div class="notebook-search-wrap">
+          <input
+            type="search"
+            id="notebookSearchInput"
+            placeholder="🔎 ابحث في الأدلة والإفادات (مثال: ساعة، سم، نفق)..."
+            aria-label="ابحث في دفتر التحقيق"
+          />
+        </div>
+
+        <!-- Tab 1: Clues + Collapsible Interactive Corkboard Linker -->
+        <div class="notebook-panel active" id="tab-clues" role="tabpanel">
+          <ul class="clue-list" id="clueList">
+            <li class="empty-note">لم تكتشف أدلة مادية بعد. ابحث في المشهد أو اتخذ قرارات استقصائية.</li>
+          </ul>
+
+          <!-- Interactive Corkboard Linker tucked cleanly into a collapsible details box -->
+          <details class="corkboard-linker-box corkboard-collapsible" id="corkboardLinkerBox">
+            <summary class="corkboard-linker-title">
+              <span>📌 لوحة ربط الأدلة بالمشتبه بهم (اضغط للفتح)</span>
+            </summary>
+            <div class="corkboard-linker-controls">
+              <select id="linkClueSelect" aria-label="اختر الدليل للربط">
+                <option value="">الدليل...</option>
+              </select>
+              <select id="linkRelationSelect" aria-label="نوع العلاقة الجنائية">
+                <option value="contradicts">يناقض إفادته</option>
+                <option value="supports">يثبت الشبهة والدافع</option>
+              </select>
+              <select id="linkSuspectSelect" aria-label="اختر المشتبه به للربط">
+                <option value="">المشتبه به...</option>
+              </select>
+              <button type="button" class="corkboard-add-btn" id="addBoardLinkBtn">ربط وتوثيق</button>
+            </div>
+            <ul class="corkboard-links-list" id="corkboardLinksList"></ul>
+          </details>
+        </div>
+
+        <!-- Tab 2: Suspects & Characters -->
+        <div class="notebook-panel hidden" id="tab-suspects" role="tabpanel">
+          <ul class="suspect-list" id="suspectList">
+            <li class="empty-note">ستظهر الشخصيات المشتبه بها وحجج غيابها ومستوى ثقتها بك هنا.</li>
+          </ul>
+        </div>
+
+        <!-- Tab 3: Secrets & Twists -->
+        <div class="notebook-panel hidden" id="tab-secrets" role="tabpanel">
+          <ul class="secret-list" id="secretList">
+            <li class="empty-note">الأسرار الكبرى والانقلابات تتكشف عندما تجمع الأدلة المشروطة أو تكسر حجة المشتبه به!</li>
+          </ul>
+        </div>
+
+        <!-- Tab 4: Story History Log -->
+        <div class="notebook-panel hidden" id="tab-history" role="tabpanel">
+          <div class="history-timeline" id="historyTimeline">
+            <p class="empty-note">سجل القرارات والأحداث سيحفظ هنا.</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav hidden" id="mobileBottomNav" aria-label="شريط التنقل السريع للموبايل">
+    <button type="button" class="mob-nav-btn active" id="mobNavStoryBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+      </svg>
+      <span>القصة</span>
+    </button>
+
+    <button type="button" class="mob-nav-btn" id="mobNavNotebookBtn">
+      <div class="mob-nav-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <span class="mob-nav-badge mono-stat" id="mobCluesBadge">0</span>
+      </div>
+      <span>الأدلة والربط</span>
+    </button>
+
+    <button type="button" class="mob-nav-btn" id="mobNavVerdictBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+        <path d="M12 3v18"/>
+        <path d="M5 7h14"/>
+        <path d="M3 13l3-6 3 6a3 3 0 0 1-6 0z"/>
+        <path d="M15 13l3-6 3 6a3 3 0 0 1-6 0z"/>
+      </svg>
+      <span>غرفة الاتهام</span>
+    </button>
+
+    <button type="button" class="mob-nav-btn" id="mobNavMenuBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="14" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      <span>القضايا</span>
+    </button>
+  </nav>
+
+  <!-- Accusation Finale & 5 Endings Modal (Game Changer 2 & C1 Fix) -->
+  <div class="modal-backdrop hidden" id="verdictModal" role="dialog" aria-modal="true" aria-labelledby="verdictModalTitle">
+    <div class="modal-card verdict-modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="verdict-scale-icon" aria-hidden="true">⚖️</span>
+          <h2 id="verdictModalTitle">غرفة الاتهام والحسم الجنائي</h2>
+        </div>
+        <button class="modal-close-btn" id="closeVerdictBtn" type="button" aria-label="إغلاق">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Accusation Builder Form (Shown before case is finalized) -->
+        <div class="verdict-builder-section" id="verdictBuilderSection">
+          <div class="verdict-status-strip">
+            <span class="mono-stat" id="verdictCaseTitleBadge">CASE DOSSIER</span>
+            <span class="verdict-attempts-pill" id="verdictAttemptsBadge">المحاولات المتبقية: 3 / 3</span>
+          </div>
+
+          <p class="verdict-instruction">
+            أكمل وثيقة الاتهام الثلاثية بناء على الأدلة والإفادات التي جمعتها. يتحقق النظام من تطابق الأركان الثلاثة (الجاني + الدافع + الدليل الحاسم) لفتح إحدى النهايات الخمس:
+          </p>
+
+          <!-- Live 4-Pillar Verdict Proof-Chain Readiness Checklist -->
+          <div class="verdict-readiness-box" id="verdictReadinessBox" aria-label="جاهزية سلسلة الإثبات الجنائية">
+            <div class="readiness-pill ready" id="readyPillSuspect">✓ 1. تحديد المشتبه به</div>
+            <div class="readiness-pill ready" id="readyPillMotive">✓ 2. تحديد فرضية الدافع</div>
+            <div class="readiness-pill warn" id="readyPillClue">⏳ 3. دليل مادي مكتشف</div>
+            <div class="readiness-pill warn" id="readyPillChain">⏳ 4. سلسلة الإثبات (كسر حجة أو ربط)</div>
+          </div>
+
+          <div class="verdict-sentence-box">
+            <div class="verdict-field-group">
+              <label for="verdictSuspectSelect">1. أعلن أن الجاني الحقيقي في هذه القضية هو:</label>
+              <select id="verdictSuspectSelect"></select>
+            </div>
+
+            <div class="verdict-field-group">
+              <label for="verdictMotiveSelect">2. وقد ارتكب الجريمة بدافع:</label>
+              <select id="verdictMotiveSelect"></select>
+            </div>
+
+            <div class="verdict-field-group">
+              <label for="verdictClueSelect">3. والدليل الجنائي القاطع الذي يدينه ويكسر حجته هو:</label>
+              <select id="verdictClueSelect"></select>
+            </div>
+          </div>
+
+          <div class="verdict-coarse-feedback hidden" id="verdictCoarseFeedback" role="alert"></div>
+          <div class="rewarded-appeal-row hidden" id="rewardedAppealRow">
+            <button type="button" class="small-btn accent" id="rewardedExtraAttemptBtn">
+              <span>⚖️ تفعيل فرصة استئناف إضافية (+1 محاولة في المحكمة)</span>
+            </button>
+          </div>
+
+          <div class="verdict-builder-actions">
+            <button type="button" class="secondary-btn" id="cancelVerdictBtn">العودة لمواصلة التحقيق</button>
+            <button type="button" class="secondary-btn" id="freeFinaleBtn" title="اختتم القصة بنهاية روائية مفتوحة يكتبها الذكاء الاصطناعي من قراراتك وأدلتك دون تقييد بمحاكمة رسمية">
+              <span>✨ خاتمة روائية حرة بالذكاء الاصطناعي</span>
+            </button>
+            <button type="button" class="start-adventure-btn" id="submitVerdictBtn">
+              <span>🔨 تقديم لائحة الاتهام وإصدار الحكم</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Final Ending & Truth Reveal Outcome Box (Shown when solved or attempts exhausted) -->
+        <div class="verdict-outcome-box hidden" id="verdictOutcomeBox">
+          <div class="ending-header-banner">
+            <span class="ending-code-badge mono-stat" id="verdictEndingBadge">ENDING 1 / 5</span>
+            <div class="ending-stars" id="verdictEndingStars">★★★★★</div>
+            <h3 id="verdictEndingTitle">عدالة كاملة: الحقيقة الدامغة</h3>
+            <p id="verdictEndingSummary"></p>
+          </div>
+
+          <div class="verdict-truth-grid">
+            <div class="truth-card">
+              <h4>📜 الحقيقة الجنائية الكاملة والطريقة</h4>
+              <p id="verdictMethodReveal"></p>
+            </div>
+            <div class="truth-card">
+              <h4>⏱️ التسلسل الزمني الحقيقي للجريمة</h4>
+              <ul class="truth-timeline-list" id="verdictTruthTimeline"></ul>
+            </div>
+          </div>
+
+          <!-- Spoiler-Free Arabic Share Card (Game Changer 6 & H7 Fix) -->
+          <div class="share-card-box">
+            <div class="share-card-header">
+              <span>📤 بطاقة مشاركة النتيجة وتحدي الأصدقاء (بدون حرق للأحداث)</span>
+              <div class="share-social-actions">
+                <button type="button" class="small-btn accent" id="downloadSharePngBtn">📸 تحميل صورة للستوري</button>
+                <button type="button" class="small-btn" id="shareWhatsappBtn">🟢 واتساب</button>
+                <button type="button" class="small-btn" id="shareTwitterBtn">𝕏 منصة X</button>
+                <button type="button" class="small-btn accent" id="copyShareCardBtn">📋 نسخ النص والرابط</button>
+              </div>
+            </div>
+            <pre class="share-card-preview" id="shareCardPreview"></pre>
+          </div>
+
+          <div class="verdict-outcome-actions">
+            <button type="button" class="secondary-btn" id="verdictOpenLibraryBtn">📚 عرض سجل القضايا والنهايات</button>
+            <button type="button" class="start-adventure-btn" id="verdictNewCaseBtn">🔍 اختيار قضية جديدة</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Case Library & Unlocked Endings Modal (H7 Fix) -->
+  <div class="modal-backdrop hidden" id="libraryModal" role="dialog" aria-modal="true" aria-labelledby="libraryModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span aria-hidden="true">📚</span>
+          <h2 id="libraryModalTitle">سجل القضايا والنهايات المكتشفة</h2>
+        </div>
+        <button class="modal-close-btn" id="closeLibraryBtn" type="button" aria-label="إغلاق">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="library-stats-banner">
+          <div class="lib-stat">
+            <span class="mono-stat" id="libSolvedCasesCount">0 / 7</span>
+            <small>قضايا محلولة</small>
+          </div>
+          <div class="lib-stat">
+            <span class="mono-stat" id="libUnlockedEndingsCount">0 / 5</span>
+            <small>أنواع النهايات المفتوحة</small>
+          </div>
+          <div class="lib-stat">
+            <span class="mono-stat" id="libStreakCount">🔥 0</span>
+            <small>سلسلة الحسم</small>
+          </div>
+        </div>
+
+        <div class="library-cases-grid" id="libraryCasesGrid"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="start-adventure-btn" id="doneLibraryBtn">إغلاق السجل</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Unified Settings Modal -->
+  <div class="modal-backdrop hidden" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          <h2 id="settingsModalTitle">إعدادات لعبة قلب الغموض</h2>
+        </div>
+        <button class="modal-close-btn" id="closeSettingsBtn" type="button" aria-label="إغلاق">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Section 1: Visual Theme, Weather Particles, Dialect & Low-Power Mode -->
+        <div class="settings-section">
+          <div class="section-badge-row">
+            <h3>1. المظهر والأجواء البصرية واللهجة</h3>
+          </div>
+          <p class="settings-desc">
+            خصص السمة اللونية، والمؤثرات المناخية المتحركة، ولهجة الحوارات، ووضع توفير الطاقة للهواتف المتوسطة.
+          </p>
+
+          <div class="form-row two-col">
+            <div>
+              <label for="themeSelect">السمة البصرية:</label>
+              <select id="themeSelect">
+                <option value="cinema-dark" selected>الوضع السينمائي الداكن (افتراضي)</option>
+                <option value="noir-gold">وضع النوار الذهبي الكلاسيكي</option>
+                <option value="detective-light">وضع دفتر المحقق النهاري (عالي التباين)</option>
+              </select>
+            </div>
+            <div>
+              <label for="particleModeSelect">المؤثرات المناخية السينمائية (Particles):</label>
+              <select id="particleModeSelect">
+                <option value="auto" selected>تلقائي حسب عالم القصة (مطر / صقيع / ضباب)</option>
+                <option value="rain">مطر غزير وعاصفة ليلية</option>
+                <option value="frost">بلورات صقيع وثلوج قطبية</option>
+                <option value="fog">ضباب كثيف وذرات غبار مضيئة</option>
+                <option value="off">إيقاف المؤثرات البصرية</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row two-col">
+            <div>
+              <label for="fontSizeSelect">حجم خط السرد الروائي:</label>
+              <select id="fontSizeSelect">
+                <option value="1.18">صغير ومكثف</option>
+                <option value="1.34" selected>متوسط ومريح (موصى به)</option>
+                <option value="1.48">كبير وواضح</option>
+                <option value="1.62">كبير جدا</option>
+              </select>
+            </div>
+            <div>
+              <label for="dialectSelect">لهجة حوارات المشتبه بهم (إبقاء السرد بالفصحى):</label>
+              <select id="dialectSelect">
+                <option value="fusha" selected>العربية الفصحى الدرامية (افتراضي)</option>
+                <option value="egyptian">لمسة لهجة مصرية في الحوار</option>
+                <option value="levantine">لمسة لهجة شامية في الحوار</option>
+                <option value="gulf">لمسة لهجة خليجية في الحوار</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row two-col">
+            <div>
+              <label for="twistIntensitySelect">عمق الغموض وكثافة الانقلابات (Twists):</label>
+              <select id="twistIntensitySelect">
+                <option value="high" selected>عالية (أسرار متشابكة وانقلابات صادمة)</option>
+                <option value="extreme">قصوى (شك نفسي دائم وألغاز مركبة)</option>
+                <option value="balanced">متوازنة (بوليسية كلاسيكية)</option>
+              </select>
+            </div>
+            <div class="checkbox-group" style="justify-content:center; padding-top: 1.4rem;">
+              <label class="checkbox-label">
+                <input type="checkbox" id="lowPowerModeCheck" />
+                <span>⚡ وضع الأداء السلس للهواتف (إيقاف الضباب المتحرك والشفافية الثقيلة)</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Narrator Voice & Real Ambient Soundscape -->
+        <div class="settings-section">
+          <div class="section-badge-row">
+            <h3>2. الراوي الصوتي وأصوات الشخصيات والمحيط</h3>
+            <button type="button" class="small-btn accent" id="testTtsVoiceBtn">تجربة صوت الراوي</button>
+          </div>
+          <p class="settings-desc">
+            يتفاعل الراوي الصوتي بمشاعر مخصصة لكل فقرة، بينما يتحدث كل مشتبه به بصوته المستقل عند الاستجواب.
+          </p>
+
+          <div class="form-row two-col">
+            <div>
+              <label for="ttsVoiceSelect">شخصية وخامة صوت الراوي الرئيسي:</label>
+              <select id="ttsVoiceSelect">
+                <option value="Charon" selected>راو رخيم، غامض وسينمائي (موصى به)</option>
+                <option value="Fenrir">راو عميق، حازم ومهيب</option>
+                <option value="Aoede">راوية بصوت درامي وساحر</option>
+                <option value="Kore">راوية بصوت هادئ ومترقب</option>
+                <option value="Puck">راو سريع، متوتر وحيوي</option>
+              </select>
+            </div>
+            <div>
+              <label for="ambientSoundSelect">الصوت المحيطي الطبيعي (Ambient Sound):</label>
+              <select id="ambientSoundSelect">
+                <option value="auto" selected>تلقائي حسب المشهد (مطر / رياح قطبية / قطار)</option>
+                <option value="rain">صوت مطر حقيقي على النافذة ورعد بعيد</option>
+                <option value="wind">عاصفة ثلجية ورياح قطبية</option>
+                <option value="train">مسير قطار الليل تحت المطر</option>
+                <option value="off">إيقاف الصوت المحيطي</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row two-col">
+            <div>
+              <label for="ttsSpeedRange">سرعة إلقاء الراوي: <span id="ttsSpeedVal">1.00x</span></label>
+              <input type="range" id="ttsSpeedRange" min="0.75" max="1.35" step="0.05" value="1.0" />
+            </div>
+            <div>
+              <label for="ambientVolumeRange">مستوى الصوت المحيطي: <span id="ambientVolumeVal">50%</span></label>
+              <input type="range" id="ambientVolumeRange" min="0" max="100" step="5" value="50" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="autoSpeakReactionCheck" checked />
+                <span>نطق ردود الفعل الدرامية وإفادات المشتبه بهم تلقائيا</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="autoSpeakSceneCheck" checked />
+                <span>قراءة نص المشهد كاملا تلقائيا بمشاعر متبدلة</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="sfxEnabledCheck" checked />
+                <span>تفعيل المؤثرات الصوتية التفاعلية (الأقفال، الأدلة، الانقلابات)</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="secondary-btn" id="clearSavedDataBtn">مسح التقدم المحفوظ</button>
+        <button type="button" class="start-adventure-btn" id="saveSettingsBtn">حفظ الإعدادات والعودة</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Viral Creator Studio & Pro Detective Pass Modal (Plan Implementation) -->
+  <div class="modal-backdrop hidden" id="proViralModal" role="dialog" aria-modal="true" aria-labelledby="proViralModalTitle">
+    <div class="modal-card pro-viral-modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span aria-hidden="true">👑</span>
+          <h2 id="proViralModalTitle">استوديو الانتشار الفيروسي وعضوية المحقق الأعلى</h2>
+        </div>
+        <button class="modal-close-btn" id="closeProViralModalBtn" type="button" aria-label="إغلاق">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Section 1: Viral Short-Video Hook & Script Studio (TikTok / Reels / Shorts) -->
+        <div class="settings-section viral-studio-box">
+          <div class="section-badge-row">
+            <h3>🎬 1. استوديو صناع المحتوى الفيروسي (TikTok / Reels / Shorts)</h3>
+            <div class="share-social-actions">
+              <button type="button" class="small-btn accent" id="rerollViralScriptBtn">🎲 توليد سيناريو عالم جديد</button>
+              <button type="button" class="small-btn" id="speakViralScriptBtn">🔊 سماع الأداء الصوتي للمقطع</button>
+              <button type="button" class="small-btn accent" id="copyViralScriptBtn">📋 نسخ السيناريو والرابط</button>
+            </div>
+          </div>
+          <p class="settings-desc">
+            يولد تلقائيا سيناريو فيديو قصير مدته 30 ثانية بصيغة «ماذا لو استيقظت في عالم...» من أصل 10,000 عالم في طور عابر العوالم، مع رابط تحد مباشر يقود المشاهدين فورا إلى نفس العالم!
+          </p>
+          <pre class="share-card-preview viral-script-preview" id="viralScriptPreviewBox"></pre>
+        </div>
+
+        <!-- Section 2: Passive Income & Pro Detective Pass Tiers -->
+        <div class="settings-section pro-monetization-box">
+          <div class="section-badge-row">
+            <h3>👑 2. عضوية المحقق الأعلى وحزم العوالم الخاصة</h3>
+            <span class="version-chip" id="proStatusPill">الباقة المجانية نشطة</span>
+          </div>
+          <p class="settings-desc">
+            افتح جميع المزايا الاحترافية، وفرص الاستئناف غير المحدودة في المحكمة، وحزم العوالم الموسمية الخاصة:
+          </p>
+
+          <div class="pro-tiers-grid">
+            <div class="pro-tier-card featured">
+              <span class="pro-tier-badge">الأكثر طلبا • دخل شهري</span>
+              <h4>👑 عضوية المحقق الأعلى (Pro Pass)</h4>
+              <div class="pro-tier-price">$3.99 <small>/ شهريا</small></div>
+              <ul class="pro-tier-list">
+                <li>✓ فرص استئناف غير محدودة في غرفة الاتهام</li>
+                <li>✓ استوديو صناع المحتوى الفيروسي الكامل (10,000 عالم)</li>
+                <li>✓ ذاكرة صوتية محلية وسحابية فورية بدون انتظار</li>
+                <li>✓ شارة المحقق الأعلى الذهبية في بطاقات المشاركة</li>
+              </ul>
+            </div>
+
+            <div class="pro-tier-card">
+              <span class="pro-tier-badge">دفعة واحدة • حزم رقمية</span>
+              <h4>🌌 حزمة 50 عالما محرما (Case Pack)</h4>
+              <div class="pro-tier-price">$2.99 <small>/ مدى الحياة</small></div>
+              <ul class="pro-tier-list">
+                <li>✓ فتح مباشر لأخطر 50 تقاطعا في عابر العوالم</li>
+                <li>✓ ملفات تحقيق موسعة بـ 5 أدلة متشابكة</li>
+                <li>✓ تحميل بطاقات الستوري بدقة 1080×1350</li>
+                <li>✓ يعمل فورا بكود التفعيل بدون تسجيل معقد</li>
+              </ul>
+            </div>
+
+            <div class="pro-tier-card">
+              <span class="pro-tier-badge">ترخيص تجاري • B2B</span>
+              <h4>🏛️ رخصة الأمسيات والمقاهي الثقافية</h4>
+              <div class="pro-tier-price">$29 <small>/ للفعالية</small></div>
+              <ul class="pro-tier-list">
+                <li>✓ وضع العرض الجماعي للمقاهي والجامعات والستريمرز</li>
+                <li>✓ تصويت الجمهور المباشر على الخيارات الثلاثة</li>
+                <li>✓ توليد غير محدود للقضايا المخصصة</li>
+                <li>✓ دعم فني وصوتي مخصص للأمسيات</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="pro-activation-bar">
+            <label for="proPassCodeInput">🔑 لديك كود تفعيل العضوية أو كود صانع محتوى؟ (جرب: <code>MYSTERY-PRO-2026</code>)</label>
+            <div class="pro-activation-controls">
+              <input type="text" id="proPassCodeInput" placeholder="أدخل كود التفعيل مثل: MYSTERY-PRO-2026" />
+              <button type="button" class="start-adventure-btn" id="activateProPassBtn">
+                <span>تفعيل العضوية فورا</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="start-adventure-btn" id="doneProViralModalBtn">العودة إلى اللعبة</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- Application Scripts -->
+  <script src="js/multiverse-engine.js"></script>
+  <script src="js/case-bibles.js"></script>
+  <script src="js/viral-growth-engine.js"></script>
+  <script src="js/tts-engine.js"></script>
+  <script src="js/ai-engine.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

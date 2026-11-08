@@ -1,0 +1,19 @@
+{
+  "name": "قلب الغموض: مسرح التحقيق الصوتي التفاعلي وعابر العوالم",
+  "short_name": "قلب الغموض",
+  "description": "أول لعبة تحقيق جنائي وغموض تفاعلية عربية مبنية على الاستنتاج الحقيقي، استجواب المشتبه بهم، وطور عابر العوالم (10,000 عالم فريد).",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#070b13",
+  "theme_color": "#f5b95f",
+  "icons": [
+    {
+      "src": "assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

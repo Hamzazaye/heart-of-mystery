@@ -1,0 +1,16 @@
+# ============================================================================
+# Cloudflare Pages Ignore File (.cfignore)
+# Prevents backend/config files from ever being uploaded as public static files
+# Note: Cloudflare Pages automatically processes /functions separately.
+# ============================================================================
+.env
+.env.*
+.git
+.gitignore
+server.js
+package.json
+package-lock.json
+wrangler.toml
+api/
+design-system/
+node_modules/

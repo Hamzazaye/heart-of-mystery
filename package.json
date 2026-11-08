@@ -1,0 +1,9 @@
+{
+  "name": "labyrinth-of-shadows-ai-mystery",
+  "version": "1.0.0",
+  "description": "لعبة مغامرة نصية تفاعلية مليئة بالغموض والأسرار والتويست مدعومة بـ Google AI Studio API و Google TTS",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
