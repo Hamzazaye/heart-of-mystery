@@ -43,46 +43,58 @@
   <!-- Skip to Main Content for Keyboard Accessibility (WCAG AA) -->
   <a href="#mainWorkspace" class="skip-link">تخطي إلى محتوى اللعبة الرئيسي</a>
 
-  <!-- Professional Cinematic Initial App Preloader -->
+  <!-- Professional Cinematic Initial App Preloader (Noir Film-Reel & Curtain Reveal) -->
   <div class="app-preloader" id="appPreloader" role="status" aria-live="polite">
+    <div class="cinema-letterbox top" aria-hidden="true"></div>
+    <div class="cinema-spotlight-beam beam-left" aria-hidden="true"></div>
+    <div class="cinema-spotlight-beam beam-right" aria-hidden="true"></div>
+
     <div class="preloader-card">
+      <div class="cinema-clapper-strip" aria-hidden="true">
+        <span>SCENE 01 • TAKE 01</span>
+        <span>NOIR AUDIO CINEMA</span>
+        <span>4K • DOLBY ATMOS MOOD</span>
+      </div>
+
       <div class="preloader-emblem" aria-hidden="true">
         <div class="preloader-ring outer"></div>
         <div class="preloader-ring inner"></div>
         <img src="assets/logo.png" alt="شعار قلب الغموض" class="preloader-logo-img" onerror="this.style.display='none'" />
       </div>
 
-      <span class="preloader-badge mono-stat">HEART OF MYSTERY • DEDUCTION NOIR</span>
+      <span class="preloader-badge mono-stat">🎬 مسرح التحقيق السينمائي التفاعلي • HEART OF MYSTERY</span>
       <h2 class="preloader-title">قلب الغموض</h2>
-      <p class="preloader-subtitle" id="preloaderStageText">حقيقة جنائية ثابتة... استجوب المشتبه بهم واحسم القضية</p>
+      <p class="preloader-subtitle" id="preloaderStageText">تفتح الآن خزنة القضايا السرية... استمع لعمق الليل واكشف الجاني بالأدلة</p>
 
       <div class="preloader-progress-wrap">
         <div class="preloader-progress-track">
-          <div class="preloader-progress-fill" id="bootProgressBar" style="width: 15%"></div>
+          <div class="preloader-progress-fill" id="bootProgressBar" style="width: 22%"></div>
         </div>
         <div class="preloader-progress-meta">
-          <span id="bootStatusSub">تهيئة ملفات القضايا والأجواء السينمائية...</span>
-          <span class="mono-stat" id="bootPercentText">15%</span>
+          <span id="bootStatusSub">🎬 إشعال مصابيح المسرح وتجهيز ملفات التحقيق...</span>
+          <span class="mono-stat" id="bootPercentText">22%</span>
         </div>
       </div>
 
       <ul class="preloader-checklist" aria-hidden="true">
         <li class="boot-item active" id="bootCheckFonts">
           <span class="boot-dot"></span>
-          <span>تحميل الخطوط الروائية والمؤثرات البصرية</span>
+          <span>تجهيز الإضاءة السينمائية والخطوط الروائية</span>
         </li>
         <li class="boot-item" id="bootCheckApi">
           <span class="boot-dot"></span>
-          <span>تثبيت ملفات الحقيقة الجنائية والأدلة المتشابكة</span>
+          <span>فتح أرشيف القضايا الثمان وبوابة الـ 10,000 عالم</span>
         </li>
         <li class="boot-item" id="bootCheckAudio">
           <span class="boot-dot"></span>
-          <span>معايرة الأصوات التمثيلية للشخصيات والأجواء المحيطية</span>
+          <span>معايرة الأصوات التمثيلية للشخصيات وأمطار الليل</span>
         </li>
       </ul>
 
-      <button type="button" class="preloader-skip-btn" id="skipPreloaderBtn">دخول فوري إلى قلب الغموض ←</button>
+      <button type="button" class="preloader-skip-btn" id="skipPreloaderBtn">رفع الستار والدخول الفوري للمسرح ←</button>
     </div>
+
+    <div class="cinema-letterbox bottom" aria-hidden="true"></div>
   </div>
 
   <!-- Background Ambient Layer + 60fps Weather Particle System Canvas -->
@@ -884,8 +896,14 @@
           </div>
         </article>
 
-        <!-- Segmented Multi-Stage Loading Screen -->
-        <div class="ai-loading-box hidden" id="aiLoadingBox" role="status" aria-live="polite">
+        <!-- Cinematic Scene Director & Multi-Stage Loading Screen -->
+        <div class="ai-loading-box cinema-stage-loader hidden" id="aiLoadingBox" role="status" aria-live="polite">
+          <div class="cinema-clapper-header" aria-hidden="true">
+            <span class="clapper-pill" id="cinemaLoaderSceneTag">🎬 SCENE 01 • ROLLING</span>
+            <span class="clapper-pill gold" id="cinemaLoaderCaseTag">مسرح الجريمة قيد الإضاءة</span>
+            <span class="clapper-pill mono-stat" id="loadingStepCounter">التحميل: 0%</span>
+          </div>
+
           <div class="loading-top-row">
             <div class="detective-radar-orb" aria-hidden="true">
               <div class="spinner-orb"></div>
@@ -896,12 +914,16 @@
             </div>
             <div class="loading-texts">
               <div class="loading-badge-row">
-                <span class="loading-case-tag" id="loadingPuzzleCategory">تجهيز المشهد والمقاطع الصوتية على أقسام</span>
-                <span class="loading-step-pill mono-stat" id="loadingStepCounter">التحميل: 0%</span>
+                <span class="loading-case-tag" id="loadingPuzzleCategory">🎬 إخراج المشهد السينمائي وتجهيز الأصوات</span>
               </div>
-              <h4 id="loadingTitle">جاري نسج أحداث الفصل وتشغيل الكلام الجاهز فور اكتماله...</h4>
-              <p id="loadingSub">يتم تقسيم التحميل إلى 3 أقسام متتابعة لبدء السرد الصوتي بأسرع وقت ممكن</p>
+              <h4 id="loadingTitle">يرتفع الستار الآن على مسرح الجريمة...</h4>
+              <p id="loadingSub">تضاء مصابيح الغرفة، وتوزع الأدوار الصوتية على المشتبه بهم قبل بدء السرد</p>
             </div>
+          </div>
+
+          <!-- Cinematic Cast & Suspects Film Strip during Loading -->
+          <div class="cinema-cast-strip" id="cinemaCastStrip" aria-hidden="true">
+            <!-- Populated dynamically with the 3 suspects of the active case -->
           </div>
 
           <!-- Overall Ascending Progress Bar (0% -> 100%) -->
@@ -910,17 +932,17 @@
               <div class="preload-live-bar-fill" id="turnPreloadProgressBar" style="width: 0%"></div>
             </div>
             <div class="preload-live-bar-meta">
-              <span id="preloadStageLabel">القسم 1/3: جاري تحليل القرار وبناء الحبكة...</span>
+              <span id="preloadStageLabel">اللقطة 1/3: إضاءة مسرح الحدث ومطابقة القرائن...</span>
               <span class="mono-stat" id="preloadRemainingText">0% / 100%</span>
             </div>
           </div>
 
-          <!-- 3 Divided Loading Sections -->
+          <!-- 3 Divided Cinematic Loading Acts -->
           <div class="segmented-loading-grid" aria-hidden="true">
             <div class="seg-load-card active" id="invStep1">
               <div class="seg-load-head">
                 <span class="seg-load-num mono-stat">01</span>
-                <span class="seg-load-title">تحليل القرار والحبكة</span>
+                <span class="seg-load-title">إضاءة المسرح والحبكة</span>
                 <span class="seg-load-state" id="segState1">جاري...</span>
               </div>
               <div class="seg-load-track">
@@ -931,7 +953,7 @@
             <div class="seg-load-card" id="invStep2">
               <div class="seg-load-head">
                 <span class="seg-load-num mono-stat">02</span>
-                <span class="seg-load-title">صياغة المشهد والأدلة</span>
+                <span class="seg-load-title">تموضع المشتبه بهم والأدلة</span>
                 <span class="seg-load-state" id="segState2">انتظار</span>
               </div>
               <div class="seg-load-track">
@@ -942,7 +964,7 @@
             <div class="seg-load-card" id="invStep3">
               <div class="seg-load-head">
                 <span class="seg-load-num mono-stat">03</span>
-                <span class="seg-load-title">تشغيل الكلام الجاهز</span>
+                <span class="seg-load-title">انطلاق التمثيل الصوتي</span>
                 <span class="seg-load-state" id="segState3">انتظار</span>
               </div>
               <div class="seg-load-track">

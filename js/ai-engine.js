@@ -106,7 +106,7 @@ class MysteryAIEngine {
    * إرسال الطلب مع تبديل تلقائي فوري بين النماذج (Failover Cascade) عند حدوث 503 أو 429 أو 404
    */
   async postWithModelFailover(apiKey, basePayload, signal = undefined) {
-    const modelsToTry = this.getOrderedModelCascade(basePayload.model);
+    const modelsToTry = this.getOrderedModelCascade(basePayload.model).slice(0, 2);
     let lastStatus = 503;
     let lastErrJson = null;
 
@@ -115,7 +115,7 @@ class MysteryAIEngine {
       const payload = { ...basePayload, model: candidateModel };
 
       const timeoutCtrl = new AbortController();
-      const timeoutId = setTimeout(() => timeoutCtrl.abort(), 8500);
+      const timeoutId = setTimeout(() => timeoutCtrl.abort(), 4500);
       if (signal) {
         signal.addEventListener('abort', () => timeoutCtrl.abort(), { once: true });
       }
@@ -125,7 +125,7 @@ class MysteryAIEngine {
         response = await this.postSingleInteraction(apiKey, payload, timeoutCtrl.signal);
       } catch (err) {
         clearTimeout(timeoutId);
-        // في حال انتهاء المهلة (8.5 ثانية) لهذا النموذج، ننتقل فورا للنموذج الأسرع التالي
+        // في حال انتهاء المهلة (4.5 ثانية) لهذا النموذج، ننتقل فورا للنموذج الأسرع التالي
         if (i < modelsToTry.length - 1) continue;
         throw err;
       } finally {
@@ -340,13 +340,25 @@ class MysteryAIEngine {
   async _generateTurnCore(gameState, playerChoiceText = null) {
     const bible = gameState.caseBible;
 
+    // في الفصل الافتتاحي الأول (Turn 0): نعرض الفصل السينمائي المتقن المعد مسبقا خلال لحظة سينمائية سريعة (0.65 ثانية) لمنع أي تعليق عند بدء القضية!
+    if ((gameState.turn === 0 || !gameState.turn) && !playerChoiceText) {
+      if (bible && Array.isArray(bible.authoredChapters) && bible.authoredChapters[0]) {
+        await new Promise(r => setTimeout(r, 650));
+        return this.stripDisplayDiacritics(
+          this.buildStaticChapterTurn(gameState, bible.authoredChapters[0], null)
+        );
+      }
+    }
+
     // إذا لم يتوفر اتصال بالخادم، نستخدم الفصول الاحتياطية المبنية على دستور القضية
     if (!this.hasValidKey()) {
       if (bible && Array.isArray(bible.authoredChapters) && bible.authoredChapters[gameState.turn]) {
-        return this.buildStaticChapterTurn(
-          gameState,
-          bible.authoredChapters[gameState.turn],
-          playerChoiceText
+        return this.stripDisplayDiacritics(
+          this.buildStaticChapterTurn(
+            gameState,
+            bible.authoredChapters[gameState.turn],
+            playerChoiceText
+          )
         );
       }
       return await this.generateCaseBibleTurn(gameState, playerChoiceText);
@@ -358,10 +370,12 @@ class MysteryAIEngine {
     } catch (error) {
       console.warn('Gemini API fallback triggered due to:', error.message);
       if (bible && Array.isArray(bible.authoredChapters) && bible.authoredChapters[gameState.turn]) {
-        const staticFallback = this.buildStaticChapterTurn(
-          gameState,
-          bible.authoredChapters[gameState.turn],
-          playerChoiceText
+        const staticFallback = this.stripDisplayDiacritics(
+          this.buildStaticChapterTurn(
+            gameState,
+            bible.authoredChapters[gameState.turn],
+            playerChoiceText
+          )
         );
         staticFallback._usedFallbackNotice = true;
         return staticFallback;

@@ -5268,3 +5268,232 @@ html[data-theme="detective-light"] .narrative-card {
   border-color: rgba(251, 191, 36, 0.85);
   background: linear-gradient(145deg, rgba(88, 28, 135, 0.55), rgba(15, 23, 38, 0.95));
 }
+
+/* ============================================================================
+   CINEMATIC NOIR LOADING STAGE & FILM-REEL CURTAIN REVEAL
+   ============================================================================ */
+
+.app-preloader {
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(229, 184, 92, 0.14), transparent 55%),
+    radial-gradient(circle at 20% 80%, rgba(110, 193, 198, 0.08), transparent 50%),
+    linear-gradient(180deg, #04070d 0%, #09101d 50%, #04070d 100%) !important;
+  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+.app-preloader.fade-out {
+  opacity: 0 !important;
+  transform: scale(1.06);
+  pointer-events: none !important;
+}
+
+.cinema-letterbox {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 44px;
+  background: #020408;
+  border-color: rgba(229, 184, 92, 0.28);
+  z-index: 3;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cinema-letterbox.top {
+  top: 0;
+  border-bottom: 1px solid rgba(229, 184, 92, 0.28);
+}
+
+.cinema-letterbox.bottom {
+  bottom: 0;
+  border-top: 1px solid rgba(229, 184, 92, 0.28);
+}
+
+.app-preloader.fade-out .cinema-letterbox.top {
+  transform: translateY(-100%);
+}
+
+.app-preloader.fade-out .cinema-letterbox.bottom {
+  transform: translateY(100%);
+}
+
+.cinema-spotlight-beam {
+  position: absolute;
+  top: -15%;
+  width: 340px;
+  height: 130%;
+  background: linear-gradient(180deg, rgba(229, 184, 92, 0.14) 0%, rgba(229, 184, 92, 0.03) 60%, transparent 100%);
+  filter: blur(22px);
+  pointer-events: none;
+  z-index: 1;
+  animation: cinemaBeamSway 5.5s ease-in-out infinite alternate;
+}
+
+.cinema-spotlight-beam.beam-left {
+  left: 14%;
+  transform-origin: top center;
+  transform: rotate(-18deg);
+}
+
+.cinema-spotlight-beam.beam-right {
+  right: 14%;
+  transform-origin: top center;
+  transform: rotate(18deg);
+  animation-delay: -2.7s;
+}
+
+@keyframes cinemaBeamSway {
+  0% {
+    transform: rotate(-16deg) scaleX(0.92);
+    opacity: 0.55;
+  }
+  100% {
+    transform: rotate(16deg) scaleX(1.1);
+    opacity: 0.92;
+  }
+}
+
+.cinema-clapper-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 12px;
+  margin-bottom: 14px;
+  border-radius: 8px;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(229, 184, 92, 0.14),
+    rgba(229, 184, 92, 0.14) 10px,
+    rgba(9, 15, 26, 0.92) 10px,
+    rgba(9, 15, 26, 0.92) 20px
+  );
+  border: 1px solid rgba(229, 184, 92, 0.35);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #f5d078;
+}
+
+/* Cinematic Stage Loader inside Game Stage (#aiLoadingBox) */
+.cinema-stage-loader {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(229, 184, 92, 0.42) !important;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(229, 184, 92, 0.14), transparent 62%),
+    linear-gradient(165deg, rgba(10, 16, 29, 0.98), rgba(6, 10, 19, 0.99)) !important;
+  box-shadow:
+    0 24px 55px -18px rgba(0, 0, 0, 0.85),
+    0 0 36px rgba(229, 184, 92, 0.12) !important;
+}
+
+.cinema-stage-loader::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(229, 184, 92, 0.08),
+    rgba(110, 193, 198, 0.06),
+    transparent
+  );
+  transform: skewX(-20deg);
+  animation: cinemaStageSweep 2.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes cinemaStageSweep {
+  0% {
+    left: -60%;
+  }
+  100% {
+    left: 130%;
+  }
+}
+
+.cinema-clapper-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-bottom: 14px;
+  border-radius: 10px;
+  background: rgba(5, 9, 18, 0.82);
+  border: 1px solid rgba(229, 184, 92, 0.28);
+}
+
+.clapper-pill {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+}
+
+.clapper-pill.gold {
+  background: rgba(229, 184, 92, 0.16);
+  border: 1px solid rgba(229, 184, 92, 0.42);
+  color: #f5d078;
+}
+
+.cinema-cast-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  gap: 10px;
+  margin: 12px 0 14px;
+}
+
+.cinema-cast-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: rgba(15, 23, 38, 0.78);
+  border: 1px solid rgba(229, 184, 92, 0.22);
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.cinema-cast-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(229, 184, 92, 0.24), rgba(110, 193, 198, 0.16));
+  border: 1px solid rgba(229, 184, 92, 0.45);
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.cinema-cast-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cinema-cast-info strong {
+  font-size: 0.84rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cinema-cast-info small {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

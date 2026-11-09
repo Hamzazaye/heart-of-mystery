@@ -25,24 +25,34 @@
   function getUnlockedMythicRelics() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY_MYTHIC_RELICS);
-      if (!raw) return {};
+      if (!raw) return [];
       const parsed = JSON.parse(raw);
-      return parsed && typeof parsed === 'object' ? parsed : {};
+      if (Array.isArray(parsed)) return parsed;
+      if (parsed && typeof parsed === 'object') return Object.values(parsed);
+      return [];
     } catch (_) {
-      return {};
+      return [];
     }
   }
 
   function recordUnlockedMythicRelic(mythicReward) {
-    if (!mythicReward || !mythicReward.id) return false;
-    const current = getUnlockedMythicRelics();
-    const isNew = !current[mythicReward.id];
-    current[mythicReward.id] = {
+    const key = mythicReward && (mythicReward.relicId || mythicReward.id);
+    if (!key) return false;
+    const list = getUnlockedMythicRelics();
+    const existsIdx = list.findIndex(r => (r.relicId || r.id) === key);
+    const entry = {
       ...mythicReward,
+      relicId: key,
+      id: key,
       unlockedAt: new Date().toLocaleDateString('ar-EG')
     };
+    if (existsIdx >= 0) {
+      list[existsIdx] = entry;
+    } else {
+      list.push(entry);
+    }
     try {
-      localStorage.setItem(STORAGE_KEY_MYTHIC_RELICS, JSON.stringify(current));
+      localStorage.setItem(STORAGE_KEY_MYTHIC_RELICS, JSON.stringify(list));
       // مكافأة خاصة للمستخدم عند كشف أي نهاية سرية أسطورية: تفعيل تلقائي لعضوية المحقق الأعلى ومختبر مهندس العوالم!
       localStorage.setItem(
         STORAGE_KEY_PRO_PASS,
@@ -54,7 +64,7 @@
         })
       );
     } catch (_) {}
-    return isNew;
+    return existsIdx < 0;
   }
 
   function isProPassActive() {

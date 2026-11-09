@@ -467,23 +467,29 @@
       });
     };
 
-    loadSettingsFromStorage();
-    initWeatherParticleSystem();
-    bindEvents();
-    tryRestoreSavedGame();
-    updateHeaderStreakBadge();
-
-    // عرض تدرج الصعوبة الأسبوعي لقضية اليوم (Weekly Difficulty Ramp)
-    if (window.MysteryCaseBibles && typeof window.MysteryCaseBibles.getWeeklyDifficultyProfile === 'function') {
-      const ramp = window.MysteryCaseBibles.getWeeklyDifficultyProfile();
-      const dailyBadge = document.querySelector('.scenario-card[data-scenario="daily"] .case-difficulty-badge');
-      if (dailyBadge && ramp) {
-        dailyBadge.textContent = `⚡ ${ramp.stars} • ${ramp.label}`;
-      }
-    }
-
-    initViralAndMonetizationFeatures();
+    // تشغيل شاشة التمهيد السينمائية أولا وبشكل مضمون ضد أي أخطاء جانبية
     runInitialBootPreloader();
+
+    try {
+      loadSettingsFromStorage();
+      initWeatherParticleSystem();
+      bindEvents();
+      tryRestoreSavedGame();
+      updateHeaderStreakBadge();
+
+      // عرض تدرج الصعوبة الأسبوعي لقضية اليوم (Weekly Difficulty Ramp)
+      if (window.MysteryCaseBibles && typeof window.MysteryCaseBibles.getWeeklyDifficultyProfile === 'function') {
+        const ramp = window.MysteryCaseBibles.getWeeklyDifficultyProfile();
+        const dailyBadge = document.querySelector('.scenario-card[data-scenario="daily"] .case-difficulty-badge');
+        if (dailyBadge && ramp) {
+          dailyBadge.textContent = `⚡ ${ramp.stars} • ${ramp.label}`;
+        }
+      }
+
+      initViralAndMonetizationFeatures();
+    } catch (initErr) {
+      console.warn('Init warning:', initErr);
+    }
   }
 
   /**
@@ -516,7 +522,12 @@
 
     const syncProUiState = () => {
       const active = ve.isProPassActive();
-      const unlockedRelics = typeof ve.getUnlockedMythicRelics === 'function' ? ve.getUnlockedMythicRelics() : [];
+      const rawRelics = typeof ve.getUnlockedMythicRelics === 'function' ? ve.getUnlockedMythicRelics() : [];
+      const unlockedRelics = Array.isArray(rawRelics)
+        ? rawRelics
+        : rawRelics && typeof rawRelics === 'object'
+          ? Object.values(rawRelics)
+          : [];
       const relicsMap = window.MysteryCaseBibles?.MYTHIC_SECRET_ENDINGS || {};
       const allRelicEntries = Object.entries(relicsMap);
       const totalRelicsCount = allRelicEntries.length || 8;
@@ -944,11 +955,11 @@
   }
 
   /**
-   * شاشة التمهيد السينمائية: بدون أي استدعاء شبكي للصوت عند الفتح لمنع HTTP 429 نهائيا (C5 Fix)
+   * شاشة التمهيد السينمائية: إضاءة مسرحية وتتابع سلس مضمون بـ Failsafe Timer لمنع التعليق نهائيا
    */
   async function runInitialBootPreloader() {
     if (!dom.appPreloader) {
-      await checkServerManagedKey();
+      checkServerManagedKey();
       return;
     }
 
@@ -971,20 +982,35 @@
       dom.appPreloader.classList.add('fade-out');
       setTimeout(() => {
         dom.appPreloader.classList.add('hidden');
-      }, 360);
+      }, 460);
     };
 
+    // مؤقت أمان صارم (Failsafe): يضمن فتح الستار السينمائي دائما حتى لو تأخر أي خط أو اتصال شبكي
+    const hardFailsafeTimer = setTimeout(dismissPreloader, 1850);
+
     if (dom.skipPreloaderBtn) {
-      dom.skipPreloaderBtn.addEventListener('click', dismissPreloader, { once: true });
+      dom.skipPreloaderBtn.addEventListener(
+        'click',
+        () => {
+          clearTimeout(hardFailsafeTimer);
+          dismissPreloader();
+        },
+        { once: true }
+      );
     }
 
-    const setBootProgress = (pct, subText) => {
+    const setBootProgress = (pct, subText, stageQuote) => {
       if (dom.bootProgressBar) dom.bootProgressBar.style.width = `${pct}%`;
       if (dom.bootPercentText) dom.bootPercentText.textContent = `${pct}%`;
       if (subText && dom.bootStatusSub) dom.bootStatusSub.textContent = subText;
+      if (stageQuote && dom.preloaderStageText) dom.preloaderStageText.textContent = stageQuote;
     };
 
-    setBootProgress(48, 'تهيئة الخطوط الروائية وملفات التحقيق...');
+    setBootProgress(
+      45,
+      '🎬 اللقطة 1/3: إشعال مصابيح مسرح الجريمة وتجهيز الخطوط الروائية...',
+      'كل جريمة تترك همسة في الظلام... وكل دليل مادي ينتظر من يربط خيوطه'
+    );
     if (document.fonts && document.fonts.ready) {
       await Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 180))]);
     }
@@ -994,21 +1020,30 @@
     }
     if (dom.bootCheckApi) dom.bootCheckApi.classList.add('active');
 
-    setBootProgress(82, 'التحقق من ملفات القضايا الجنائية...');
-    await Promise.race([checkServerManagedKey(), new Promise(r => setTimeout(r, 240))]);
+    setBootProgress(
+      82,
+      '📂 اللقطة 2/3: فتح أرشيف القضايا السرية وبوابة الـ 10,000 عالم...',
+      'ثلاثة مشتبه بهم في كل مسرح... لكل واحد منهم صوته المستقل وكذبته المحكمة'
+    );
+    await Promise.race([checkServerManagedKey(), new Promise(r => setTimeout(r, 220))]);
     if (dom.bootCheckApi) {
       dom.bootCheckApi.classList.remove('active');
       dom.bootCheckApi.classList.add('done');
     }
     if (dom.bootCheckAudio) dom.bootCheckAudio.classList.add('active');
 
-    setBootProgress(100, 'اكتمل تجهيز عالم "قلب الغموض" بنجاح!');
+    setBootProgress(
+      100,
+      '🎙️ اللقطة 3/3: اكتمل التجهيز السينمائي... يرتفع الستار الآن!',
+      'مرحبا بك في قلب الغموض... اختر قضيتك وابدأ التحقيق الصوتي التفاعلي'
+    );
     if (dom.bootCheckAudio) {
       dom.bootCheckAudio.classList.remove('active');
       dom.bootCheckAudio.classList.add('done');
     }
 
-    setTimeout(dismissPreloader, 160);
+    clearTimeout(hardFailsafeTimer);
+    setTimeout(dismissPreloader, 240);
   }
 
   async function checkServerManagedKey() {
@@ -3860,7 +3895,7 @@
   }
 
   /**
-   * إدارة شاشة التحميل المقسم التصاعدي
+   * إدارة شاشة التحميل السينمائي متعدد اللقطات وعرض طاقم المشتبه بهم
    */
   function setLoadingState(loading) {
     isLoadingTurn = loading;
@@ -3873,7 +3908,49 @@
     clearInterval(preloadProgressInterval);
 
     if (loading) {
-      updateSegmentedPreloadProgress(10);
+      const nextChap = (gameState.turn || 0) + 1;
+      const caseTitle = gameState.scenarioTitle || gameState.caseBible?.title || 'مسرح الجريمة';
+      const sceneTagEl = document.getElementById('cinemaLoaderSceneTag');
+      const caseTagEl = document.getElementById('cinemaLoaderCaseTag');
+      const castStripEl = document.getElementById('cinemaCastStrip');
+
+      if (sceneTagEl) {
+        sceneTagEl.textContent = `🎬 الفصل 0${nextChap} • اللقطة قيد الإخراج`;
+      }
+      if (caseTagEl) {
+        caseTagEl.textContent = caseTitle;
+      }
+      if (dom.loadingTitle) {
+        dom.loadingTitle.textContent =
+          nextChap === 1
+            ? `يرتفع الستار الآن على «${caseTitle}»...`
+            : `يتغير المشهد في الفصل ${nextChap} استجابة لقرارك الاستقصائي...`;
+      }
+      if (dom.loadingSub) {
+        dom.loadingSub.textContent =
+          'إضاءة مسرح الحدث، وتحريك المشتبه بهم في مواضعهم، ومزامنة التمثيل الصوتي الدرامي';
+      }
+
+      if (castStripEl) {
+        const suspects = gameState.suspects?.length
+          ? gameState.suspects
+          : gameState.caseBible?.suspects || [];
+        castStripEl.innerHTML = suspects
+          .slice(0, 3)
+          .map(
+            (s, i) => `
+          <div class="cinema-cast-card">
+            <div class="cinema-cast-avatar">${i === 0 ? '🕵️' : i === 1 ? '🎭' : '🕯️'}</div>
+            <div class="cinema-cast-info">
+              <strong>${escapeHtml(s.name)}</strong>
+              <small>${escapeHtml(s.role)} • 🎙️ صوت مستقل</small>
+            </div>
+          </div>`
+          )
+          .join('');
+      }
+
+      updateSegmentedPreloadProgress(14);
 
       let quoteIdx = Math.floor(Math.random() * MYSTERY_LOADING_QUOTES.length);
       if (dom.loadingMysteryQuote) {
@@ -3881,14 +3958,14 @@
       }
 
       preloadProgressInterval = setInterval(() => {
-        if (currentPreloadPercent < 40) {
+        if (currentPreloadPercent < 42) {
+          updateSegmentedPreloadProgress(currentPreloadPercent + 7);
+        } else if (currentPreloadPercent < 76) {
           updateSegmentedPreloadProgress(currentPreloadPercent + 5);
-        } else if (currentPreloadPercent < 72) {
-          updateSegmentedPreloadProgress(currentPreloadPercent + 4);
-        } else if (currentPreloadPercent < 95) {
-          updateSegmentedPreloadProgress(currentPreloadPercent + 1);
+        } else if (currentPreloadPercent < 96) {
+          updateSegmentedPreloadProgress(currentPreloadPercent + 2);
         }
-      }, 200);
+      }, 170);
 
       loadingCycleInterval = setInterval(() => {
         quoteIdx = (quoteIdx + 1) % MYSTERY_LOADING_QUOTES.length;
