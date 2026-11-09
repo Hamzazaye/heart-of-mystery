@@ -27,7 +27,7 @@
       title: 'عابر العوالم: شذوذ القوانين الكونية',
       shortTitle: 'عابر العوالم (10,000 عالم)',
       teaserVoice:
-        '<breath> تنفتح البوابة الزمكانية أمامك... <short pause> في كل قفزة تستيقظ داخل عالم مواز انقلبت فيه قاعدة كونية واحدة، من سلالة الدم الحاكمة إلى طغيان الآلة، وعليك كشف الجاني وفق قوانين ذلك العالم!',
+        '<breath> تنفتح البوابة الزمكانية أمامك نحو المجهول... <short pause> في كل قفزة تستيقظ داخل عالم مواز انقلبت فيه قاعدة كونية واحدة، ولن تدرك شريعته الخفية إلا حين تطأ قدماك مسرح الجريمة!',
       teaserEmotion: 'رهبة وترقب',
       prompt:
         'أعبر بوابة العوالم الموازية لأحقق في جريمة غامضة داخل عالم تغيرت فيه قاعدة كونية واحدة، حيث تندمج شريعة العالم الجديد مع خيوط مسرح الجريمة.'
@@ -703,7 +703,10 @@
           lawIndex: pendingMultiverseCombo ? pendingMultiverseCombo.lawIndex : 0,
           catalystIndex: pendingMultiverseCombo ? pendingMultiverseCombo.catalystIndex : 0
         });
-        const msg = `🌀 أتحداك في طور عابر العوالم (${pendingMultiverseCombo ? pendingMultiverseCombo.mergedTitle : 'شذوذ القوانين الكونية'})! هل تستطيع كشف الجاني في هذا العالم الموازي؟\n${url}`;
+        const sectorCode = pendingMultiverseCombo
+          ? `#${(pendingMultiverseCombo.lawIndex || 0) + 1}-${(pendingMultiverseCombo.catalystIndex || 0) + 1}`
+          : '#01-01';
+        const msg = `🌀 أتحداك في طور عابر العوالم (البوابة الزمكانية المشفرة ${sectorCode})! هل تستطيع اكتشاف قانون هذا العالم وكشف الجاني؟\n${url}`;
         try {
           await navigator.clipboard.writeText(msg);
           showToast('🔗 تم نسخ رابط التحدي المباشر لهذا العالم لمشاركته مع أصدقائك!');
@@ -767,17 +770,16 @@
           lawIndex: incoming.lawIndex,
           catalystIndex: incoming.catalystIndex
         });
-        if (dom.multiverseRollTitleText && pendingMultiverseCombo) {
-          dom.multiverseRollTitleText.textContent = pendingMultiverseCombo.mergedTitle;
+        const sectorCode = `#${(incoming.lawIndex || 0) + 1}-${(incoming.catalystIndex || 0) + 1}`;
+        if (dom.multiverseRollTitleText) {
+          dom.multiverseRollTitleText.textContent = `🔒 تحدي عالم مشترك (${sectorCode}) • تتكشف شريعته فور دخولك المشهد`;
         }
         if (SCENARIO_PRESETS.multiverse && pendingMultiverseCombo) {
-          SCENARIO_PRESETS.multiverse.title = `عابر العوالم: ${pendingMultiverseCombo.mergedTitle}`;
-          SCENARIO_PRESETS.multiverse.teaserVoice = pendingMultiverseCombo.mergedTeaser;
           SCENARIO_PRESETS.multiverse.prompt = pendingMultiverseCombo.mergedPrompt;
         }
         selectScenarioById('multiverse');
         setTimeout(() => {
-          showToast(`🔗 تم فتح تحدي العالم الموازي المشترك معك: ${pendingMultiverseCombo.mergedTitle}`);
+          showToast(`🔗 تم تجهيز تحدي العالم الموازي المشترك معك (${sectorCode}). اضغط ابدأ لاكتشاف شريعته!`);
         }, 900);
       } else if (incoming.type === 'case' && SCENARIO_PRESETS[incoming.scenarioId]) {
         selectScenarioById(incoming.scenarioId);
@@ -1228,18 +1230,19 @@
   function rollAndPreviewMultiverseCard(announceToast = false) {
     if (!window.MysteryMultiverseEngine?.rollMultiverseCombination) return null;
     pendingMultiverseCombo = window.MysteryMultiverseEngine.rollMultiverseCombination();
+    const sectorCode = pendingMultiverseCombo
+      ? `#${(pendingMultiverseCombo.lawIndex || 0) + 1}-${(pendingMultiverseCombo.catalystIndex || 0) + 1}`
+      : '#01-01';
     if (dom.multiverseRollTitleText && pendingMultiverseCombo) {
-      dom.multiverseRollTitleText.textContent = `${pendingMultiverseCombo.law.title} × ${pendingMultiverseCombo.catalyst.title}`;
+      dom.multiverseRollTitleText.textContent = `🔒 إحداثيات مشفرة (${sectorCode}) • تتكشف شريعة العالم فور دخولك المشهد`;
     }
     if (SCENARIO_PRESETS.multiverse && pendingMultiverseCombo) {
-      SCENARIO_PRESETS.multiverse.teaserVoice = `<breath> عالم مواز جديد جاهز للقفزة... <short pause> قانون هذا العالم: ${pendingMultiverseCombo.law.title}، حيث ${pendingMultiverseCombo.law.rule} <gasp> وعقدة الجريمة: ${pendingMultiverseCombo.catalyst.title}!`;
+      SCENARIO_PRESETS.multiverse.teaserVoice =
+        '<breath> تنفتح البوابة الزمكانية أمامك نحو إحداثيات مجهولة... <short pause> في كل قفزة تستيقظ داخل عالم مواز انقلبت فيه قاعدة كونية واحدة، ولن تدرك شريعته الخفية إلا حين تطأ قدماك مسرح الجريمة!';
       SCENARIO_PRESETS.multiverse.prompt = `عالم مواز يحكمه قانون (${pendingMultiverseCombo.law.title}: ${pendingMultiverseCombo.law.rule})، ومسرح الجريمة فيه: (${pendingMultiverseCombo.catalyst.title}: ${pendingMultiverseCombo.catalyst.scene}).`;
     }
-    if (selectedScenarioId === 'multiverse' && dom.heroDynamicLead && pendingMultiverseCombo) {
-      dom.heroDynamicLead.textContent = `في هذا العالم الموازي: ${pendingMultiverseCombo.law.rule} وتقذفك البوابة الزمكانية إلى ${pendingMultiverseCombo.catalyst.scene}`;
-    }
     if (announceToast && pendingMultiverseCombo) {
-      showToast(`🌀 تم دمج عالم جديد: ${pendingMultiverseCombo.law.title} × ${pendingMultiverseCombo.catalyst.title}`);
+      showToast(`🌀 تم ضبط إحداثيات زمكانية مشفرة جديدة (${sectorCode}). اضغط ابدأ لاكتشاف العالم!`);
     }
     return pendingMultiverseCombo;
   }
@@ -1279,12 +1282,8 @@
         if (dom.heroDynamicTitle && cardTitle) {
           dom.heroDynamicTitle.textContent = cardTitle;
         }
-        if (dom.heroDynamicLead) {
-          if (scenId === 'multiverse' && pendingMultiverseCombo) {
-            dom.heroDynamicLead.textContent = `في هذا العالم الموازي: ${pendingMultiverseCombo.law.rule} وتقذفك البوابة الزمكانية إلى ${pendingMultiverseCombo.catalyst.scene}`;
-          } else if (cardLead) {
-            dom.heroDynamicLead.textContent = cardLead;
-          }
+        if (dom.heroDynamicLead && cardLead) {
+          dom.heroDynamicLead.textContent = cardLead;
         }
       }
 
