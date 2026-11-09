@@ -1,11 +1,11 @@
 /* ==========================================================================
-   قلب الغموض — Midnight Sapphire, Moonlight Silver & Warm Lantern Amber Design System
+   قلب الغموض : Midnight Sapphire, Moonlight Silver & Warm Lantern Amber Design System
    Crafted to match the atmospheric noir artwork with crisp depth and zero muddy colors
    ========================================================================== */
 
 :root,
 html[data-theme="cinema-dark"] {
-  /* Deep Midnight Sapphire & Obsidian Canvas — Crisp, Rich & Comfortable */
+  /* Deep Midnight Sapphire & Obsidian Canvas : Crisp, Rich & Comfortable */
   --bg-abyss: #070b13;
   --bg-primary: #0b111e;
   --bg-surface: rgba(15, 23, 38, 0.86);
@@ -95,7 +95,7 @@ html[data-theme="noir-gold"] {
   --blob-3: rgba(120, 80, 50, 0.09);
 }
 
-/* Theme 3: Warm Parchment Reader Mode (Soothing Paper & Espresso Ink — Zero White Glare) */
+/* Theme 3: Warm Parchment Reader Mode (Soothing Paper & Espresso Ink : Zero White Glare) */
 html[data-theme="detective-light"] {
   --bg-abyss: #eae3d5;
   --bg-primary: #f2ece0;
@@ -4000,7 +4000,7 @@ html.low-power-mode .modal-card {
 }
 
 /* ==========================================================================
-   UI/UX Pro Max Enhancements — Onboarding, Category Filter, Quick Evidence,
+   UI/UX Pro Max Enhancements : Onboarding, Category Filter, Quick Evidence,
    Deduction Breakdown, One-Tap Notebook Shortcuts & Verdict Readiness
    ========================================================================== */
 
@@ -4586,7 +4586,7 @@ html[data-theme="detective-light"] .hero-backdrop-vignette {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
 }
 
-/* Sleek Single-Row Resume Saved Banner (Outside Hero — No Giant Green Box!) */
+/* Sleek Single-Row Resume Saved Banner (Outside Hero : No Giant Green Box!) */
 .resume-saved-banner {
   margin: 0 0 20px !important;
   padding: 12px 20px !important;
@@ -5224,38 +5224,43 @@ html[data-theme="detective-light"] .narrative-card {
 .mythic-relic-top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 8px;
 }
 
+.mythic-relic-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.mythic-relic-title,
 .mythic-relic-top strong {
   font-size: 0.94rem;
+  font-weight: 800;
   color: var(--text-primary);
 }
 
+.mythic-relic-card.unlocked .mythic-relic-title,
 .mythic-relic-card.unlocked .mythic-relic-top strong {
   color: #fde047;
 }
 
-.mythic-relic-status {
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 800;
-  background: rgba(148, 163, 184, 0.14);
+.mythic-relic-desc,
+.mythic-relic-card small {
+  font-size: 0.82rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.mythic-relic-hint {
+  font-size: 0.74rem;
+  font-weight: 700;
   color: var(--text-muted);
 }
 
-.mythic-relic-card.unlocked .mythic-relic-status {
-  background: rgba(251, 191, 36, 0.22);
-  color: #fde68a;
-  border: 1px solid rgba(251, 191, 36, 0.45);
-}
-
-.mythic-relic-card small {
-  font-size: 0.8rem;
-  line-height: 1.6;
-  color: var(--text-secondary);
+.mythic-relic-card.unlocked .mythic-relic-hint {
+  color: #86efac;
 }
 
 .secret-item.mythic-riddle-card {

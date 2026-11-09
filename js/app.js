@@ -552,8 +552,12 @@
       if (vaultGrid && allRelicEntries.length > 0) {
         vaultGrid.innerHTML = allRelicEntries
           .map(([scId, prof]) => {
-            const found = unlockedRelics.some(r => r.relicId === prof.relicId);
+            const targetId = prof.relicId || prof.id;
+            const found = unlockedRelics.some(
+              r => (r.relicId || r.id) === targetId || r.scenarioId === scId
+            );
             const caseLabel = SCENARIO_PRESETS[scId]?.title || scId;
+            const perkText = prof.rewardPerk || prof.rewardLabel || '';
             if (found) {
               return `
                 <div class="mythic-relic-card unlocked">
@@ -561,7 +565,7 @@
                     <span class="mythic-relic-icon">${escapeHtml(prof.relicIcon)}</span>
                     <span class="mythic-relic-title">${escapeHtml(prof.relicName)}</span>
                   </div>
-                  <p class="mythic-relic-desc">${escapeHtml(prof.rewardPerk)}</p>
+                  <p class="mythic-relic-desc">${escapeHtml(perkText)}</p>
                   <span class="mythic-relic-hint">✓ تم كشف النهاية السرية في: ${escapeHtml(caseLabel)}</span>
                 </div>`;
             }
@@ -2406,7 +2410,11 @@
       if (gameState.caseBible && Array.isArray(gameState.caseBible.twists)) {
         for (const tw of gameState.caseBible.twists) {
           const alreadyUnlocked = gameState.secrets.some(
-            s => s.id === tw.id || s.title === tw.headline
+            s =>
+              s.id === tw.id ||
+              s.title === tw.headline ||
+              s.title === tw.secretTitle ||
+              s.revelation === tw.revelation
           );
           if (alreadyUnlocked) continue;
           const hasAllPrereqs = (tw.unlocks_when || []).every(reqId =>
@@ -3149,11 +3157,12 @@
 
     let mythicRiddleHtml = '';
     if (mythicProfile && !searchQuery) {
+      const perkText = mythicProfile.rewardPerk || mythicProfile.rewardLabel || '';
       if (gameState.mythicSecretUnlocked) {
         mythicRiddleHtml = `
           <li class="secret-item" style="border-color:rgba(229,184,92,0.75);background:linear-gradient(135deg,rgba(88,28,135,0.28),rgba(229,184,92,0.14));">
             <strong style="color:#f5d078;">👑 ${escapeHtml(mythicProfile.relicIcon)} الأثر الأسطوري المكتشف: ${escapeHtml(mythicProfile.relicName)}</strong>
-            <span>${escapeHtml(mythicProfile.rewardPerk)}</span>
+            <span>${escapeHtml(perkText)}</span>
           </li>`;
       } else {
         mythicRiddleHtml = `
@@ -3598,7 +3607,10 @@
 
     const suspectId = bible.culpritId || (dom.verdictSuspectSelect ? dom.verdictSuspectSelect.value : '');
     const motiveId = bible.motiveId || (dom.verdictMotiveSelect ? dom.verdictMotiveSelect.value : '');
-    const clueId = (bible.decisiveClueIds && bible.decisiveClueIds[0]) || (dom.verdictClueSelect ? dom.verdictClueSelect.value : '');
+    const clueId =
+      bible.decisiveClueId ||
+      (bible.decisiveClueIds && bible.decisiveClueIds[0]) ||
+      (dom.verdictClueSelect ? dom.verdictClueSelect.value : '');
 
     const evalResult = window.MysteryCaseBibles.evaluateVerdict(
       bible,
@@ -3695,7 +3707,9 @@
           mythicTitleEl.textContent = `الأثر الأسطوري المكتسب: ${outcome.mythicReward.relicName}`;
         }
         if (mythicDescEl) {
-          mythicDescEl.textContent = `${outcome.mythicReward.rewardPerk} (تم تفعيل عضوية المحقق الأعلى ومختبر مهندس العوالم الحر في حسابك تلقائيا!)`;
+          const perkLabel =
+            outcome.mythicReward.rewardPerk || outcome.mythicReward.rewardLabel || '';
+          mythicDescEl.textContent = `${perkLabel} (تم تفعيل عضوية المحقق الأعلى ومختبر مهندس العوالم الحر في حسابك تلقائيا!)`;
         }
         if (window.MysteryViralEngine && typeof window.MysteryViralEngine.recordUnlockedMythicRelic === 'function') {
           window.MysteryViralEngine.recordUnlockedMythicRelic(outcome.mythicReward);
@@ -3818,7 +3832,7 @@
       dom.libSolvedCasesCount.textContent = `${solvedCount} / ${allCaseIds.length}`;
     }
     if (dom.libUnlockedEndingsCount) {
-      dom.libUnlockedEndingsCount.textContent = `${(lib.unlockedEndingCodes || []).length} / 5`;
+      dom.libUnlockedEndingsCount.textContent = `${(lib.unlockedEndingCodes || []).length} / 6`;
     }
     if (dom.libStreakCount) {
       dom.libStreakCount.textContent = `🔥 ${lib.streak || 0}`;
@@ -3829,8 +3843,13 @@
         .map(id => {
           const preset = SCENARIO_PRESETS[id];
           const record = lib.cases[id];
-          const stars = record ? record.bestStars : 0;
-          const starStr = stars > 0 ? '★'.repeat(stars) + '☆'.repeat(5 - stars) : 'لم تحسم بعد';
+          const stars = record ? Number(record.bestStars) || 0 : 0;
+          const starStr =
+            stars >= 6
+              ? '👑 ★★★★★★'
+              : stars > 0
+                ? '★'.repeat(stars) + '☆'.repeat(Math.max(0, 5 - stars))
+                : 'لم تحسم بعد';
           const endingText = record ? record.bestEndingTitle : 'افتح القضية لكشف الجاني والدافع';
           const endingsCount = record && record.unlockedEndings ? record.unlockedEndings.length : 0;
 
@@ -3841,7 +3860,7 @@
                 <span class="mono-stat">${escapeHtml(starStr)}</span>
               </div>
               <p>${escapeHtml(endingText)}</p>
-              <small>النهايات المفتوحة في هذا الملف: ${endingsCount} / 5</small>
+              <small>النهايات المفتوحة في هذا الملف: ${endingsCount} / 6</small>
             </div>
           `;
         })

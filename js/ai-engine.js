@@ -939,13 +939,15 @@ ${cluesLedger}
             ?.map(c => c.text)
             ?.join('');
         if (rawJson) {
-          const parsed = JSON.parse(rawJson);
+          const parsed = this.stripDisplayDiacritics(JSON.parse(rawJson));
           if (parsed.custom_epilogue_narrative) {
+            const vocalClosing = parsed.vocal_closing_line || baseOutcome.summary;
             return {
               ...baseOutcome,
               endingTitle: parsed.custom_ending_title || baseOutcome.endingTitle,
               summary: parsed.custom_epilogue_narrative,
-              vocalLine: parsed.vocal_closing_line || baseOutcome.summary,
+              vocalLine: vocalClosing,
+              vocalClosingLine: vocalClosing,
               isAiWrittenFinale: true
             };
           }
