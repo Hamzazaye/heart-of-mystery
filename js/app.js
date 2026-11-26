@@ -17,10 +17,10 @@
       title: 'قضية اليوم: بروتوكول المختبر الموصد',
       shortTitle: 'قضية اليوم: المختبر الموصد',
       teaserVoice:
-        '<breath> داخل مختبر الحوسبة الكمية المعزول... توقف المعالج التنبؤي المركزي عن العمل وفتحت حافظة الشرائح الثلاث، وأحد الباحثين الثلاثة في القاعة يخفي النموذج الخوارزمي المسروق.',
-      teaserEmotion: 'همس مريب وترقب',
+        'داخل مختبر الأبحاث الرقمية المعزول... توقف الحاسوب المركزي عن العمل وفتحت خزانة الشرائح الثلاث، وأحد الباحثين الثلاثة في القاعة يخفي الشريحة المسروقة!',
+      teaserEmotion: 'شجن غامض وترقب',
       prompt:
-        'أحقق في مختبر الحوسبة الكمية بعد توقف المعالج التنبؤي المركزي وفتح الحافظة المبردة للشرائح الثلاث، وتحوم الشبهات حول ثلاثة أشخاص: المهندس كريم نصار، الدكتور طارق زيدان، ومسؤول الأمن مازن الكيلاني.'
+        'أحقق في مختبر الأبحاث الرقمية بعد توقف الحاسوب المركزي وفتح الحافظة المبردة للشرائح الثلاث، وتحوم الشبهات حول ثلاثة أشخاص: المهندس كريم نصار، الدكتور طارق زيدان، ومسؤول الأمن مازن الكيلاني.'
     },
     multiverse: {
       id: 'multiverse',
@@ -34,20 +34,20 @@
     },
     unknown_land: {
       id: 'unknown_land',
-      title: 'مرصد الأفق: انحراف المجال المغناطيسي',
-      shortTitle: 'مرصد الأفق: انحراف المجال',
+      title: 'مرصد الأفق: لغز القبة المغلقة',
+      shortTitle: 'مرصد الأفق الفلكي',
       teaserVoice:
-        '<breath> داخل مرصد الأفق الكهرومغناطيسي المعزول في قلب الصحراء... <short pause> انحرف مقياس المجال أربعين درجة عند الفجر، واحتجز مهندس الرصد داخل غرفة الرنين بعد اختفاء قرص المعايرة الذري!',
+        '<breath> داخل مرصد الأفق الفلكي فوق الجبل الصحراوي... <short pause> انطلق جرس الإنذار عند الفجر، وحبس فني الرصد داخل قاعة التلسكوب بعد اختفاء قرص الصور الفلكية!',
       teaserEmotion: 'رهبة وترقب',
       prompt:
-        'في مرصد الأفق للأبحاث الكهرومغناطيسية، يختفي قرص المعايرة الذري عند الفجر وينحرف حساس المجال المغناطيسي بين ثلاثة باحثين: الدكتور سنان راشد، الدكتورة لينا الحسن، والمهندس جسار فهد.'
+        'في مرصد الأفق الفلكي فوق الهضبة الصحراوية، يختفي قرص الصور الفلكية عند الفجر ويحبس فني الرصد داخل قاعة التلسكوب بعد فك مقبض الباب، بين ثلاثة عاملين: الدكتور سنان راشد، الدكتورة لينا الحسن، والمهندس جسار فهد.'
     },
     manor: {
       id: 'manor',
       title: 'المصحة الجبلية: ذاكرة الساعتين المفقودتين',
       shortTitle: 'المصحة الجبلية: الذاكرة المفقودة',
       teaserVoice:
-        '<breath> المطر يطرق نوافذ المركز الطبي الجبلي كأصابع قلقة... وفي جيبك رسالة كتبتها بخط يدك تحذرك: محا العقار الساعتين الأخيرتين من ذاكرتك، لا تثق بمن يدعي أنه أنقذك الليلة!',
+        'المطر يطرق نوافذ المركز الطبي الجبلي كأصابع قلقة... وفي جيبك رسالة كتبتها بخط يدك تحذرك: محا العقار الساعتين الأخيرتين من ذاكرتك، لا تثق بمن يدعي أنه أنقذك الليلة!',
       teaserEmotion: 'همس مرعوب وترقب',
       prompt:
         'أستيقظ في مكتب الأبحاث داخل مصحة جبلية معزولة ليلة عاصفة ممطرة. في قبضتي مفتاح معدني بارد (A-12)، وعلى الطاولة رسالة كتبتها يدي تحذرني: لا تثق بمن يدعي أنه أنقذك الليلة. المدير القانوني نديم زهران والطبيبة سلمى الكيلاني ومسؤول الأمن منصور الجبلي داخل المركز، وساعة الحائط متوقفة عند 11:47.'
@@ -57,7 +57,7 @@
       title: 'المحطة القطبية: الصدى التاسع',
       shortTitle: 'المحطة القطبية: الصدى التاسع',
       teaserVoice:
-        '<gasp> تحت الجليد القطبي ينكر العلماء إرسال نداء الاستغاثة... غير أن سجل الخادم في القبو الحراري يفضح نشاطا حيا خلف البوابة الفولاذية الموصدة!',
+        'تحت الجليد القطبي ينكر العلماء إرسال نداء الاستغاثة... غير أن سجل الخادم في القبو الحراري يفضح نشاطا حيا خلف البوابة الفولاذية الموصدة!',
       teaserEmotion: 'صدمة وذهول درامي',
       prompt:
         'أصل إلى محطة أبحاث قطبية تحت الجليد بعد تلقي نداء استغاثة مشفر باسم الصدى التاسع. الدكتور راشد النجدي والمهندسة مريم الهاشمي والضابط طارق العتيبي يتبادلون الإفادات حول إغلاق القبو الحراري B4.'
@@ -67,7 +67,7 @@
       title: 'قطار منتصف الليل: الرحلة 404',
       shortTitle: 'قطار منتصف الليل 404',
       teaserVoice:
-        '<short pause> القطار يشق الضباب بلا توقف... اختفى القاضي سليمان خلف باب المقصورة الثالثة الموصد من الداخل، وكل راكب في العربة يخفي سرا يخشى افتضاحه قبل الفجر.',
+        'القطار يشق الضباب بلا توقف... اختفى القاضي سليمان خلف باب المقصورة الثالثة الموصد من الداخل، وكل راكب في العربة يخفي سرا يخشى افتضاحه قبل الفجر.',
       teaserEmotion: 'تساؤل ماكر وتشكيك',
       prompt:
         'يشق قطار فخم ستائر الضباب دون توقف. في المقصورة رقم 3 اختفى القاضي سليمان العلام خلف باب موصد بالسلسلة من الداخل، تاركا رائحة لوز مر. السكرتيرة ليلى الموصلي، العقيد فريد الشذر، والسائق عمران الحلبي هم المشتبه بهم.'
@@ -77,7 +77,7 @@
       title: 'المختبر البحري الغارق: شريحة الأعماق',
       shortTitle: 'المختبر البحري الغارق',
       teaserVoice:
-        '<breath> ثلاثون مترا تحت أمواج البحر... سقط كبير المهندسين الأستاذ يونس فاقدا للوعي داخل حجرة التفريغ الزجاجية، واختفت شريحة الاندماج الزرقاء خلف كاميرات تلاعب الفاعل بتوقيتها!',
+        'ثلاثون مترا تحت أمواج البحر... سقط كبير المهندسين الأستاذ يونس فاقدا للوعي داخل حجرة التفريغ الزجاجية، واختفت شريحة الاندماج الزرقاء من خلف الدروع المصفحة!',
       teaserEmotion: 'رهبة وترقب',
       prompt:
         'في مختبر أبحاث زجاجي شيد على عمق ثلاثين مترا تحت سطح البحر، يعثر الفريق على كبير المهندسين الأستاذ يونس فاقدا للوعي داخل حجرة التفريغ، وقد رسم بأنفاسه الأخيرة رمزا هندسيا مقلوبا على الزجاج قبل اختفاء شريحة الاندماج الزرقاء وسط الدكتورة سلمى نصار، رئيس الغواصين كمال البحيري، والباحث زياد الفاروقي.'
@@ -87,7 +87,7 @@
       title: 'جزيرة الضباب الأسود: المحكمة الأخيرة',
       shortTitle: 'جزيرة الضباب الأسود',
       teaserVoice:
-        '<sigh> تلتهم النيران قارب النجاة الوحيد في المرفأ... وفي قلب محطة الفنار ينطلق صوت بارد من المذياع ليحاكم الجميع على غرق السفينة أوريون!',
+        'تلتهم النيران القارب الوحيد في المرفأ... وفي قلب محطة الفنار ينطلق صوت من جهاز البث ليحاكم الجميع على سر غرق السفينة أوريون قبل عشر سنوات!',
       teaserEmotion: 'تحذير حاد',
       prompt:
         'تجمع رسائل مجهولة شهود الماضي داخل محطة فنار صخري معزول وسط البحر. وعند منتصف الليل ينطلق صوت عبر المذياع ليحاكم الدكتور مازن الغساني، الصحفية رنا المقدسي، والقبطان سليم بحري على جريمة غرق السفينة أوريون.'
@@ -1337,53 +1337,54 @@
     return pendingMultiverseCombo;
   }
 
+  /**
+   * اختيار ملف القضية في القائمة الرئيسية وتحديث الهيرو السينمائي (بدون أي استدعاء TTS تلقائي لمنع 429)
+   */
+  function selectScenarioById(scenId) {
+    selectedScenarioId = scenId;
+    dom.scenarioCards.forEach(c => {
+      const isMatch = c.dataset.scenario === scenId;
+      c.classList.toggle('selected', isMatch);
+      c.setAttribute('aria-pressed', String(isMatch));
+    });
+    if (dom.customScenarioBox) {
+      dom.customScenarioBox.classList.toggle('hidden', scenId !== 'custom');
+    }
+
+    const preset = SCENARIO_PRESETS[scenId] || SCENARIO_PRESETS.manor;
+    if (dom.selectedCaseSummaryText) {
+      dom.selectedCaseSummaryText.textContent = `الملف المختار: ${preset.shortTitle}`;
+    }
+    if (dom.heroSelectedCasePill) {
+      dom.heroSelectedCasePill.textContent = `🕯️ الملف النشط: ${preset.shortTitle}`;
+    }
+
+    const matchedCard = Array.from(dom.scenarioCards).find(c => c.dataset.scenario === scenId);
+    if (matchedCard) {
+      const tagText = matchedCard.querySelector('.scenario-tag')?.textContent?.trim();
+      const cardTitle = matchedCard.querySelector('h3')?.textContent?.trim();
+      const cardLead = matchedCard.querySelector('p')?.textContent?.trim();
+      if (dom.heroCaseCategoryText && tagText) {
+        dom.heroCaseCategoryText.textContent = tagText;
+      }
+      if (dom.heroDynamicTitle && cardTitle) {
+        dom.heroDynamicTitle.textContent = cardTitle;
+      }
+      if (dom.heroDynamicLead && cardLead) {
+        dom.heroDynamicLead.textContent = cardLead;
+      }
+    }
+
+    if (audioEngine.ambientEnabled) {
+      audioEngine.startAmbientEnvironment(scenId);
+    }
+    if (typeof window.__restartWeatherLoop === 'function') {
+      window.__restartWeatherLoop();
+    }
+  }
+
   function bindEvents() {
     rollAndPreviewMultiverseCard(false);
-
-    // اختيار ملف القضية في القائمة الرئيسية (بدون أي استدعاء TTS تلقائي لمنع 429)
-    const selectScenarioById = scenId => {
-      selectedScenarioId = scenId;
-      dom.scenarioCards.forEach(c => {
-        const isMatch = c.dataset.scenario === scenId;
-        c.classList.toggle('selected', isMatch);
-        c.setAttribute('aria-pressed', String(isMatch));
-      });
-      if (dom.customScenarioBox) {
-        dom.customScenarioBox.classList.toggle('hidden', scenId !== 'custom');
-      }
-
-      const preset = SCENARIO_PRESETS[scenId] || SCENARIO_PRESETS.manor;
-      if (dom.selectedCaseSummaryText) {
-        dom.selectedCaseSummaryText.textContent = `الملف المختار: ${preset.shortTitle}`;
-      }
-      if (dom.heroSelectedCasePill) {
-        dom.heroSelectedCasePill.textContent = `🕯️ الملف النشط: ${preset.shortTitle}`;
-      }
-
-      // تحديث الهيرو السينمائي لحظيا ليعرض تفاصيل القضية المختارة مثل منصات الألعاب الكبرى
-      const matchedCard = Array.from(dom.scenarioCards).find(c => c.dataset.scenario === scenId);
-      if (matchedCard) {
-        const tagText = matchedCard.querySelector('.scenario-tag')?.textContent?.trim();
-        const cardTitle = matchedCard.querySelector('h3')?.textContent?.trim();
-        const cardLead = matchedCard.querySelector('p')?.textContent?.trim();
-        if (dom.heroCaseCategoryText && tagText) {
-          dom.heroCaseCategoryText.textContent = tagText;
-        }
-        if (dom.heroDynamicTitle && cardTitle) {
-          dom.heroDynamicTitle.textContent = cardTitle;
-        }
-        if (dom.heroDynamicLead && cardLead) {
-          dom.heroDynamicLead.textContent = cardLead;
-        }
-      }
-
-      if (audioEngine.ambientEnabled) {
-        audioEngine.startAmbientEnvironment(scenId);
-      }
-      if (typeof window.__restartWeatherLoop === 'function') {
-        window.__restartWeatherLoop();
-      }
-    };
 
     if (dom.rerollMultiverseCardBtn) {
       dom.rerollMultiverseCardBtn.addEventListener('click', e => {
@@ -1507,7 +1508,7 @@
             card.classList.toggle('filter-hidden', !matches);
             if (matches) {
               if (!firstVisibleScenario) firstVisibleScenario = card.dataset.scenario;
-              if (card.dataset.scenario === gameState.scenarioId) {
+              if (card.dataset.scenario === selectedScenarioId) {
                 selectedStillVisible = true;
               }
             }
@@ -2693,9 +2694,21 @@
       .map(p => p.trim())
       .filter(Boolean);
 
-    paragraphs.forEach(paraText => {
+    paragraphs.forEach((paraText, pIdx) => {
       const p = document.createElement('p');
       p.textContent = paraText;
+      p.title = 'اضغط للاستماع إلى هذه الفقرة بصوت الراوي';
+      p.style.cursor = 'pointer';
+      p.addEventListener('click', () => {
+        const paraEmo =
+          (Array.isArray(turnData.paragraph_emotions) && turnData.paragraph_emotions[pIdx]) ||
+          turnData.vocal_emotion ||
+          'سرد سينمائي متدرج';
+        dom.narrativeBody.querySelectorAll('p').forEach((el, i) => {
+          el.classList.toggle('speaking-paragraph', i === pIdx);
+        });
+        audioEngine.speakSingleText(paraText, paraEmo, false);
+      });
       dom.narrativeBody.appendChild(p);
     });
 
@@ -3132,26 +3145,32 @@
       dom.quickEvidencePillsGroup.querySelectorAll('[data-quick-clue]').forEach(btn => {
         btn.addEventListener('click', () => {
           const cRef = btn.getAttribute('data-quick-clue');
+          if (typeof window.__setActiveActionMode === 'function') {
+            window.__setActiveActionMode('interrogate');
+          }
           if (dom.interrogateClueSelect) dom.interrogateClueSelect.value = cRef;
           if (dom.linkClueSelect) dom.linkClueSelect.value = cRef;
           if (dom.interrogationBar) {
             dom.interrogationBar.scrollIntoView({ behavior: 'smooth', block: 'center' });
             if (dom.interrogateSuspectSelect) dom.interrogateSuspectSelect.focus();
           }
-          showToast('🔍 تم اختيار الدليل للاستجواب والربط الجنائي.');
+          showToast('🔍 تم اختيار الدليل وفتح منصة الاستجواب المباشر.');
         });
       });
 
       dom.quickEvidencePillsGroup.querySelectorAll('[data-quick-suspect]').forEach(btn => {
         btn.addEventListener('click', () => {
           const sRef = btn.getAttribute('data-quick-suspect');
+          if (typeof window.__setActiveActionMode === 'function') {
+            window.__setActiveActionMode('interrogate');
+          }
           if (dom.interrogateSuspectSelect) dom.interrogateSuspectSelect.value = sRef;
           if (dom.linkSuspectSelect) dom.linkSuspectSelect.value = sRef;
           if (dom.interrogationBar) {
             dom.interrogationBar.scrollIntoView({ behavior: 'smooth', block: 'center' });
             if (dom.interrogateClueSelect) dom.interrogateClueSelect.focus();
           }
-          showToast('🗣️ تم تحديد المشتبه به في منصة الاستجواب.');
+          showToast('🗣️ تم تحديد المشتبه به وفتح منصة الاستجواب المباشر.');
         });
       });
     }

@@ -474,14 +474,17 @@ class MysteryAudioEngine {
     const totalLogicalSteps = (reactionEnabled ? 1 : 0) + narrativeSegments.length;
 
     try {
-      // بينما يُنطق رد الفعل التفاعلي القصير، نبدأ بتجهيز المشهد الكامل متعدد المشاعر في الخلفية بطلب واحد!
-      let multiNarrativePromise = null;
+      // فحص الملف الصوتي الكامل المحفوظ مسبقا للمشهد قبل أي استدعاء سحابي
+      let multiNarrativePromise = this.fetchPrebakedStaticAudioBlob(narrativeText).catch(() => null);
       if (narrativeSegments.length > 0 && isGemini38Tts && hasGeminiAccess) {
-        multiNarrativePromise = this.fetchGemini38MultiTurnAudioBlob(
-          narrativeSegments,
-          apiKey,
-          modelName
-        ).catch(() => null);
+        multiNarrativePromise = multiNarrativePromise.then(staticBlob => {
+          if (staticBlob) return staticBlob;
+          return this.fetchGemini38MultiTurnAudioBlob(
+            narrativeSegments,
+            apiKey,
+            modelName
+          ).catch(() => null);
+        });
       }
 
       if (reactionEnabled) {
@@ -516,7 +519,11 @@ class MysteryAudioEngine {
       }
 
       if (narrativeSegments.length > 0 && this.speechSessionId === activeSession) {
-        if (isGemini38Tts && hasGeminiAccess) {
+        let prebakedOrCloudBlob = multiNarrativePromise ? await multiNarrativePromise : null;
+        if (!prebakedOrCloudBlob) {
+          prebakedOrCloudBlob = await this.fetchPrebakedStaticAudioBlob(narrativeText);
+        }
+        if (prebakedOrCloudBlob || (isGemini38Tts && hasGeminiAccess)) {
           const firstSeg = narrativeSegments[0];
           this.initAudioContext();
           this.setSpeakingState(true, `الراوي: ${firstSeg.profile.label}`);
@@ -528,7 +535,7 @@ class MysteryAudioEngine {
             this.onEmotionShift(firstSeg.profile.label);
           }
 
-          let wavBlob = multiNarrativePromise ? await multiNarrativePromise : null;
+          let wavBlob = prebakedOrCloudBlob;
           if (!wavBlob && this.speechSessionId === activeSession) {
             this.playTapeWarmupCue();
             this.setSynthesizingState(
@@ -662,6 +669,14 @@ class MysteryAudioEngine {
     const { signal } = this.abortController;
 
     try {
+      // 1. فحص الملف الصوتي المحفوظ مسبقا في المشروع (/audio/clips/*.mp3) أولا في جميع الأوضاع لمنع أي صوت روبوتي أو استهلاك API
+      const prebakedBlob = await this.fetchPrebakedStaticAudioBlob(text);
+      if (prebakedBlob && this.speechSessionId === currentSession) {
+        const baseSpeed = Number(this.settings.speed) || 1.0;
+        await this.playAudioBlob(prebakedBlob, baseSpeed, currentSession);
+        return;
+      }
+
       const activeEngine = this.settings.engine;
       const apiKey = (this.settings.geminiApiKey || '').trim();
       const cloudKey = (this.settings.cloudTtsApiKey || apiKey).trim();
@@ -929,9 +944,12 @@ class MysteryAudioEngine {
     let clipPath = manifest[normKey] || null;
     if (!clipPath) {
       const prefix60 = normKey.slice(0, 68);
-      if (prefix60.length >= 20) {
+      if (prefix60.length >= 24) {
         for (const [k, v] of Object.entries(manifest)) {
-          if (k.startsWith(prefix60) || normKey.startsWith(k.slice(0, 68))) {
+          if (
+            Math.abs(k.length - normKey.length) <= 18 &&
+            (k.startsWith(prefix60) || normKey.startsWith(k.slice(0, 68)))
+          ) {
             clipPath = v;
             break;
           }
