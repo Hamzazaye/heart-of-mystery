@@ -29,6 +29,8 @@ class MysteryAudioEngine {
     this.audioCache = new Map();
     this.inflightFetches = new Map();
     this.rateLimitedModels = new Map();
+    this.lastCloudTtsRequestAt = 0;
+    this.cloudTtsQueuePromise = Promise.resolve();
 
     this.settings = {
       engine: 'gemini-3.8-flash-tts',
@@ -167,37 +169,53 @@ class MysteryAudioEngine {
     const clean = String(text || '');
     const combined = `${baseEmotion} ${clean}`;
 
-    // 1. صدمة وذهول وانقلاب درامي
+    // 1. انهيار واعتراف تحت الضغط (عند كسر حجة المشتبه به)
+    if (/أعترف|لا مفر|كيف طابقت|كيف عثرت|اللعنة|تبا لذلك|لقد حبست|أنا من دبر|أقسم أنني لم/.test(clean) || /انهيار|اعتراف/.test(baseEmotion)) {
+      return {
+        label: 'انهيار واعتراف تحت الضغط',
+        aura: 'shock',
+        style:
+          'cornered suspect breaking down under interrogation, breathless, trembling voice cracking with panic, guilt, and desperate confession',
+        tagPrefix: '<heavy breath> ',
+        rateMultiplier: 1.04,
+        pitchBrowser: 0.98
+      };
+    }
+
+    // 2. صدمة وذهول وانقلاب درامي
     if (
       /صدمة|ذهول|مستحيل|فجأة|صرخ|شهق|دم|جثة|القاتل|خيانة|انفجر|كارثة|مزق|متجمد|!/.test(combined) &&
       (isReaction || /!|فجأة|صدمة|مستحيل|جثة|دم|القاتل|شهق/.test(clean))
     ) {
       return {
         label: 'صدمة وذهول درامي',
+        aura: 'shock',
         style:
           'gasping, shocked, out of breath, high-tension dramatic mystery revelation with trembling emotional urgency and vivid theatrical inflection',
         tagPrefix: '<gasp> ',
-        rateMultiplier: 1.04,
-        pitchBrowser: 1.04
+        rateMultiplier: 1.03,
+        pitchBrowser: 1.03
       };
     }
 
-    // 2. همس مرعوب وترقب في الظلام
-    if (/همس|خلفك|ظل|خطوات|ظلام|صمت|أنفاس|مرعوب|ارتجف|خوف|ببطء|تسلل|بارد|شبح|مريب/.test(clean) || (isReaction && /همس/.test(baseEmotion))) {
+    // 3. همس مرعوب وترقب في الظلام
+    if (/همس|خلفك|ظل|خطوات|ظلام|صمت|أنفاس|مرعوب|ارتجف|خوف|ببطء|تسلل|بارد|شبح|مريب/.test(clean) || /همس/.test(baseEmotion)) {
       return {
         label: 'همس مرعوب وترقب',
+        aura: 'whisper',
         style:
           'whispers, hushed spine-chilling whisper close to the microphone, filled with creeping dread, shallow breath, and intimate noir suspense',
         tagPrefix: '<breath> ',
-        rateMultiplier: 0.95,
-        pitchBrowser: 0.82
+        rateMultiplier: 0.94,
+        pitchBrowser: 0.84
       };
     }
 
-    // 3. تحذير حاد وخطر داهم
-    if (/احذر|خطر|فخ|توقف|إياك|سلاح|قفل|سم|انفجار|يهرب|ينفد|حصار|مغلق|إنذار/.test(clean) || /تحذير|خطر|توتر/.test(baseEmotion)) {
+    // 4. تحذير حاد وخطر داهم
+    if (/احذر|خطر|فخ|توقف|إياك|سلاح|قفل|سم|انفجار|يهرب|ينفد|حصار|مغلق|إنذار|تحطيم|ارتطام/.test(clean) || /تحذير|خطر/.test(baseEmotion)) {
       return {
         label: 'تحذير حاد وتوتر لاهث',
+        aura: 'danger',
         style:
           'tense, urgent, speaking rapidly with high adrenaline, sharp dramatic warning tone charged with imminent danger',
         tagPrefix: '<heavy breath> ',
@@ -206,10 +224,37 @@ class MysteryAudioEngine {
       };
     }
 
-    // 4. شجن عميق وحزن وندم
-    if (/حزن|دموع|ندم|ذكرى|راحل|وداع|بكت|بكى|وحدة|ألم|ماض|اعتراف|غفران|ضائع/.test(clean) || /حزن|شجن|ندم/.test(baseEmotion)) {
+    // 5. رهبة ومهابة علمية/كونية
+    if (/رهبة|كوني|أعماق|تحت البحر|القبة|المرصد|المجال|الكمي|بوابة|شذوذ|أسطوري/.test(combined)) {
+      return {
+        label: 'رهبة ومهابة علمية',
+        aura: 'awe',
+        style:
+          'deep resonant voice filled with cinematic awe, cosmic mystery, and intellectual gravitas',
+        tagPrefix: '<breath> ',
+        rateMultiplier: 0.96,
+        pitchBrowser: 0.86
+      };
+    }
+
+    // 6. توتر وانفعال دفاعي (في الاستجواب)
+    if (/توتر وانفعال|انفعال|ارتباك|دفاع/.test(baseEmotion) || /هذا لا يثبت|أين دليلك|ربما كان|أنا ضيف مثلكم/.test(clean)) {
+      return {
+        label: 'توتر وانفعال دفاعي',
+        aura: 'danger',
+        style:
+          'agitated, defensive suspect trying to hide nervousness, rapid guarded delivery with underlying tension',
+        tagPrefix: '<short pause> ',
+        rateMultiplier: 1.03,
+        pitchBrowser: 0.95
+      };
+    }
+
+    // 7. شجن عميق وحزن وندم
+    if (/حزن|دموع|ندم|ذكرى|راحل|وداع|بكت|بكى|وحدة|ألم|ماض|غفران|ضائع/.test(clean) || /حزن|شجن|ندم/.test(baseEmotion)) {
       return {
         label: 'شجن عميق وندم',
+        aura: 'sorrow',
         style:
           'melancholic, sorrowful, speaking slowly with a heavy sigh, deeply emotional and poignant voice heavy with heartbreak and hidden grief',
         tagPrefix: '<sigh> ',
@@ -218,33 +263,62 @@ class MysteryAudioEngine {
       };
     }
 
-    // 5. تساؤل ساخر وشكوك محقق
-    if (/؟|لماذا|كيف|أحقا|غريب|مريب|كذب|خدعة|قناع|سخرية|ابتسامة باردة|لغز|تناقض/.test(clean) || /سخرية|مكر|تساؤل|شك/.test(baseEmotion)) {
+    // 8. تساؤل ماكر وتشكيك استقصائي
+    if (/؟|لماذا|كيف|أحقا|غريب|كذب|خدعة|قناع|سخرية|ابتسامة باردة|لغز|تناقض/.test(clean) || /سخرية|مكر|تساؤل|شك/.test(baseEmotion)) {
       return {
         label: 'تساؤل ماكر وتشكيك',
+        aura: 'probing',
         style:
           'sarcastic, shrewd, probing detective voice with sharp vocal emphasis on questions, dark irony, and knowing suspicion',
         tagPrefix: '<short pause> ',
-        rateMultiplier: 0.99,
+        rateMultiplier: 0.98,
         pitchBrowser: 0.91
       };
     }
 
-    // 6. ذروة المشهد في الفقرة الختامية
+    // 9. حزم وثقة استقصائية (عند إصدار الحكم أو كشف الحقيقة)
+    if (/حزم|ثقة|العدالة|الحكم|الحقيقة الكاملة|تطابق كامل/.test(combined)) {
+      return {
+        label: 'حزم وثقة استقصائية',
+        aura: 'verdict',
+        style:
+          'commanding, authoritative, resolute master detective delivering the final undeniable truth with calm power',
+        tagPrefix: '<short pause> ',
+        rateMultiplier: 0.97,
+        pitchBrowser: 0.88
+      };
+    }
+
+    // 10. تحليل علمي وجنائي دقيق
+    if (/تحليل|مختبر|معاينة|بصمة|توقيت|سجل|كاميرات|مقياس|عدسة|قرينة/.test(clean)) {
+      return {
+        label: 'تحليل علمي دقيق',
+        aura: 'forensic',
+        style:
+          'focused, razor-sharp forensic analyst examining physical evidence with intense concentration and clarity',
+        tagPrefix: '',
+        rateMultiplier: 0.99,
+        pitchBrowser: 0.9
+      };
+    }
+
+    // 11. ذروة المشهد في الفقرة الختامية
     if (!isReaction && totalChunks > 1 && chunkIndex === totalChunks - 1) {
       return {
         label: 'تصاعد درامي حاسم',
+        aura: 'climax',
         style:
           'theatrical cliffhanger narration, slowing down with deep gravitas, intense emotional weight, and dramatic suspense on the final words',
         tagPrefix: '<short pause> ',
-        rateMultiplier: 0.97,
+        rateMultiplier: 0.96,
         pitchBrowser: 0.87
       };
     }
 
-    // 7. افتتاحية مشهد سينمائي غامر أو رد فعل مباشر
+    // 12. افتتاحية مشهد سينمائي غامر أو رد فعل مباشر
     return {
       label: isReaction ? (baseEmotion || 'همس تفاعلي') : 'سرد سينمائي متدرج',
+      aura: 'cinema',
       style: isReaction
         ? 'vividly expressive, theatrical Arabic mystery narrator reacting directly to the detective with intense emotion and natural vocal dynamics'
         : 'expressive theatrical Arabic mystery actor with rich emotional variation, dynamic pitch inflection, and gripping noir atmosphere',
@@ -565,6 +639,12 @@ class MysteryAudioEngine {
   ) {
     if (!text || !text.trim()) return;
 
+    // إصلاح تمرير اسم الصوت في المعامل الرابع من استدعاءات الاستجواب المباشر
+    if (typeof sessionId === 'string') {
+      voiceOverride = sessionId;
+      sessionId = null;
+    }
+
     const profile =
       typeof emotionOrProfile === 'object' && emotionOrProfile !== null
         ? emotionOrProfile
@@ -696,6 +776,22 @@ class MysteryAudioEngine {
       };
     });
 
+    const combinedPlainForLookup = segments.map(s => s.text).join(' ');
+    const staticMultiBlob = await this.fetchPrebakedStaticAudioBlob(combinedPlainForLookup);
+    if (staticMultiBlob) {
+      return staticMultiBlob;
+    }
+
+    const normMultiKey = `NORM_MULTI::${voice}::${this.normalizeAudioLookupKey(combinedPlainForLookup)}`;
+    if (this.audioCache.has(normMultiKey)) {
+      return this.audioCache.get(normMultiKey);
+    }
+    const idbNormMulti = await this.getPersistedAudioBlob(normMultiKey);
+    if (idbNormMulti) {
+      this.audioCache.set(normMultiKey, idbNormMulti);
+      return idbNormMulti;
+    }
+
     const cacheKey = `MULTI::${voice}::${contentTurns.map(c => `${c.annotations[0].style}|${c.text}`).join('||')}`;
     if (this.audioCache.has(cacheKey)) {
       return this.audioCache.get(cacheKey);
@@ -709,7 +805,7 @@ class MysteryAudioEngine {
       return await this.inflightFetches.get(cacheKey);
     }
 
-    const fetchPromise = (async () => {
+    const fetchPromise = this.enqueueRateLimitedCloudTts(async () => {
       const endpoint = '/api/interactions';
       const ttsModelsOrder = this.getAvailableTtsModelsCascade(modelName);
       const combinedPlainTranscript = contentTurns.map(c => c.text).join('\n\n');
@@ -789,9 +885,11 @@ class MysteryAudioEngine {
         this.audioCache.delete(firstKey);
       }
       this.audioCache.set(cacheKey, wavBlob);
+      this.audioCache.set(normMultiKey, wavBlob);
       this.savePersistedAudioBlob(cacheKey, wavBlob);
+      this.savePersistedAudioBlob(normMultiKey, wavBlob);
       return wavBlob;
-    })();
+    });
 
     this.inflightFetches.set(cacheKey, fetchPromise);
     try {
@@ -804,6 +902,79 @@ class MysteryAudioEngine {
   /**
    * ذاكرة تخزين صوتية دائمة في المتصفح (IndexedDB) لتقليص استهلاك الحصة اليومية إلى الصفر عند إعادة الاستماع
    */
+  /**
+   * تطبيع النص المفتاحي للبحث في ملفات الصوت المحفوظة مسبقا (Static Pre-Saved Audio Files)
+   * وفي ذاكرة IndexedDB الدائمة بغض النظر عن تغير الوسوم التعبيرية
+   */
+  normalizeAudioLookupKey(rawText) {
+    return this.stripInlineVocalTags(String(rawText || ''))
+      .replace(/[\u064B-\u065F\u0670]/g, '')
+      .replace(/[«»"'،,.;:!؟?\-\s]+/g, ' ')
+      .trim()
+      .slice(0, 260);
+  }
+
+  /**
+   * فحص وتحميل الملف الصوتي المحفوظ مسبقا في المشروع (/audio/clips/*.mp3)
+   * لمنع استهلاك حصة Gemini API نهائيا في الكلام المتكرر وضمان صوت بشري سينمائي 100%
+   */
+  async fetchPrebakedStaticAudioBlob(rawText) {
+    const manifest =
+      typeof window !== 'undefined' ? window.MYSTERY_STATIC_AUDIO_MANIFEST : null;
+    if (!manifest || typeof manifest !== 'object') return null;
+
+    const normKey = this.normalizeAudioLookupKey(rawText);
+    if (!normKey) return null;
+
+    let clipPath = manifest[normKey] || null;
+    if (!clipPath) {
+      const prefix60 = normKey.slice(0, 68);
+      if (prefix60.length >= 20) {
+        for (const [k, v] of Object.entries(manifest)) {
+          if (k.startsWith(prefix60) || normKey.startsWith(k.slice(0, 68))) {
+            clipPath = v;
+            break;
+          }
+        }
+      }
+    }
+    if (!clipPath) return null;
+
+    const memKey = `STATIC_FILE::${clipPath}`;
+    if (this.audioCache.has(memKey)) {
+      return this.audioCache.get(memKey);
+    }
+
+    try {
+      const res = await fetch(clipPath);
+      if (!res.ok) return null;
+      const blob = await res.blob();
+      if (blob && blob.size > 400) {
+        this.audioCache.set(memKey, blob);
+        return blob;
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  /**
+   * منظم معدل الطلبات (Rate-Limit Safe Queue) لمنع تجاوز حصة API (429) عند توليد كلام جديد
+   */
+  async enqueueRateLimitedCloudTts(taskFn) {
+    const MIN_GAP_MS = 3600;
+    const runTask = async () => {
+      const elapsed = Date.now() - this.lastCloudTtsRequestAt;
+      if (elapsed < MIN_GAP_MS && this.lastCloudTtsRequestAt > 0) {
+        await new Promise(r => setTimeout(r, MIN_GAP_MS - elapsed));
+      }
+      this.lastCloudTtsRequestAt = Date.now();
+      return await taskFn();
+    };
+    const nextPromise = this.cloudTtsQueuePromise.then(runTask, runTask);
+    this.cloudTtsQueuePromise = nextPromise.catch(() => {});
+    return await nextPromise;
+  }
+
   openAudioCacheDB() {
     if (typeof indexedDB === 'undefined') return Promise.resolve(null);
     return new Promise(resolve => {
@@ -866,7 +1037,23 @@ class MysteryAudioEngine {
         ? profileOrEmotion
         : this.deriveChunkEmotionProfile(text, String(profileOrEmotion || ''), isReaction, 0, 1);
 
+    // 1. فحص الملفات الصوتية المحفوظة مسبقا في المشروع (/audio/clips/*.mp3) بدون أي استدعاء API
+    const staticBlob = await this.fetchPrebakedStaticAudioBlob(text);
+    if (staticBlob) {
+      return staticBlob;
+    }
+
     const voice = voiceOverride || this.settings.voiceName || 'Charon';
+    const normSingleKey = `NORM_SINGLE::${voice}::${this.normalizeAudioLookupKey(text)}`;
+    if (this.audioCache.has(normSingleKey)) {
+      return this.audioCache.get(normSingleKey);
+    }
+    const idbNormSingle = await this.getPersistedAudioBlob(normSingleKey);
+    if (idbNormSingle) {
+      this.audioCache.set(normSingleKey, idbNormSingle);
+      return idbNormSingle;
+    }
+
     const transcriptWithTags = this.prepareGemini38Transcript(text, profile, isReaction);
     const speechStyle = profile.style || this.getGemini38SpeechStyle(profile.label, isReaction);
     const cacheKey = `${voice}::${profile.label}::${isReaction ? 'R' : 'S'}::${transcriptWithTags}`;
@@ -885,7 +1072,7 @@ class MysteryAudioEngine {
       return await this.inflightFetches.get(cacheKey);
     }
 
-    const fetchPromise = (async () => {
+    const fetchPromise = this.enqueueRateLimitedCloudTts(async () => {
       // الاتصال حصرياً عبر الخادم الآمن (/api/interactions) حيث يُحقن GEMINI_API_KEY في بيئة Cloudflare المشفرة دون كشفه في المتصفح
       const endpoint = '/api/interactions';
       const ttsModelsOrder = this.getAvailableTtsModelsCascade(modelName);
@@ -989,9 +1176,11 @@ class MysteryAudioEngine {
         this.audioCache.delete(firstKey);
       }
       this.audioCache.set(cacheKey, wavBlob);
+      this.audioCache.set(normSingleKey, wavBlob);
       this.savePersistedAudioBlob(cacheKey, wavBlob);
+      this.savePersistedAudioBlob(normSingleKey, wavBlob);
       return wavBlob;
-    })();
+    });
 
     this.inflightFetches.set(cacheKey, fetchPromise);
     try {
@@ -1051,6 +1240,9 @@ class MysteryAudioEngine {
   }
 
   getGemini38SpeechStyle(emotion = '', isReaction = false) {
+    if (emotion.includes('انهيار') || emotion.includes('اعتراف')) {
+      return 'cornered suspect breaking down under interrogation, breathless, trembling voice cracking with panic and confession';
+    }
     if (emotion.includes('همس')) {
       return 'whispered urgently, mysterious, hushed and suspenseful tone';
     }
@@ -1060,11 +1252,23 @@ class MysteryAudioEngine {
     if (emotion.includes('تحذير') || emotion.includes('خطر')) {
       return 'tense, urgent warning tone, serious and suspenseful';
     }
-    if (emotion.includes('شجن') || emotion.includes('حزن')) {
+    if (emotion.includes('رهبة') || emotion.includes('مهابة')) {
+      return 'deep resonant voice filled with cinematic awe, cosmic mystery, and intellectual gravitas';
+    }
+    if (emotion.includes('انفعال') || emotion.includes('دفاع')) {
+      return 'agitated, defensive suspect trying to hide nervousness, rapid guarded delivery';
+    }
+    if (emotion.includes('شجن') || emotion.includes('حزن') || emotion.includes('ندم')) {
       return 'melancholic, sorrowful, deeply emotional and poignant tone';
     }
-    if (emotion.includes('سخرية') || emotion.includes('ماكر')) {
-      return 'calm, enigmatic, subtly ironic and mysterious detective tone';
+    if (emotion.includes('سخرية') || emotion.includes('ماكر') || emotion.includes('تساؤل')) {
+      return 'calm, enigmatic, subtly ironic and probing detective tone';
+    }
+    if (emotion.includes('حزم') || emotion.includes('ثقة')) {
+      return 'commanding, authoritative master detective delivering undeniable truth';
+    }
+    if (emotion.includes('تحليل') || emotion.includes('علمي')) {
+      return 'focused, razor-sharp forensic scientist analyzing physical evidence';
     }
     if (isReaction) {
       return 'expressive, mysterious, dramatic narrator reaction';
@@ -1074,8 +1278,8 @@ class MysteryAudioEngine {
 
   /**
    * مُشكِّل الحركات الأساسية الذكي (Essential Arabic Diacritizer for Accurate Pronunciation)
-   * يضيف التشكيل الصوتي الأساسي على الأفعال المبنية للمجهول، المصطلحات الجنائية، الكلمات المتشابهة رسماً،
-   * وأسماء الشخصيات والأماكن لضمان نطق عربي سليم وفصيح في جميع محركات النطق.
+   * يضيف التشكيل الصوتي الأساسي على الأفعال المبنية للمجهول، المصطلحات العلمية والجنائية،
+   * وأسماء الشخصيات والأماكن المعاصرة لضمان نطق عربي سليم وفصيح داخليا في جميع محركات النطق.
    */
   applyEssentialArabicDiacritics(rawText) {
     if (!rawText) return '';
@@ -1097,12 +1301,12 @@ class MysteryAudioEngine {
       ['كتب', 'كُتِبَ'],
       ['خبئت', 'خُبِّئَتْ'],
       ['خبئ', 'خُبِّئَ'],
-      ['انتشل', 'انْتُشِلَ'],
+      ['احتجز', 'احْتُجِزَ'],
       ['سمع', 'سُمِعَ'],
       ['قطع', 'قُطِعَ'],
       ['كسر', 'كَسْرِ'],
       ['انكسرت', 'انْكَسَرَتْ'],
-      // المصطلحات الجنائية والاستقصائية الأساسية
+      // المصطلحات الجنائية والعلمية المعاصرة
       ['المحقق', 'المُحَقِّقُ'],
       ['محقق', 'مُحَقِّقٌ'],
       ['المشتبه بهم', 'المُشْتَبَهُ بِهِمْ'],
@@ -1115,70 +1319,55 @@ class MysteryAudioEngine {
       ['حجة الغياب', 'حُجَّةُ الغِيَابِ'],
       ['مسرح الجريمة', 'مَسْرَحِ الجَرِيمَةِ'],
       ['غرفة الاتهام', 'غُرْفَةِ الاتِّهَامِ'],
-      ['الوصية', 'الوَصِيَّةِ'],
-      ['المخطوطة', 'المَخْطُوطَةِ'],
-      ['الخزانة', 'الخِزَانَةِ'],
-      ['المقصورة', 'المَقْصُورَةِ'],
-      ['البوصلة', 'البَوْصَلَةِ'],
-      ['الإسطرلاب', 'الإِسْطُرْلَابِ'],
-      ['أرض السراب المجهولة', 'أَرْضِ السَّرَابِ المَجْهُولَةِ'],
-      ['أرض مجهولة', 'أَرْضٍ مَجْهُولَةٍ'],
-      ['مدينة النحاس', 'مَدِينَةِ النُّحَاسِ'],
-      ['قصر آل السهروردي', 'قَصْرِ آلِ السَّهْرَوَرْدِيِّ'],
+      ['المعالج التنبؤي', 'المُعَالِجِ التَّنَبُّؤِيِّ'],
+      ['الحافظة المبردة', 'الحَافِظَةِ المُبَرَّدَةِ'],
+      ['الهالوثان العصبي', 'الهَالُوثَانِ العَصَبِيِّ'],
+      ['مصل نيورو-ألفا', 'مَصْلِ نِيُورُو أَلْفَا'],
+      ['قرص المعايرة الذري', 'قُرْصِ المُعَايَرَةِ الذَّرِّيِّ'],
+      ['شريحة الاندماج الزرقاء', 'شَرِيحَةِ الانْدِمَاجِ الزَّرْقَاءِ'],
+      ['مرصد الأفق', 'مَرْصَدِ الأُفُقِ'],
+      ['المصحة الجبلية', 'المَصَحَّةِ الجَبَلِيَّةِ'],
       ['المحطة القطبية', 'المَحَطَّةِ القُطْبِيَّةِ'],
       ['الصدى التاسع', 'الصَّدَى التَّاسِعِ'],
-      ['سوق الوراقين', 'سُوقِ الوَرَّاقِينَ'],
-      ['التفاحات الثلاث', 'التُّفَّاحَاتِ الثَّلَاثِ'],
+      ['المختبر البحري الغارق', 'المُخْتَبَرِ البَحْرِيِّ الغَارِقِ'],
       ['جزيرة الضباب', 'جَزِيرَةِ الضَّبَابِ'],
       ['السفينة أوريون', 'السَّفِينَةِ أُورْيُون'],
       ['سفينة أوريون', 'سَفِينَةِ أُورْيُون'],
-      // أسماء الشخصيات والأعلام في جميع القضايا لضبط النطق الصوتي السليم داخلياً فقط
-      ['بهزاد الوراق', 'بِهْزَادُ الوَرَّاقُ'],
-      ['فيروز العطار', 'فَيْرُوزُ العَطَّارُ'],
-      ['ريحان الحارس', 'رَيْحَانُ الحَارِسُ'],
-      ['عمران النحاس', 'عِمْرَانُ النَّحَّاسُ'],
-      ['عمران', 'عِمْرَانُ'],
-      ['جمانة الفلكية', 'جُمَانَةُ الفَلَكِيَّةُ'],
-      ['جمانة', 'جُمَانَةُ'],
-      ['سلافة الحارسة', 'سُلَافَةُ الحَارِسَةُ'],
-      ['سلافة', 'سُلَافَةُ'],
-      ['غياث الموصلي', 'غِيَاثٌ المَوْصِلِيُّ'],
-      ['غياث', 'غِيَاثٌ'],
-      ['صفوان الكاتب', 'صَفْوَانُ الكَاتِبُ'],
-      ['صفوان', 'صَفْوَانُ'],
-      ['خلدون العسس', 'خَلْدُونُ العَسَسِ'],
-      ['خلدون', 'خَلْدُونُ'],
-      ['الميرزا قاسم', 'المِيرْزَا قَاسِمٌ'],
-      ['يعقوب الساعاتي', 'يَعْقُوبُ السَّاعَاتِي'],
-      ['حكمت الحاجب', 'حِكْمَتُ الحَاجِبُ'],
-      ['نادر بك', 'نَادِرُ بَكْ'],
-      ['الدكتورة سيرين', 'الدُّكْتُورَةُ سِيرِينُ'],
-      ['سيرين', 'سِيرِينُ'],
-      ['طارق السائق', 'طَارِقٌ السَّائِقُ'],
-      ['الدكتور راشد', 'الدُّكْتُورُ رَاشِدٌ'],
-      ['المهندسة ليلى', 'المُهَنْدِسَةُ لَيْلَى'],
-      ['الحارس إلياس', 'الحَارِسُ إِلْيَاسُ'],
-      ['الكابتن فؤاد', 'الكَابْتِنُ فُؤَادٌ'],
-      ['الطبيب مروان', 'الطَّبِيبُ مَرْوَانُ'],
-      ['المهندس وليد', 'المُهَنْدِسُ وَلِيدٌ'],
-      ['الأدميرال تيمور', 'الأَدْمِيرَالُ تَيْمُورُ'],
-      ['الأدميرال', 'الأَدْمِيرَالِ'],
+      // أسماء الشخصيات المعاصرة في جميع القضايا
+      ['المهندس كريم نصار', 'المُهَنْدِسُ كَرِيم نَصَّار'],
+      ['كريم نصار', 'كَرِيم نَصَّار'],
+      ['الدكتور طارق زيدان', 'الدُّكْتُورُ طَارِق زَيْدَان'],
+      ['طارق زيدان', 'طَارِق زَيْدَان'],
+      ['مازن الكيلاني', 'مَازِن الكِيلَانِي'],
+      ['نديم زهران', 'نَدِيم زَهْرَان'],
+      ['الدكتورة سلمى الكيلاني', 'الدُّكْتُورَةُ سَلْمَى الكِيلَانِي'],
+      ['الدكتورة سلمى نصار', 'الدُّكْتُورَةُ سَلْمَى نَصَّار'],
       ['الدكتورة سلمى', 'الدُّكْتُورَةُ سَلْمَى'],
-      ['الأستاذ يونس', 'الأُسْتَاذُ يُونُسُ'],
-      ['منصور الحارس', 'مَنْصُورٌ الحَارِسُ'],
-      ['منصور', 'مَنْصُورٌ'],
-      ['القاضي العلام', 'القَاضِي العَلَّامُ'],
-      ['نديم', 'نَدِيمٌ'],
-      ['المهندسة مايا', 'المُهَنْدِسَةُ مَايَا'],
-      ['الضابط طارق', 'الضَّابِطُ طَارِقٌ'],
+      ['منصور الجبلي', 'مَنْصُور الجَبَلِي'],
+      ['الدكتور راشد النجدي', 'الدُّكْتُورُ رَاشِد النَّجْدِي'],
+      ['المهندسة مريم الهاشمي', 'المُهَنْدِسَةُ مَرْيَم الهَاشِمِي'],
+      ['الضابط طارق العتيبي', 'الضَّابِطُ طَارِق العُتَيْبِي'],
+      ['ليلى الموصلي', 'لَيْلَى المَوْصِلِي'],
+      ['العقيد المتقاعد فريد الشذر', 'العَقِيدُ المُتَقَاعِدُ فَرِيد الشَّذَر'],
       ['العقيد فريد', 'العَقِيدُ فَرِيدٌ'],
+      ['القاضي سليمان العلام', 'القَاضِي سُلَيْمَانُ العَلَّامُ'],
       ['القاضي سليمان', 'القَاضِي سُلَيْمَانُ'],
-      ['الدكتور مازن', 'الدُّكْتُورُ مَازِنٌ'],
-      ['القبطان سليم', 'القُبْطَانُ سَلِيمٌ'],
-      ['الصحفية رنا', 'الصَّحَفِيَّةُ رَنَا'],
-      ['الرحالة سنان', 'الرَّحَّالَةُ سِنَانٌ'],
-      ['العالمة ياقوت', 'العَالِمَةُ يَاقُوتُ'],
-      ['الدليل جسار', 'الدَّلِيلُ جَسَّارٌ']
+      ['عمران الحلبي', 'عِمْرَانُ الحَلَبِي'],
+      ['كمال البحيري', 'كَمَال البُحَيْرِي'],
+      ['الباحث زياد الفاروقي', 'البَاحِثُ زِيَاد الفَارُوقِي'],
+      ['الأستاذ يونس', 'الأُسْتَاذُ يُونُسُ'],
+      ['الدكتور مازن الغساني', 'الدُّكْتُورُ مَازِن الغَسَّانِي'],
+      ['الصحفية رنا المقدسي', 'الصَّحَفِيَّةُ رَنَا المَقْدِسِي'],
+      ['القبطان سليم بحري', 'القُبْطَانُ سَلِيم بَحْرِي'],
+      ['الدكتور سنان راشد', 'الدُّكْتُورُ سِنَان رَاشِد'],
+      ['الدكتورة لينا الحسن', 'الدُّكْتُورَةُ لِينَا الحَسَن'],
+      ['المهندس جسار فهد', 'المُهَنْدِسُ جَسَّار فَهْد'],
+      ['الدكتورة ريما نصار', 'الدُّكْتُورَةُ رِيمَا نَصَّار'],
+      ['المهندس غسان الكيلاني', 'المُهَنْدِسُ غَسَّان الكِيلَانِي'],
+      ['القاضية سلافة الأنصاري', 'القَاضِيَةُ سُلَافَةُ الأَنْصَارِي'],
+      ['الكابتن رامي سنان', 'الكَابْتِنُ رَامِي سِنَان'],
+      ['الدكتور منذر العلي', 'الدُّكْتُورُ مُنْذِر العَلِي'],
+      ['المهندسة ليلى الشامي', 'المُهَنْدِسَةُ لَيْلَى الشَّامِي']
     ];
 
     for (const [word, replacement] of lexicon) {
@@ -1669,6 +1858,78 @@ class MysteryAudioEngine {
       osc.start(now + 0.05);
       osc.stop(now + 1.4);
     });
+  }
+
+  /**
+   * مؤثرات صوتية حسية غامرة (Tactile Detective Foley SFX):
+   * - تقليب أوراق دفتر التحقيق (playDossierPaperSound)
+   * - مطرقة المحكمة وبوابة الاتهام (playGavelVerdictSound)
+   * - نبضة الماسح الجنائي عند فحص نقطة ساخنة (playForensicScannerBeep)
+   */
+  playDossierPaperSound() {
+    if (!this.sfxEnabled) return;
+    try {
+      this.initAudioContext();
+      const sr = this.audioCtx.sampleRate;
+      const dur = 0.085;
+      const len = Math.floor(sr * dur);
+      const buf = this.audioCtx.createBuffer(1, len, sr);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) {
+        const env = Math.sin((Math.PI * i) / len) * Math.exp(-i / (len * 0.45));
+        d[i] = (Math.random() * 2 - 1) * env * 0.14;
+      }
+      const src = this.audioCtx.createBufferSource();
+      src.buffer = buf;
+      const filter = this.audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 1850;
+      filter.Q.value = 1.2;
+      src.connect(filter);
+      filter.connect(this.audioCtx.destination);
+      src.start();
+    } catch (_) {}
+  }
+
+  playGavelVerdictSound() {
+    if (!this.sfxEnabled) return;
+    try {
+      this.initAudioContext();
+      const now = this.audioCtx.currentTime;
+      [0, 0.22].forEach((offset, idx) => {
+        const osc = this.audioCtx.createOscillator();
+        const gain = this.audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(idx === 0 ? 155 : 130, now + offset);
+        osc.frequency.exponentialRampToValueAtTime(42, now + offset + 0.16);
+        gain.gain.setValueAtTime(0.22, now + offset);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.18);
+        osc.connect(gain);
+        gain.connect(this.audioCtx.destination);
+        osc.start(now + offset);
+        osc.stop(now + offset + 0.19);
+      });
+    } catch (_) {}
+  }
+
+  playForensicScannerBeep() {
+    if (!this.sfxEnabled) return;
+    try {
+      this.initAudioContext();
+      const now = this.audioCtx.currentTime;
+      [880, 1318.5].forEach((freq, idx) => {
+        const osc = this.audioCtx.createOscillator();
+        const gain = this.audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.055);
+        gain.gain.setValueAtTime(0.055, now + idx * 0.055);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.055 + 0.09);
+        osc.connect(gain);
+        gain.connect(this.audioCtx.destination);
+        osc.start(now + idx * 0.055);
+        osc.stop(now + idx * 0.055 + 0.1);
+      });
+    } catch (_) {}
   }
 
   /* ==========================================================================

@@ -5502,3 +5502,178 @@ html[data-theme="detective-light"] .narrative-card {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* ============================================================================
+   ULTRA-IMMERSIVE SENSORY HUD, DETECTIVE FLASHLIGHT & EMOTION-REACTIVE AURA
+   ============================================================================ */
+
+.immersive-forensic-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(8, 13, 24, 0.92), rgba(15, 23, 38, 0.86));
+  border: 1px solid rgba(110, 193, 198, 0.25);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 10px 24px -10px rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(12px);
+}
+
+.hud-telemetry-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+.hud-telemetry-pill strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.hud-heartbeat-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+  animation: hudHeartbeatPulse 1.1s ease-in-out infinite;
+}
+
+.hud-pulse-pill.high-tension .hud-heartbeat-dot {
+  background: #ef4444;
+  box-shadow: 0 0 14px #ef4444;
+  animation-duration: 0.55s;
+}
+
+@keyframes hudHeartbeatPulse {
+  0%, 100% {
+    transform: scale(0.88);
+    opacity: 0.7;
+  }
+  35% {
+    transform: scale(1.35);
+    opacity: 1;
+  }
+}
+
+.hud-flashlight-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: rgba(229, 184, 92, 0.12);
+  border: 1px solid rgba(229, 184, 92, 0.35);
+  color: var(--accent-gold-bright);
+  transition: all 0.22s ease;
+}
+
+.hud-flashlight-toggle.active {
+  background: rgba(229, 184, 92, 0.24);
+  border-color: rgba(229, 184, 92, 0.72);
+  box-shadow: 0 0 16px rgba(229, 184, 92, 0.22);
+}
+
+/* Interactive Detective Flashlight Spotlight following cursor on Narrative & Clues */
+body.flashlight-mode-active .narrative-card,
+body.flashlight-mode-active .vocal-reaction-card,
+body.flashlight-mode-active .suspicious-hotspot {
+  position: relative;
+  overflow: hidden;
+}
+
+body.flashlight-mode-active .narrative-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    360px circle at var(--spot-x, 50%) var(--spot-y, 35%),
+    rgba(245, 208, 120, 0.11),
+    rgba(110, 193, 198, 0.04) 45%,
+    rgba(4, 7, 14, 0.28) 100%
+  );
+  transition: opacity 0.25s ease;
+  z-index: 1;
+}
+
+/* Emotion-Reactive Atmospheric Aura on #gameStage */
+.game-stage {
+  transition: box-shadow 0.55s ease, border-color 0.55s ease;
+}
+
+.game-stage[data-emotion-aura="whisper"] .vocal-reaction-card,
+.game-stage[data-emotion-aura="whisper"] .narrative-card {
+  border-color: rgba(110, 193, 198, 0.45);
+  box-shadow: 0 18px 42px -14px rgba(14, 116, 144, 0.32);
+}
+
+.game-stage[data-emotion-aura="shock"] .vocal-reaction-card,
+.game-stage[data-emotion-aura="danger"] .vocal-reaction-card,
+.game-stage[data-emotion-aura="shock"] .narrative-card {
+  border-color: rgba(239, 68, 68, 0.52);
+  box-shadow: 0 18px 44px -14px rgba(220, 38, 38, 0.32);
+}
+
+.game-stage[data-emotion-aura="awe"] .vocal-reaction-card,
+.game-stage[data-emotion-aura="awe"] .narrative-card {
+  border-color: rgba(168, 85, 247, 0.48);
+  box-shadow: 0 18px 44px -14px rgba(126, 34, 206, 0.3);
+}
+
+.game-stage[data-emotion-aura="verdict"] .vocal-reaction-card,
+.game-stage[data-emotion-aura="climax"] .vocal-reaction-card,
+.game-stage[data-emotion-aura="verdict"] .narrative-card {
+  border-color: rgba(245, 208, 120, 0.62);
+  box-shadow: 0 18px 44px -14px rgba(229, 184, 92, 0.32);
+}
+
+/* Cinematic Staggered Paragraph Reveal & Active Spoken Paragraph Spotlight */
+.narrative-body p {
+  position: relative;
+  z-index: 2;
+  transition: transform 0.32s ease, background-color 0.32s ease, border-color 0.32s ease, box-shadow 0.32s ease;
+  animation: narrativeParaFadeIn 0.48s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.narrative-body p:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.narrative-body p:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+@keyframes narrativeParaFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.narrative-body p.speaking-paragraph {
+  background: linear-gradient(90deg, rgba(229, 184, 92, 0.06), rgba(229, 184, 92, 0.14));
+  border-right: 3px solid var(--accent-gold-bright);
+  padding-right: 12px;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px -8px rgba(229, 184, 92, 0.25);
+}

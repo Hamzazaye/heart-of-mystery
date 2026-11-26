@@ -34,13 +34,13 @@
     },
     unknown_land: {
       id: 'unknown_land',
-      title: 'المنشأة السابعة: انحراف المجال المغناطيسي',
-      shortTitle: 'المنشأة السابعة: انحراف المجال',
+      title: 'مرصد الأفق: انحراف المجال المغناطيسي',
+      shortTitle: 'مرصد الأفق: انحراف المجال',
       teaserVoice:
-        '<breath> داخل منشأة الأبحاث الكهرومغناطيسية المعزولة في قلب الصحراء... <short pause> انحرف مقياس المجال أربعين درجة عند الفجر، واحتجز مهندس الرصد داخل غرفة الرنين بعد اختفاء قرص المعايرة الذري!',
+        '<breath> داخل مرصد الأفق الكهرومغناطيسي المعزول في قلب الصحراء... <short pause> انحرف مقياس المجال أربعين درجة عند الفجر، واحتجز مهندس الرصد داخل غرفة الرنين بعد اختفاء قرص المعايرة الذري!',
       teaserEmotion: 'رهبة وترقب',
       prompt:
-        'في منشأة الأبحاث الكهرومغناطيسية السابعة المعزولة، يختفي قرص المعايرة الذري عند الفجر وينحرف حساس المجال المغناطيسي بين ثلاثة باحثين: الدكتور سنان راشد، الدكتورة لينا الحسن، والمهندس جسار فهد.'
+        'في مرصد الأفق للأبحاث الكهرومغناطيسية، يختفي قرص المعايرة الذري عند الفجر وينحرف حساس المجال المغناطيسي بين ثلاثة باحثين: الدكتور سنان راشد، الدكتورة لينا الحسن، والمهندس جسار فهد.'
     },
     manor: {
       id: 'manor',
@@ -50,14 +50,14 @@
         '<breath> المطر يطرق نوافذ المركز الطبي الجبلي كأصابع قلقة... وفي جيبك رسالة كتبتها بخط يدك تحذرك: محا العقار الساعتين الأخيرتين من ذاكرتك، لا تثق بمن يدعي أنه أنقذك الليلة!',
       teaserEmotion: 'همس مرعوب وترقب',
       prompt:
-        'أستيقظ في مكتب الأبحاث داخل مصحة جبلية معزولة ليلة عاصفة ممطرة. في قبضتي مفتاح معدني بارد، وعلى الطاولة رسالة كتبتها يدي تحذرني: لا تثق بمن يدعي أنه أنقذك الليلة. المدير القانوني نديم زهران والطبيبة سلمى الكيلاني ومسؤول الأمن منصور الجبلي داخل المركز، وساعة الحائط متوقفة عند 11:47.'
+        'أستيقظ في مكتب الأبحاث داخل مصحة جبلية معزولة ليلة عاصفة ممطرة. في قبضتي مفتاح معدني بارد (A-12)، وعلى الطاولة رسالة كتبتها يدي تحذرني: لا تثق بمن يدعي أنه أنقذك الليلة. المدير القانوني نديم زهران والطبيبة سلمى الكيلاني ومسؤول الأمن منصور الجبلي داخل المركز، وساعة الحائط متوقفة عند 11:47.'
     },
     station: {
       id: 'station',
       title: 'المحطة القطبية: الصدى التاسع',
       shortTitle: 'المحطة القطبية: الصدى التاسع',
       teaserVoice:
-        '<gasp> تحت الجليد القطبي ينكر العلماء إرسال نداء الاستغاثة... غير أن سجل الخادم في القبو الحراري يفضح سرا دفن تحت الصقيع!',
+        '<gasp> تحت الجليد القطبي ينكر العلماء إرسال نداء الاستغاثة... غير أن سجل الخادم في القبو الحراري يفضح نشاطا حيا خلف البوابة الفولاذية الموصدة!',
       teaserEmotion: 'صدمة وذهول درامي',
       prompt:
         'أصل إلى محطة أبحاث قطبية تحت الجليد بعد تلقي نداء استغاثة مشفر باسم الصدى التاسع. الدكتور راشد النجدي والمهندسة مريم الهاشمي والضابط طارق العتيبي يتبادلون الإفادات حول إغلاق القبو الحراري B4.'
@@ -67,20 +67,20 @@
       title: 'قطار منتصف الليل: الرحلة 404',
       shortTitle: 'قطار منتصف الليل 404',
       teaserVoice:
-        '<short pause> القطار يشق الضباب بلا توقف... اختفى القاضي سليمان خلف باب موصد من الداخل، وكل راكب في العربة يخفي سرا يخشى افتضاحه قبل الفجر.',
+        '<short pause> القطار يشق الضباب بلا توقف... اختفى القاضي سليمان خلف باب المقصورة الثالثة الموصد من الداخل، وكل راكب في العربة يخفي سرا يخشى افتضاحه قبل الفجر.',
       teaserEmotion: 'تساؤل ماكر وتشكيك',
       prompt:
-        'يشق قطار فخم ستائر الضباب دون توقف. في المقصورة رقم 7 اختفى القاضي سليمان العلام خلف باب موصد بالسلسلة من الداخل، تاركا رائحة لوز مر. السكرتيرة ليلى الموصلي، العقيد فريد الشذر، والسائق عمران الحلبي هم المشتبه بهم.'
+        'يشق قطار فخم ستائر الضباب دون توقف. في المقصورة رقم 3 اختفى القاضي سليمان العلام خلف باب موصد بالسلسلة من الداخل، تاركا رائحة لوز مر. السكرتيرة ليلى الموصلي، العقيد فريد الشذر، والسائق عمران الحلبي هم المشتبه بهم.'
     },
     museum: {
       id: 'museum',
-      title: 'المختبر البحري الغارق: النموذج السابع',
+      title: 'المختبر البحري الغارق: شريحة الأعماق',
       shortTitle: 'المختبر البحري الغارق',
       teaserVoice:
-        '<breath> ثلاثون مترا تحت أمواج البحر... سقط كبير المهندسين الأستاذ يونس فاقدا للوعي داخل حجرة التفريغ الزجاجية، واختفت شريحة الاندماج السابعة خلف كاميرات تلاعب الفاعل بتوقيتها!',
+        '<breath> ثلاثون مترا تحت أمواج البحر... سقط كبير المهندسين الأستاذ يونس فاقدا للوعي داخل حجرة التفريغ الزجاجية، واختفت شريحة الاندماج الزرقاء خلف كاميرات تلاعب الفاعل بتوقيتها!',
       teaserEmotion: 'رهبة وترقب',
       prompt:
-        'في مختبر أبحاث زجاجي شيد على عمق ثلاثين مترا تحت سطح البحر، يعثر الفريق على كبير المهندسين الأستاذ يونس فاقدا للوعي داخل حجرة التفريغ، وقد رسم بأنفاسه الأخيرة رمزا هندسيا مقلوبا على الزجاج قبل اختفاء شريحة الاندماج السابعة وسط الدكتورة سلمى نصار، رئيس الغواصين كمال البحيري، والباحث زياد الفاروقي.'
+        'في مختبر أبحاث زجاجي شيد على عمق ثلاثين مترا تحت سطح البحر، يعثر الفريق على كبير المهندسين الأستاذ يونس فاقدا للوعي داخل حجرة التفريغ، وقد رسم بأنفاسه الأخيرة رمزا هندسيا مقلوبا على الزجاج قبل اختفاء شريحة الاندماج الزرقاء وسط الدكتورة سلمى نصار، رئيس الغواصين كمال البحيري، والباحث زياد الفاروقي.'
     },
     island: {
       id: 'island',
@@ -412,6 +412,15 @@
       if (dom.vocalEmotionBadge && emotionLabel) {
         dom.vocalEmotionBadge.textContent = emotionLabel;
       }
+      if (dom.gameStage && emotionLabel) {
+        let aura = 'cinema';
+        if (/همس/.test(emotionLabel)) aura = 'whisper';
+        else if (/صدمة|ذهول|انهيار|اعتراف/.test(emotionLabel)) aura = 'shock';
+        else if (/تحذير|خطر|توتر|انفعال/.test(emotionLabel)) aura = 'danger';
+        else if (/رهبة|مهابة/.test(emotionLabel)) aura = 'awe';
+        else if (/حزم|ثقة|تصاعد/.test(emotionLabel)) aura = 'verdict';
+        dom.gameStage.setAttribute('data-emotion-aura', aura);
+      }
     };
 
     audioEngine.onSegmentProgress = info => {
@@ -487,8 +496,85 @@
       }
 
       initViralAndMonetizationFeatures();
+      initImmersiveSensoryExperience();
     } catch (initErr) {
       console.warn('Init warning:', initErr);
+    }
+  }
+
+  /**
+   * تفعيل نظام الغمر الحسي الفائق (Ultra-Immersive Sensory HUD, Detective Flashlight & Live Telemetry)
+   */
+  function initImmersiveSensoryExperience() {
+    document.body.classList.add('flashlight-mode-active');
+    const flashlightBtn = document.getElementById('toggleFlashlightModeBtn');
+    if (flashlightBtn) {
+      flashlightBtn.addEventListener('click', () => {
+        const active = document.body.classList.toggle('flashlight-mode-active');
+        flashlightBtn.classList.toggle('active', active);
+        flashlightBtn.innerHTML = active
+          ? '<span>🔦 كشاف المحقق: نشط</span>'
+          : '<span>🔦 كشاف المحقق: متوقف</span>';
+        if (typeof audioEngine.playPuzzleClickSound === 'function') {
+          audioEngine.playPuzzleClickSound();
+        }
+      });
+    }
+
+    const updateSpotlightCoords = e => {
+      if (!document.body.classList.contains('flashlight-mode-active')) return;
+      const card = dom.narrativeCard;
+      if (!card) return;
+      const rect = card.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return;
+      const clientX = e.touches && e.touches[0] ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches && e.touches[0] ? e.touches[0].clientY : e.clientY;
+      const xPct = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+      const yPct = Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100));
+      card.style.setProperty('--spot-x', `${xPct.toFixed(1)}%`);
+      card.style.setProperty('--spot-y', `${yPct.toFixed(1)}%`);
+    };
+
+    window.addEventListener('mousemove', updateSpotlightCoords, { passive: true });
+    window.addEventListener('touchmove', updateSpotlightCoords, { passive: true });
+  }
+
+  function updateImmersiveForensicHud() {
+    const envEl = document.getElementById('hudEnvTempText');
+    const emfEl = document.getElementById('hudEmfStatusText');
+    const bpmEl = document.getElementById('hudPulseBpmText');
+    const pulsePill = document.getElementById('hudPulseContainer');
+
+    const scenId = gameState.scenarioId || selectedScenarioId || 'daily';
+    const envProfiles = {
+      daily: 'مختبر تبريد كمي (-18°C)',
+      multiverse: 'شق زمكاني نشط (تردد متغير)',
+      unknown_land: 'مرصد الأفق الصحراوي (38°C • جاف)',
+      manor: 'عاصفة جبلية ممطرة (8°C)',
+      station: 'القطب المتجمد (-42°C • عاصف)',
+      train: 'الرحلة 404 (110 كم/س • ضباب)',
+      museum: 'عمق 30م تحت البحر (ضغط 4 بار)',
+      island: 'فنار الجزيرة المعزول (11°C • رياح)'
+    };
+    if (envEl) {
+      envEl.textContent = envProfiles[scenId] || 'مسرح تحقيق جنائي معزول';
+    }
+
+    const danger = Math.max(5, Math.min(100, Number(gameState.dangerLevel) || 15));
+    const progress = Math.max(10, Math.min(100, Number(gameState.twistProgress) || 15));
+
+    if (emfEl) {
+      const hz = (36 + progress * 0.52 + (danger > 60 ? 14 : 0)).toFixed(1);
+      const stateLabel = progress >= 75 ? 'ذروة الكشف' : danger >= 65 ? 'اضطراب حاد' : 'رصد نشط';
+      emfEl.textContent = `${hz} Hz • ${stateLabel}`;
+    }
+
+    if (bpmEl) {
+      const bpm = Math.round(68 + (danger / 100) * 68);
+      bpmEl.textContent = `${bpm} BPM`;
+    }
+    if (pulsePill) {
+      pulsePill.classList.toggle('high-tension', danger >= 60);
     }
   }
 
@@ -1724,6 +1810,9 @@
     // تبويبات دفتر المحقق
     dom.notebookTabs.forEach(tab => {
       tab.addEventListener('click', () => {
+        if (typeof audioEngine.playDossierPaperSound === 'function') {
+          audioEngine.playDossierPaperSound();
+        }
         const target = tab.dataset.tab;
         dom.notebookTabs.forEach(t => {
           const isMatch = t.dataset.tab === target;
@@ -2664,6 +2753,9 @@
     hotspotInspectedThisTurn = true;
 
     const hs = currentTurnData.suspicious_hotspot;
+    if (typeof audioEngine.playForensicScannerBeep === 'function') {
+      audioEngine.playForensicScannerBeep();
+    }
     dom.hotspotRevealText.textContent = `نتيجة الفحص الجنائي: ${hs.secret_reveal}`;
     dom.hotspotRevealBox.classList.remove('hidden');
     dom.inspectHotspotBtn.disabled = true;
@@ -2959,6 +3051,7 @@
     if (typeof audioEngine.updateTensionMusicStem === 'function') {
       audioEngine.updateTensionMusicStem(gameState.dangerLevel);
     }
+    updateImmersiveForensicHud();
 
     // F08 Fix: عدم تكرار احتساب الحجج المكسورة مع الأسرار المنبثقة عنها
     const uniqueSecretsMap = new Map();
@@ -3309,6 +3402,9 @@
    */
   function openVerdictModal(forcedByDanger = false) {
     if (!dom.verdictModal) return;
+    if (typeof audioEngine.playGavelVerdictSound === 'function') {
+      audioEngine.playGavelVerdictSound();
+    }
     lastFocusedElementBeforeModal = document.activeElement;
     ensureGameStateHasLockedBible();
     const bible = gameState.caseBible;
