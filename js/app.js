@@ -6,7 +6,7 @@
 
 (function () {
   const STORAGE_KEY_SETTINGS = 'heart_of_mystery_settings_v2';
-  const STORAGE_KEY_SAVE = 'heart_of_mystery_savestate_v2';
+  const STORAGE_KEY_SAVE = 'heart_of_mystery_savestate_v3';
   const STORAGE_KEY_THEME = 'heart_of_mystery_theme_v2';
   const STORAGE_KEY_LIBRARY = 'heart_of_mystery_library_v1';
   const SESSION_KEY_BOOTED = 'hom_booted_v2';
@@ -1899,12 +1899,37 @@
    */
   function ensureGameStateHasLockedBible() {
     if (!window.MysteryCaseBibles) return null;
-    if (!gameState.caseBible || !gameState.caseBible.culpritId) {
+    const activeScenId = gameState.scenarioId || selectedScenarioId || 'daily';
+    const canonicalBible =
+      activeScenId !== 'custom' && activeScenId !== 'multiverse'
+        ? window.MysteryCaseBibles.CASE_BIBLES?.[activeScenId]
+        : null;
+    const isStaleBible =
+      !gameState.caseBible ||
+      !gameState.caseBible.culpritId ||
+      gameState.caseBible.id !== activeScenId ||
+      (canonicalBible && gameState.caseBible.title !== canonicalBible.title);
+
+    if (isStaleBible) {
       gameState.caseBible = window.MysteryCaseBibles.getLockedCaseBible(
-        gameState.scenarioId || selectedScenarioId,
+        activeScenId,
         gameState.scenarioPrompt || '',
         gameState.playerName || 'آدم'
       );
+      gameState.scenarioTitle = gameState.caseBible.title || gameState.scenarioTitle;
+      if (Array.isArray(gameState.caseBible.suspects)) {
+        gameState.suspects = gameState.caseBible.suspects.map(s => ({
+          id: s.id,
+          name: s.name,
+          role: s.role,
+          voice: s.voice,
+          alibi: s.alibi,
+          trust_level: s.trust_level || 'إفادة أولية قيد التحقق',
+          note: `إفادته المعلنة: «${s.alibi}»`,
+          alibiBroken: false,
+          interrogatedWith: []
+        }));
+      }
     }
     if (!gameState.hiddenBlueprint && gameState.caseBible) {
       gameState.hiddenBlueprint = gameState.caseBible.summaryBlueprint;

@@ -115,7 +115,7 @@ class MysteryAIEngine {
       const payload = { ...basePayload, model: candidateModel };
 
       const timeoutCtrl = new AbortController();
-      const timeoutId = setTimeout(() => timeoutCtrl.abort(), 4500);
+      const timeoutId = setTimeout(() => timeoutCtrl.abort(), 16000);
       if (signal) {
         signal.addEventListener('abort', () => timeoutCtrl.abort(), { once: true });
       }
@@ -350,9 +350,9 @@ class MysteryAIEngine {
       }
     }
 
-    // إذا لم يتوفر اتصال بالخادم، نستخدم الفصول الاحتياطية المبنية على دستور القضية
+    // إذا لم يتوفر اتصال بالخادم، نستخدم مولد الفصول التفاعلي المبني على دستور القضية وفعل اللاعب
     if (!this.hasValidKey()) {
-      if (bible && Array.isArray(bible.authoredChapters) && bible.authoredChapters[gameState.turn]) {
+      if (!playerChoiceText && bible && Array.isArray(bible.authoredChapters) && bible.authoredChapters[gameState.turn]) {
         return this.stripDisplayDiacritics(
           this.buildStaticChapterTurn(
             gameState,
@@ -364,22 +364,11 @@ class MysteryAIEngine {
       return await this.generateCaseBibleTurn(gameState, playerChoiceText);
     }
 
-    // الوضع الافتراضي الأساسي: الذكاء الاصطناعي يكتب كل فصل بحرية وإبداع حول الحقيقة المقفلة لهذه الجولة!
+    // الوضع الافتراضي الأساسي: الذكاء الاصطناعي يكتب كل فصل بحرية وإبداع استجابة لفعل اللاعب وحول الحقيقة المقفلة لهذه الجولة!
     try {
       return await this.callGeminiStructuredTurn(gameState, playerChoiceText);
     } catch (error) {
       console.warn('Gemini API fallback triggered due to:', error.message);
-      if (bible && Array.isArray(bible.authoredChapters) && bible.authoredChapters[gameState.turn]) {
-        const staticFallback = this.stripDisplayDiacritics(
-          this.buildStaticChapterTurn(
-            gameState,
-            bible.authoredChapters[gameState.turn],
-            playerChoiceText
-          )
-        );
-        staticFallback._usedFallbackNotice = true;
-        return staticFallback;
-      }
       const fallbackTurn = await this.generateCaseBibleTurn(gameState, playerChoiceText);
       fallbackTurn._usedFallbackNotice = true;
       return fallbackTurn;
@@ -566,53 +555,76 @@ class MysteryAIEngine {
       ? `\n- قانون هذا العالم الموازي (يجب أن ينعكس في تفاصيل المشهد والحوارات): [${bible.worldLaw.title}] ${bible.worldLaw.rule}\n- عقدة المسرح الحالية: [${bible.worldCatalyst?.title || ''}] ${bible.worldCatalyst?.scene || ''}`
       : '';
 
+    const allowedSuspectNames = ((bible.suspects && bible.suspects.length ? bible.suspects : gameState.suspects) || [])
+      .map(s => `${s.name} (${s.role})`)
+      .join('، ');
+
+    const activeActionText = (playerChoiceText || 'بدء معاينة مسرح الجريمة').trim();
+
     const systemInstruction = `أنت الروائي الجنائي والعلمي الأول للعبة التحقيق التفاعلية "قلب الغموض"، وتكتب بأسلوب الكاتب والروائي "حمزة فهد زايد" (مؤلف سلسلة "غموض علمي": نسيج الزمن، شيطان لابلاس، شعاع تسلا، ضياع في عوالم موازية، قلب في قبة زجاجية، والصوت المفقود).
-القواعد الحديدية الملزمة (Truth First, Player Deduction Second):
-1. الهوية الأدبية المعاصرة (أسلوب حمزة فهد زايد):
-   - اكتب بأسلوب الغموض العلمي والتشويق النفسي المعاصر: لغة عربية فصيحة معاصرة، سينمائية، رشيقة وعميقة، تمزج بين النظريات العلمية والفيزيائية الدقيقة (المجالات الكهرومغناطيسية، الحتمية، الأعصاب، الذاكرة، التوقيت الرقمي، والفيزياء الكمية) وبين الغوص في النفس البشرية ودوافعها.
-   - ابتعد تماما عن النمط العربي التاريخي أو العباسي أو التراثي القديم (لا تستخدم ألفاظ الوراقين، العسس، الخليفة، الدنانير، القوافل القديمة، أو السجع التراثي المتكلف)، بل اجعل الأجواء معاصرة وحديثة.
-2. الحقيقة الجنائية مقفلة مسبقا في (Case Bible) وممنوع تغيير الجاني أو اختراع شخصيات خارج القائمة أو مناقضة الخط الزمني:
+القواعد الحديدية الملزمة (Player Action Embodiment & Locked Case Bible):
+1. التجسيد الإلزامي والمباشر لفعل اللاعب في المشهد (القاعدة الأهم على الإطلاق):
+   - اللاعب كتب أو اختار هذا الفعل الآن: «${activeActionText}».
+   - يجب إلزاميا أن يبدأ الفصل (في عنوان الفصل chapter_title، وفي تعليق الراوي vocal_reaction، وفي الفقرتين الأولى والثانية من narrative) بتصوير وتجسيد تنفيذ اللاعب لهذا الفعل حرفيا ونتيجته الفيزيائية والدرامية الفورية في المكان!
+   - مثال: إذا كتب اللاعب أنه حاول تحطيم الباب بعنف، يجب أن تصف اندفاعه نحو الباب وارتطام كتفه أو أداته به، صوت ارتجاج المعدن أو الخشب، ما إذا كان القفل قد تصدع أو قاوم الضربة، وكيف التفت المشتبه بهم الثلاثة الموجودون في الغرفة نحوه بذهول أو توتر وعلقوا على محاولته تحطيم الباب!
+   - ممنوع منعا باتا تجاهل الفعل الذي كتبه اللاعب أو كتابة مشهد هادئ منفصل لا يذكر الفعل الذي كتبه.
+2. ثبات القصة والشخصيات المقفلة (ممنوع تشويه القصة أو اختراع شخصيات):
+   - أنت تكتب حصريا داخل قضية: "${bible.title || gameState.scenarioTitle}".
+   - الشخصيات الوحيدة الموجودة في هذا المسرح هي حصرا هذه الشخصيات الثلاث: [${allowedSuspectNames}].
+   - ممنوع منعا باتا اختراع أي اسم شخصية أخرى خارج هذه القائمة الثلاثية، وممنوع تغيير أسماء الشخصيات أو الانتقال إلى قصة أخرى لا علاقة لها بمسرح القضية الحالي!
    - آلية الحدث في ملف القضية (سري للمؤلف فقط): ${bible.method || 'محددة في ملف القضية'}
    - الخط الزمني المرجعي: ${timelineLedger}${multiverseContext}
-3. احترام استنتاج اللاعب (ممنوع كشف الحل مسبقا):
-   - اعرض الملاحظات الحسية الدقيقة، القياسات المادية، التوقيتات، وأقوال الشهود كما هي في المشهد، واترك للاعب مهمة الربط والاستنتاج!
-   - ممنوع أن يصرح الراوي باسم الجاني أو يشرح التناقض الجنائي جاهزا نيابة عن اللاعب.
+3. الهوية الأدبية المعاصرة (أسلوب حمزة فهد زايد):
+   - اكتب بأسلوب الغموض العلمي والتشويق النفسي المعاصر: لغة عربية فصيحة معاصرة، سينمائية، رشيقة وعميقة، تمزج بين النظريات العلمية والفيزيائية الدقيقة وبين الغوص في النفس البشرية ودوافعها.
+   - ابتعد تماما عن النمط العربي التاريخي أو العباسي أو التراثي القديم.
+4. احترام استنتاج اللاعب (ممنوع كشف الحل مسبقا):
+   - اعرض الملاحظات الحسية الدقيقة، القياسات المادية، التوقيتات، وأقوال الشهود كما هي في المشهد نتيجة لفعل اللاعب، واترك للاعب مهمة الربط والاستنتاج.
    - في حقل suspicious_hotspot.preview صف جسما أو جهازا أو موضعا مريبا مرئيا في الغرفة فقط دون كشف ما بداخله قبل الفحص.
-4. البلاغة السينمائية المعاصرة وسلامة التراكيب العربية:
-   - استعمل تشبيهات علمية ونفسية وسينمائية معاصرة، وتراكيب عربية فصيحة مبنية للمعلوم واضحة الفاعل والمفعول، وتجنب الجمل الركيكة أو المبنية للمجهول التي تلتبس قراءتها بدون حركات.
+5. البلاغة السينمائية المعاصرة وسلامة التراكيب العربية:
    - ممنوع منعا باتا استخدام الشرطة الطويلة في أي نص؛ استعمل الفاصلة (،) أو النقطتين (:) أو النقطة (.) فقط.
    - اكتب جميع النصوص بدون وضع حركات التشكيل أمام المستخدم؛ لأن أداة القراءة الصوتية تتولى ضبط النطق داخليا.
-5. زاوية السرد (Point of View):
+6. زاوية السرد (Point of View):
    - السرد بضمير المخاطب (أنت يا ${gameState.playerName}).
-   - حقل vocal_reaction هو تعليق الراوي الموجه إلى المحقق حصرا (ممنوع أن يتحدث الراوي بلسان البطل نفسه!).
+   - حقل vocal_reaction هو تعليق الراوي الموجه إلى المحقق حصرا تعليقا على فعله («${activeActionText}»).
    - لهجة حوارات الشخصيات بين علامات التنصيص «...»: (${dialect})، بينما يبقى السرد الوصفي بالعربية الفصحى المعاصرة.
-6. اكتب 3 فقرات روائية عميقة مفصولة بسطر جديد (\\n\\n) وحدد لكل فقرة شعورها الصوتي في مصفوفة paragraph_emotions (3 عناصر).
-7. الدليل المسموح بإتاحة خيط له في هذا الفصل: ${
+7. اكتب 3 فقرات روائية عميقة مفصولة بسطر جديد (\\n\\n) وحدد لكل فقرة شعورها الصوتي في مصفوفة paragraph_emotions (3 عناصر):
+   - الفقرة الأولى: تجسد الفعل الذي قام به اللاعب («${activeActionText}») لحظة بلحظة وأثره المباشر في مسرح الحدث.
+   - الفقرة الثانية: تصور رد فعل أحد المشتبه بهم الثلاثة المحددين في القائمة على فعل اللاعب وحواره المتوتر معه.
+   - الفقرة الثالثة: تربط نتيجة فعل اللاعب بالخيط المادي أو الدليل التالي المسموح بكشفه في المسرح: ${
       nextUnlockableClue
-        ? `"${nextUnlockableClue.title}" : ${nextUnlockableClue.description}`
-        : 'تم كشف الأدلة الرئيسية؛ ركز الآن على تعميق الاستجواب ومقارنة التوقيتات المادية.'
+        ? `"${nextUnlockableClue.title}" (${nextUnlockableClue.description})`
+        : 'مقارنة التوقيتات المادية وإفادات المشتبه بهم الثلاثة.'
     }
 8. التويست (is_twist_moment): ${
       earnedTwistCandidate
         ? `مسموح الآن لأن اللاعب جمع الأدلة المطلوبة! عنوان التويست: "${earnedTwistCandidate.headline}"`
         : 'اجعل is_twist_moment: false (يمنع تفجير تويست عشوائي بدون اكتمال الأدلة).'
     }
-9. قدم 3 خيارات استقصائية ذكية فقط في مصفوفة choices ترتبط مباشرة بالأدلة غير المكتشفة والمشتبه بهم في القائمة (ولا تطلب اكتشاف دليل موجود مسبقا في حوزة المحقق).`;
+9. قدم 3 خيارات استقصائية ذكية فقط في مصفوفة choices ترتبط مباشرة بالأدلة غير المكتشفة والمشتبه بهم الثلاثة في القائمة.`;
 
     const historySummary = (gameState.history || [])
       .slice(0, 4)
       .map(h => `فصل ${h.turn}: ${h.choice}`)
       .join(' | ');
 
-    const userPrompt = `الفصل ${gameState.turn + 1} من قضية "${gameState.scenarioTitle}":
+    const previousSceneSnippet = String(gameState.lastNarrative || '')
+      .trim()
+      .slice(0, 500);
+
+    const userPrompt = `الفصل ${gameState.turn + 1} من قضية "${bible.title || gameState.scenarioTitle}":
 المحقق: ${gameState.playerName} (نهج التحقيق: ${detectiveStyle})
-مؤشر الاستنتاج: ${gameState.twistProgress}% | مستوى الخطر: ${gameState.dangerLevel}%
+الشخصيات الثلاث الحصرية في هذه القضية (ممنوع ذكر أي شخصية خارجهم): ${allowedSuspectNames}
+ملخص المشهد السابق الذي يقف فيه اللاعب الآن:
+${previousSceneSnippet || bible.authoredChapters?.[0]?.narrative?.slice(0, 450) || gameState.scenarioPrompt}
+
 سجل المشتبه بهم وإفاداتهم:
 ${suspectsLedger}
 الأدلة المكتشفة في حوزة المحقق:
 ${cluesLedger}
 سجل التحركات السابقة: ${historySummary || 'بداية التحقيق'}
-تصرف أو سؤال المحقق الآن: «${(playerChoiceText || 'بدء معاينة مسرح الجريمة').slice(0, 220)}»`;
+
+⚡ الفعل أو التصرف الحر الذي نفذه المحقق الآن (يجب تجسيد هذا الفعل حرفيا في بداية السرد وفي عنوان الفصل وتفاعل الشخصيات الثلاث معه):
+«${activeActionText.slice(0, 240)}»`;
 
     const jsonSchema = {
       type: 'object',
@@ -808,24 +820,33 @@ ${cluesLedger}
     const timelineItem =
       (bible.timeline || [])[Math.min((gameState.turn || 0), Math.max(0, (bible.timeline || []).length - 1))];
 
-    const actionContext = playerChoiceText
-      ? `بعد تنفيذ قرارك («${playerChoiceText}»)، `
-      : `مع بدء فحصك الميداني في "${bible.title || gameState.scenarioTitle}"، `;
+    const cleanAction = String(playerChoiceText || '').trim();
+    const isForceAction = /(حطم|أحطم|احطم|كسر|أكسر|اكسر|خلع|باب|عنف|قوة|ركل|ضرب)/i.test(cleanAction);
 
-    const paragraph1 = `${actionContext}تزداد وطأة الترقب في أرجاء المكان. كل زاوية هنا تحمل أثرا ماديا صامتا يرتبط بالساعة [${timelineItem ? timelineItem.time : '23:00'}]， بينما تسجل عيناك الفاحصتان مواضع الأغراض والمسافات بين المداخل والمخارج.`;
+    const paragraph1 = isForceAction
+      ? `تندفع يا ${name} لتنفيذ قرارك الحاسم («${cleanAction}») وسط مسرح "${bible.title || gameState.scenarioTitle}"؛ فيدوي ارتطام عنيف يهز الإطار المعدني للباب ويرتج معه القفل المغناطيسي دون أن ينخلع بالكامل، تاركا خدشا واضحا على حافة المزلاج بينما يتردد صدى الضربة في أرجاء القاعة.`
+      : cleanAction
+        ? `تشرع فورا يا ${name} في تنفيذ قرارك («${cleanAction}») داخل مسرح "${bible.title || gameState.scenarioTitle}". تتغير زاوية الرؤية أمامك وتبرز التفاصيل المادية المرتبطة بالساعة [${timelineItem ? timelineItem.time : '23:00'}]， بينما ترصد عيناك أثر حركتك المباشر في المكان.`
+        : `مع بدء فحصك الميداني في "${bible.title || gameState.scenarioTitle}"، تزداد وطأة الترقب في أرجاء المكان. كل زاوية هنا تحمل أثرا ماديا صامتا يرتبط بالساعة [${timelineItem ? timelineItem.time : '23:00'}].`;
 
-    const paragraph2 = `يقترب منك "${focusSuspect.name}" (${focusSuspect.role}) متمسكا بإفادته الأولية: «${focusSuspect.alibi}». تسجل في دفترك تفاصيل هذه الإفادة وتوقيتها الدقيق لمقارنتها لاحقا مع القرائن المادية المكتشفة في المسرح.`;
+    const paragraph2 = isForceAction
+      ? `يلتفت إليك "${focusSuspect.name}" (${focusSuspect.role}) مذعورا من شدة الضربة على الباب، ويقول بنبرة متوترة: «تمهل يا ${name}! محاولة تحطيم الباب بالقوة لن تفتح القفل المشفر، وقد تتلف الآثار المادية هنا... أنا متمسك بإفادتي: ${focusSuspect.alibi}».`
+      : `يقترب منك "${focusSuspect.name}" (${focusSuspect.role}) متفاعلا مع خطوتك («${cleanAction || 'المعاينة الميدانية'}»)، ويتمسك بإفادته الأولية: «${focusSuspect.alibi}». تسجل في دفترك نبرته وتوقيت إفادته لمقارنتها مع القرائن المادية.`;
 
     const paragraph3 = nextClue
-      ? `وعند تمحيصك الدقيق في مسرح الحدث، ترصد عينة مادية جديدة: "${nextClue.title}" (${nextClue.description}). يضاف هذا الأثر إلى ملف الأدلة لتحليل علاقته بإفادات الموجودين أو التوجه إلى غرفة الاتهام عند اكتمال أركان الإثبات.`
-      : `تجتمع الآن القرائن المادية والسجلات الزمنية في دفتر تحقيقك؛ وبات بإمكانك مقارنة التوقيتات ومواجهة أي مشتبه به بالدليل المباشر أو دخول غرفة الاتهام لتقديم لائحة الحسم!`;
+      ? `وإثر ما أحدثه تصرفك («${cleanAction || 'البحث الدقيق'}») في مسرح الحدث، تنكشف أمامك قرينة مادية حاسمة: "${nextClue.title}" (${nextClue.description}). يضاف هذا الدليل إلى ملف التحقيق لمواجهة المشتبه بهم الثلاثة به مباشرة.`
+      : `تجتمع الآن القرائن المادية والسجلات الزمنية في دفتر تحقيقك بعد خطوتك الأخيرة؛ وبات بإمكانك مواجهة أي مشتبه به بالدليل المباشر أو دخول غرفة الاتهام لتقديم لائحة الحسم!`;
 
     return this.stripDisplayDiacritics({
-      chapter_title: nextClue
-        ? `أثر ميداني: ${nextClue.title}`
-        : `مقارنة القرائن في ${bible.shortTitle || 'القضية'}`,
-      mood: earnedTwist ? 'انكشاف قرينة مركبة' : 'معاينة ميدانية ورصد',
-      vocal_reaction: `<breath> دقق جيدا يا ${name}... <short pause> قارن ما يقوله "${focusSuspect.name}" بالتوقيت المادي المسجل أمامك!`,
+      chapter_title: cleanAction
+        ? `نتيجة التصرف: ${cleanAction.slice(0, 34)}`
+        : nextClue
+          ? `أثر ميداني: ${nextClue.title}`
+          : `مقارنة القرائن في ${bible.shortTitle || 'القضية'}`,
+      mood: isForceAction ? 'ارتجاج عنيف وتوتر حاد' : earnedTwist ? 'انكشاف قرينة مركبة' : 'معاينة ميدانية ورصد',
+      vocal_reaction: isForceAction
+        ? `<gasp> ضربة عنيفة هزت الباب يا ${name}! <short pause> انظر إلى رد فعل "${focusSuspect.name}" وما انكشف قرب الإطار!`
+        : `<breath> خطوة لافتة يا ${name} («${cleanAction.slice(0, 40) || 'معاينة المسرح'}»)... <short pause> قارن ما يقوله "${focusSuspect.name}" بالأثر المادي أمامك!`,
       vocal_emotion: earnedTwist ? 'صدمة وذهول درامي' : 'تساؤل ماكر وتشكيك',
       paragraph_emotions: ['ترقب وتوتر', 'تساؤل ماكر وتشكيك', 'تحذير حاد وتوتر'],
       narrative: `${paragraph1}\n\n${paragraph2}\n\n${paragraph3}`,
