@@ -14,13 +14,13 @@
   const SCENARIO_PRESETS = {
     daily: {
       id: 'daily',
-      title: 'قضية اليوم: بروتوكول شيطان لابلاس',
-      shortTitle: 'قضية اليوم: شيطان لابلاس',
+      title: 'قضية اليوم: بروتوكول المختبر الموصد',
+      shortTitle: 'قضية اليوم: المختبر الموصد',
       teaserVoice:
-        '<breath> داخل مختبر الحوسبة الكمية المعزول... توقف الحاسوب التنبؤي «لابلاس» عن العمل وفتحت حافظة الشرائح الثلاث، وأحد الباحثين الثلاثة في القاعة يخفي معادلة التنبؤ المسروقة.',
+        '<breath> داخل مختبر الحوسبة الكمية المعزول... توقف المعالج التنبؤي المركزي عن العمل وفتحت حافظة الشرائح الثلاث، وأحد الباحثين الثلاثة في القاعة يخفي النموذج الخوارزمي المسروق.',
       teaserEmotion: 'همس مريب وترقب',
       prompt:
-        'أحقق في مختبر الحوسبة الكمية بعد توقف الحاسوب التنبؤي «لابلاس» وفتح الحافظة المبردة للشرائح الثلاث، وتحوم الشبهات حول ثلاثة أشخاص: المهندس كريم نصار، الدكتور طارق زيدان، ومسؤول الأمن مازن الكيلاني.'
+        'أحقق في مختبر الحوسبة الكمية بعد توقف المعالج التنبؤي المركزي وفتح الحافظة المبردة للشرائح الثلاث، وتحوم الشبهات حول ثلاثة أشخاص: المهندس كريم نصار، الدكتور طارق زيدان، ومسؤول الأمن مازن الكيلاني.'
     },
     multiverse: {
       id: 'multiverse',
@@ -34,13 +34,13 @@
     },
     unknown_land: {
       id: 'unknown_land',
-      title: 'القبة الزجاجية السابعة: شذوذ نسيج الزمن',
-      shortTitle: 'القبة الزجاجية: نسيج الزمن',
+      title: 'المنشأة السابعة: انحراف المجال المغناطيسي',
+      shortTitle: 'المنشأة السابعة: انحراف المجال',
       teaserVoice:
-        '<breath> داخل منشأة القبة الزجاجية المعزولة في قلب الصحراء... <short pause> انحرف مقياس المجال الكهرومغناطيسي أربعين درجة عند الفجر، واحتجز مهندس الرصد داخل غرفة الرنين بعد اختفاء قرص المعايرة الذري!',
+        '<breath> داخل منشأة الأبحاث الكهرومغناطيسية المعزولة في قلب الصحراء... <short pause> انحرف مقياس المجال أربعين درجة عند الفجر، واحتجز مهندس الرصد داخل غرفة الرنين بعد اختفاء قرص المعايرة الذري!',
       teaserEmotion: 'رهبة وترقب',
       prompt:
-        'في منشأة أبحاث القبة الزجاجية السابعة المخصصة لتجارب نسيج الزمن، يختفي قرص المعايرة الذري عند الفجر وينحرف حساس المجال الكهرومغناطيسي بين ثلاثة باحثين: الدكتور سنان راشد، الدكتورة لينا الحسن، والمهندس جسار فهد.'
+        'في منشأة الأبحاث الكهرومغناطيسية السابعة المعزولة، يختفي قرص المعايرة الذري عند الفجر وينحرف حساس المجال المغناطيسي بين ثلاثة باحثين: الدكتور سنان راشد، الدكتورة لينا الحسن، والمهندس جسار فهد.'
     },
     manor: {
       id: 'manor',
@@ -2398,8 +2398,12 @@
         }
       }
 
-      // إعادة بناء الخيارات الثلاثة بناء على الأدلة الفعلية الموجودة في حوزة المحقق الآن (F14 Fix)
-      if (aiEngine && typeof aiEngine.buildEvidenceAwareChoices === 'function') {
+      // الحفاظ على الخيارات السياقية التي ولدها الذكاء الاصطناعي استجابة لفعل اللاعب، واستخدام القالب فقط عند غيابها أو في الفصل الافتتاحي
+      if (
+        (isOpeningTurn || !Array.isArray(turnData.choices) || turnData.choices.length < 2) &&
+        aiEngine &&
+        typeof aiEngine.buildEvidenceAwareChoices === 'function'
+      ) {
         turnData.choices = aiEngine.buildEvidenceAwareChoices(gameState, gameState.caseBible);
       }
       gameState.lastChoices = Array.isArray(turnData.choices) ? turnData.choices : [];
@@ -2665,9 +2669,10 @@
     dom.inspectHotspotBtn.disabled = true;
     dom.inspectHotspotBtn.textContent = 'تم الفحص الجنائي ✓';
 
-    if (hs.bonus_clue || hs.clue_id) {
+    const hotspotClueId = hs.bonus_clue_id || hs.clue_id;
+    if (hs.bonus_clue || hotspotClueId) {
       addClueToGameState({
-        id: hs.clue_id,
+        id: hotspotClueId,
         title: hs.bonus_clue,
         description: hs.secret_reveal
       });
@@ -3194,9 +3199,6 @@
           <li class="secret-item" style="border-color:rgba(168,85,247,0.55);background:rgba(46,16,101,0.28);">
             <strong style="color:#d8b4fe;">🔮 شفرة النهاية السرية الأسطورية المخبأة (★★★★★★)</strong>
             <span>${escapeHtml(mythicProfile.riddleHint)}</span>
-            <div class="notebook-item-actions" style="margin-top:6px;">
-              <button type="button" class="notebook-quick-action-btn" data-try-mythic-riddle="1" style="border-color:rgba(229,184,92,0.55);color:#f5d078;">👑 تنفيذ الشفرة السرية الآن (${escapeHtml(mythicProfile.triggerActionExample)})</button>
-            </div>
           </li>`;
       }
     }
