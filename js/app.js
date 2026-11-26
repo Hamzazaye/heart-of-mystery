@@ -521,6 +521,11 @@
       });
     }
 
+    const insightBtn = document.getElementById('detectiveInsightBtn');
+    if (insightBtn) {
+      insightBtn.addEventListener('click', triggerDetectiveInsightHint);
+    }
+
     const updateSpotlightCoords = e => {
       if (!document.body.classList.contains('flashlight-mode-active')) return;
       const card = dom.narrativeCard;
@@ -575,6 +580,202 @@
     }
     if (pulsePill) {
       pulsePill.classList.toggle('high-tension', danger >= 60);
+    }
+  }
+
+  /**
+   * خريطة المسح الميداني التفاعلي لزوايا مسرح الجريمة (AAA Interactive Crime Scene Tactical Scanner)
+   */
+  function renderCrimeSceneScanner() {
+    const gridEl = document.getElementById('scannerZonesGrid');
+    const countPill = document.getElementById('scannerZonesCountPill');
+    if (!gridEl) return;
+    ensureGameStateHasLockedBible();
+    const bible = gameState.caseBible;
+    if (!bible || !Array.isArray(bible.clues)) return;
+
+    const allClues = bible.clues;
+    let scannedCount = 0;
+
+    gridEl.innerHTML = allClues
+      .map(clue => {
+        const isScanned = hasDiscoveredClueId(clue.id);
+        if (isScanned) scannedCount += 1;
+        const prereqsMet = (clue.needs || []).every(reqId => hasDiscoveredClueId(reqId));
+        const stateClass = isScanned
+          ? `scanned${clue.isRedHerring ? ' red-herring' : ''}`
+          : prereqsMet
+            ? 'available'
+            : 'locked';
+        const badgeText = isScanned
+          ? clue.isRedHerring
+            ? 'تمويه مستبعد ✓'
+            : 'تم المسح ✓'
+          : prereqsMet
+            ? '🔍 متاح للمسح'
+            : '🔒 مقفل';
+        const descText = isScanned
+          ? `${clue.title} (اضغط لسماع التقرير)`
+          : prereqsMet
+            ? 'اضغط لمعاينة هذا الموضع واستخراج الأثر المادي (+5% ضغط الوقت)'
+            : 'يتطلب فحص الزوايا المفتوحة في المسرح أولا';
+        const locTitle = clue.locationLabel || clue.title;
+
+        return `
+          <button type="button" class="scanner-zone-card ${stateClass}" data-scan-clue-id="${escapeHtml(clue.id)}">
+            <div class="scanner-zone-top">
+              <span class="scanner-zone-loc">📍 ${escapeHtml(locTitle)}</span>
+              <span class="scanner-zone-badge">${escapeHtml(badgeText)}</span>
+            </div>
+            <span class="scanner-zone-desc">${escapeHtml(descText)}</span>
+          </button>
+        `;
+      })
+      .join('');
+
+    if (countPill) {
+      countPill.textContent = `${scannedCount} / ${allClues.length} مواقع مفحوصة`;
+    }
+
+    gridEl.querySelectorAll('[data-scan-clue-id]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cid = btn.getAttribute('data-scan-clue-id');
+        const targetClue = (bible.clues || []).find(c => c.id === cid);
+        if (!targetClue) return;
+
+        const alreadyScanned = hasDiscoveredClueId(targetClue.id);
+        if (alreadyScanned) {
+          audioEngine.stopSpeaking();
+          if (dom.vocalSpeakerLabel) dom.vocalSpeakerLabel.textContent = `🔍 تقرير الموقع (${targetClue.locationLabel || targetClue.title})`;
+          if (dom.vocalEmotionBadge) dom.vocalEmotionBadge.textContent = 'تحليل علمي دقيق';
+          if (dom.vocalReactionText) dom.vocalReactionText.textContent = `«${targetClue.description}»`;
+          audioEngine.speakSingleText(targetClue.description, 'تحليل علمي دقيق', true);
+          return;
+        }
+
+        const prereqsMet = (targetClue.needs || []).every(reqId => hasDiscoveredClueId(reqId));
+        if (!prereqsMet) {
+          const missingClue = (bible.clues || []).find(
+            c => (targetClue.needs || []).includes(c.id) && !hasDiscoveredClueId(c.id)
+          );
+          const reqLoc = missingClue ? missingClue.locationLabel || missingClue.title : 'الزاوية السابقة';
+          showToast(`🔒 لمعاينة هذا الموقع، افحص أولا: «${reqLoc}»!`);
+          return;
+        }
+
+        if (typeof audioEngine.playForensicScannerBeep === 'function') {
+          audioEngine.playForensicScannerBeep();
+        }
+        addClueToGameState(targetClue);
+        gameState.dangerLevel = Math.min(100, (Number(gameState.dangerLevel) || 15) + 5);
+
+        // فحص فتح أي سر أو تويست مشروط بهذا الدليل
+        if (Array.isArray(bible.twists)) {
+          for (const tw of bible.twists) {
+            const alreadyUnlocked = (gameState.secrets || []).some(
+              s => s.id === tw.id || s.title === tw.headline || s.title === tw.secretTitle
+            );
+            if (!alreadyUnlocked && (tw.unlocks_when || []).every(reqId => hasDiscoveredClueId(reqId))) {
+              gameState.secrets.unshift({
+                id: tw.id,
+                title: tw.headline,
+                revelation: tw.revelation
+              });
+              triggerDramaticTwistOverlay(tw.headline, tw.revelation);
+              break;
+            }
+          }
+        }
+
+        if (dom.narrativeBody) {
+          const p = document.createElement('p');
+          p.className = 'interrogation-transcript-para';
+          p.textContent = `[مسح جنائي ميداني • ${targetClue.locationLabel || targetClue.title}]: عثرت على «${targetClue.title}»: ${targetClue.description}`;
+          dom.narrativeBody.appendChild(p);
+          p.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        if (dom.vocalSpeakerLabel) dom.vocalSpeakerLabel.textContent = `🔍 مسح ميداني: ${targetClue.title}`;
+        if (dom.vocalEmotionBadge) dom.vocalEmotionBadge.textContent = 'تحليل علمي دقيق';
+        if (dom.vocalReactionText) dom.vocalReactionText.textContent = `«${targetClue.description}»`;
+
+        populateInterrogationAndCorkboardSelects();
+        renderSidebarState();
+        saveGameState();
+
+        if (audioEngine.autoTtsEnabled) {
+          audioEngine.speakSingleText(targetClue.description, 'تحليل علمي دقيق', true);
+        }
+      });
+    });
+  }
+
+  /**
+   * بصيرة المحقق الذكية (Tactical Detective Insight Hint without spoilers)
+   */
+  function triggerDetectiveInsightHint() {
+    ensureGameStateHasLockedBible();
+    const bible = gameState.caseBible;
+    if (!bible) return;
+
+    if (typeof audioEngine.playForensicScannerBeep === 'function') {
+      audioEngine.playForensicScannerBeep();
+    }
+
+    // 1. هل هناك موقع في مسرح الجريمة متاح للمسح ولم يفحصه اللاعب بعد؟
+    const nextAvailableClue = (bible.clues || []).find(
+      c =>
+        !c.isRedHerring &&
+        !hasDiscoveredClueId(c.id) &&
+        (c.needs || []).every(reqId => hasDiscoveredClueId(reqId))
+    );
+
+    if (nextAvailableClue) {
+      const loc = nextAvailableClue.locationLabel || nextAvailableClue.title;
+      const hintMsg = `بصيرة المحقق: وجه عدستك نحو موقع «${loc}» في خريطة المسح الميداني أعلاه؛ هناك أثر مادي لم تفحصه بعد!`;
+      if (dom.vocalSpeakerLabel) dom.vocalSpeakerLabel.textContent = '💡 بصيرة المحقق الجنائية';
+      if (dom.vocalEmotionBadge) dom.vocalEmotionBadge.textContent = 'تحليل علمي دقيق';
+      if (dom.vocalReactionText) dom.vocalReactionText.textContent = `«${hintMsg}»`;
+      showToast(`💡 ${hintMsg}`);
+      if (audioEngine.autoTtsEnabled) {
+        audioEngine.speakSingleText(hintMsg, 'تحليل علمي دقيق', true);
+      }
+      return;
+    }
+
+    // 2. هل يملك اللاعب دليلا يكسر حجة أحد المشتبه بهم ولم يواجهه به بعد؟
+    for (const bSus of bible.suspects || []) {
+      const gsSus = (gameState.suspects || []).find(s => s.id === bSus.id);
+      if (gsSus && gsSus.alibiBroken) continue;
+      const matchingClueId = (bSus.contradictedBy || []).find(cid => hasDiscoveredClueId(cid));
+      if (matchingClueId) {
+        const clueObj = (bible.clues || []).find(c => c.id === matchingClueId);
+        if (typeof window.__setActiveActionMode === 'function') {
+          window.__setActiveActionMode('interrogate');
+        }
+        if (dom.interrogateSuspectSelect) dom.interrogateSuspectSelect.value = bSus.id;
+        if (dom.interrogateClueSelect) dom.interrogateClueSelect.value = matchingClueId;
+        const hintMsg = `بصيرة المحقق: لاحظ التناقض بين إفادة «${bSus.name}» ودليل «${clueObj ? clueObj.title : matchingClueId}»! واجهه به الآن في منصة الاستجواب.`;
+        if (dom.vocalSpeakerLabel) dom.vocalSpeakerLabel.textContent = '💡 بصيرة المحقق الجنائية';
+        if (dom.vocalEmotionBadge) dom.vocalEmotionBadge.textContent = 'تساؤل ماكر وتشكيك';
+        if (dom.vocalReactionText) dom.vocalReactionText.textContent = `«${hintMsg}»`;
+        showToast(`💡 ${hintMsg}`);
+        if (audioEngine.autoTtsEnabled) {
+          audioEngine.speakSingleText(hintMsg, 'تساؤل ماكر وتشكيك', true);
+        }
+        return;
+      }
+    }
+
+    // 3. جميع الأدلة والحجج جاهزة للحسم!
+    const readyMsg =
+      'بصيرة المحقق: اكتملت لديك سلسلة الأدلة المادية وانكسرت حجج الغياب! يمكنك الآن دخول غرفة الاتهام لإصدار الحكم النهائي أو تجربة شفرة النهاية السرية الأسطورية.';
+    if (dom.vocalSpeakerLabel) dom.vocalSpeakerLabel.textContent = '💡 بصيرة المحقق الجنائية';
+    if (dom.vocalEmotionBadge) dom.vocalEmotionBadge.textContent = 'حزم وثقة استقصائية';
+    if (dom.vocalReactionText) dom.vocalReactionText.textContent = `«${readyMsg}»`;
+    showToast(`⚖️ ${readyMsg}`);
+    if (audioEngine.autoTtsEnabled) {
+      audioEngine.speakSingleText(readyMsg, 'حزم وثقة استقصائية', true);
     }
   }
 
@@ -2476,9 +2677,16 @@
       const safeDangerDelta = Number.isFinite(parsedDangerDelta) ? parsedDangerDelta : 4;
       gameState.dangerLevel = Math.min(100, Math.max(5, gameState.dangerLevel + safeDangerDelta));
 
-      // F01 Fix: في الفصل الافتتاحي الأول، يبدأ اللاعب بدليل واحد فقط (c1)، ويكتسب الدليل الثاني (c2) عبر فحص التفصيل المريب أو قرارات التحقيق!
-      if (!isOpeningTurn && turnData.new_clue && turnData.new_clue.title) {
-        addClueToGameState(turnData.new_clue);
+      // F01 Fix: في الفصل الافتتاحي الأول، يبدأ اللاعب بدليل واحد فقط (c1)، ويكتسب الدليل الثاني (c2) عبر المسح الميداني أو التقدم في التحقيق
+      if (!isOpeningTurn) {
+        const ch0ClueId = gameState.caseBible?.authoredChapters?.[0]?.unlocked_clue_id;
+        if (ch0ClueId && !hasDiscoveredClueId(ch0ClueId)) {
+          const ch0ClueObj = (gameState.caseBible?.clues || []).find(c => c.id === ch0ClueId);
+          if (ch0ClueObj) addClueToGameState(ch0ClueObj);
+        }
+        if (turnData.new_clue && turnData.new_clue.title) {
+          addClueToGameState(turnData.new_clue);
+        }
       } else if (isOpeningTurn && turnData.new_clue && turnData.new_clue.title && turnData.suspicious_hotspot) {
         if (!turnData.suspicious_hotspot.clue_id && turnData.new_clue.id) {
           turnData.suspicious_hotspot.clue_id = turnData.new_clue.id;
@@ -3065,6 +3273,7 @@
       audioEngine.updateTensionMusicStem(gameState.dangerLevel);
     }
     updateImmersiveForensicHud();
+    renderCrimeSceneScanner();
 
     // F08 Fix: عدم تكرار احتساب الحجج المكسورة مع الأسرار المنبثقة عنها
     const uniqueSecretsMap = new Map();
@@ -3251,10 +3460,27 @@
             <button type="button" class="notebook-quick-action-btn secondary" data-board-clue="${escapeHtml(
               c.id || c.title
             )}">📌 اربط في اللوحة</button>
+            <button type="button" class="notebook-quick-action-btn secondary" data-speak-clue="${escapeHtml(
+              c.id || c.title
+            )}">🔊 سماع التقرير</button>
           </div>
         </li>`
         )
         .join('');
+
+      dom.clueList.querySelectorAll('[data-speak-clue]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const cRef = btn.getAttribute('data-speak-clue');
+          const found = (gameState.clues || []).find(c => (c.id || c.title) === cRef);
+          if (found) {
+            audioEngine.stopSpeaking();
+            if (dom.vocalSpeakerLabel) dom.vocalSpeakerLabel.textContent = `🔍 تقرير جنائي: ${found.title}`;
+            if (dom.vocalEmotionBadge) dom.vocalEmotionBadge.textContent = 'تحليل علمي دقيق';
+            if (dom.vocalReactionText) dom.vocalReactionText.textContent = `«${found.description}»`;
+            audioEngine.speakSingleText(found.description, 'تحليل علمي دقيق', true);
+          }
+        });
+      });
 
       dom.clueList.querySelectorAll('[data-confront-clue]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -3374,11 +3600,28 @@
           <div class="notebook-item-actions">
             <button type="button" class="notebook-quick-action-btn" data-confront-suspect="${escapeHtml(
               s.id || s.name
-            )}">🗣️ واجه ${escapeHtml(s.name)} بدليل</button>
+            )}">🗣️ واجه بدليل</button>
+            <button type="button" class="notebook-quick-action-btn secondary" data-speak-alibi="${escapeHtml(
+              s.id || s.name
+            )}">🔊 سماع الإفادة</button>
           </div>
         </li>`
         )
         .join('');
+
+      dom.suspectList.querySelectorAll('[data-speak-alibi]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const sRef = btn.getAttribute('data-speak-alibi');
+          const sus = (gameState.suspects || []).find(s => (s.id || s.name) === sRef);
+          if (sus && sus.alibi) {
+            audioEngine.stopSpeaking();
+            if (dom.vocalSpeakerLabel) dom.vocalSpeakerLabel.textContent = `🗣️ إفادة: ${sus.name}`;
+            if (dom.vocalEmotionBadge) dom.vocalEmotionBadge.textContent = 'توتر وانفعال دفاعي';
+            if (dom.vocalReactionText) dom.vocalReactionText.textContent = `«${sus.alibi}»`;
+            audioEngine.speakSingleText(sus.alibi, 'توتر وانفعال دفاعي', true, sus.voice || null);
+          }
+        });
+      });
 
       dom.suspectList.querySelectorAll('[data-confront-suspect]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -3956,10 +4199,35 @@
     } catch (_) {}
   }
 
+  function calculateDetectiveCareerProfile(lib) {
+    const casesObj = (lib && lib.cases) || {};
+    let xp = (Number(lib?.streak) || 0) * 40;
+    for (const rec of Object.values(casesObj)) {
+      const stars = Number(rec.bestStars) || 0;
+      xp += stars * 65;
+      if (stars >= 6) xp += 250;
+      xp += ((rec.unlockedEndings && rec.unlockedEndings.length) || 0) * 35;
+    }
+    const ranks = [
+      { min: 2000, title: '👑 أسطورة قلب الغموض' },
+      { min: 1200, title: '🎖️ عميد البصيرة الجنائية' },
+      { min: 650, title: '🎖️ رئيس شعبة الاستنتاج' },
+      { min: 250, title: '🎖️ محقق جنائي أول' },
+      { min: 0, title: '🎖️ محقق ميداني' }
+    ];
+    const matched = ranks.find(r => xp >= r.min) || ranks[ranks.length - 1];
+    return { xp, title: matched.title };
+  }
+
   function updateHeaderStreakBadge() {
     const lib = loadLibraryData();
     if (dom.dailyStreakBadge) {
       dom.dailyStreakBadge.textContent = `🔥 ${lib.streak || 0}`;
+    }
+    const rankEl = document.getElementById('detectiveRankBadge');
+    if (rankEl) {
+      const prof = calculateDetectiveCareerProfile(lib);
+      rankEl.textContent = `${prof.title} (${prof.xp} XP)`;
     }
   }
 

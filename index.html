@@ -144,12 +144,12 @@
       </button>
 
       <!-- Case Library & Solved Endings Button -->
-      <button class="secondary-btn" id="openLibraryBtn" type="button" title="سجل القضايا والنهايات المكتشفة">
+      <button class="secondary-btn" id="openLibraryBtn" type="button" title="سجل القضايا والرتبة الجنائية والنهايات المكتشفة">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
         </svg>
-        <span>سجل القضايا</span>
+        <span id="detectiveRankBadge">🎖️ محقق ميداني</span>
         <span class="streak-pill mono-stat" id="dailyStreakBadge" title="سلسلة حل القضايا">🔥 0</span>
       </button>
 
@@ -765,6 +765,9 @@
             <span class="hud-label">نبض التوتر:</span>
             <strong id="hudPulseBpmText" class="mono-stat">72 BPM</strong>
           </div>
+          <button type="button" class="hud-insight-btn" id="detectiveInsightBtn" title="بصيرة المحقق: تحليل الخيوط الحالية وتوجيهك للخطوة الاستقصائية التالية بدون حرق">
+            <span>💡 بصيرة المحقق</span>
+          </button>
           <button type="button" class="hud-flashlight-toggle active" id="toggleFlashlightModeBtn" title="تفعيل أو إيقاف عدسة الكشاف الجنائي التفاعلي مع حركة المؤشر">
             <span>🔦 كشاف المحقق: نشط</span>
           </button>
@@ -880,6 +883,21 @@
           <div class="quick-evidence-group" id="quickEvidencePillsGroup">
             <span class="quick-evidence-label">📂 خيوط القضية النشطة:</span>
             <span class="quick-evidence-pill">افحص المشهد لاكتشاف أول دليل مادي</span>
+          </div>
+        </div>
+
+        <!-- AAA Interactive Crime Scene Tactical Scanner (Spatial Room Inspection Map) -->
+        <div class="crime-scene-scanner-bar" id="crimeSceneScannerBar" aria-label="خريطة المسح الميداني لزوايا مسرح الجريمة">
+          <div class="scanner-bar-header">
+            <div class="scanner-bar-title">
+              <span class="scanner-radar-dot"></span>
+              <strong>🗺️ المسح الميداني لزوايا مسرح الجريمة</strong>
+              <span class="scanner-bar-sub">اضغط على أي موقع مفتوح في الغرفة لمعاينته واستخراج الأدلة المادية أو سماع تقريره</span>
+            </div>
+            <span class="scanner-progress-pill mono-stat" id="scannerZonesCountPill">1 / 5 مواقع مفحوصة</span>
+          </div>
+          <div class="scanner-zones-grid" id="scannerZonesGrid">
+            <!-- Populated dynamically with the crime scene locations from Case Bible -->
           </div>
         </div>
 
@@ -1052,7 +1070,7 @@
               <input
                 type="text"
                 id="customActionInput"
-                placeholder="مثال: اسأل فيروز عن خاتمه، أو أفتش جيب المعطف المعلق وأختبر القفل..."
+                placeholder="مثال: اسأل الدكتور سنان عن البوصلة، أو افتح الخزانة الجدارية وافحص القفل..."
                 maxlength="220"
               />
             </div>
@@ -1362,7 +1380,7 @@
               <span class="mythic-relic-icon" id="verdictMythicRelicIcon">👑</span>
               <div>
                 <span class="mythic-reward-tag">🏆 مكافأة النهاية السرية الأسطورية المميزة</span>
-                <h4 id="verdictMythicRelicTitle">خاتم صاحب البصيرة البغدادي</h4>
+                <h4 id="verdictMythicRelicTitle">شريحة المعالج الكمي المطلقة</h4>
               </div>
             </div>
             <p id="verdictMythicRewardDesc">
