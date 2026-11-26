@@ -798,6 +798,9 @@
               </svg>
               <span>تراجع عن القرار</span>
             </button>
+            <button type="button" class="mind-palace-trigger-btn" id="openMindPalaceBtn" title="افتح قصر الذهن ولوحة الخيوط الحمراء لربط الأدلة بالمشتبه بهم بصريا [M]">
+              <span>🧠 قصر الذهن</span>
+            </button>
             <button type="button" class="verdict-trigger-btn" id="openVerdictBtn" title="تقديم الاتهام النهائي وحسم الجاني والدافع والدليل القاطع">
               <span>⚖️ غرفة الاتهام والحكم</span>
             </button>
@@ -1043,8 +1046,9 @@
           <div class="interrogation-bar hidden" id="interrogationBar">
             <div class="interrogation-bar-head">
               <span class="interrogation-badge">🗣️ استجواب ومواجهة مباشرة بالدليل</span>
-              <span class="interrogation-sub">اختر مشتبها به وواجهه بدليل مادي لكسر حجته بصوته الخاص</span>
+              <span class="interrogation-sub">اضغط على بطاقة المشتبه به ثم اختر الدليل المادي لمواجهته بصوته الخاص</span>
             </div>
+            <div class="interrogation-suspect-cards" id="interrogationSuspectCards" aria-label="بطاقات المشتبه بهم للاستجواب"></div>
             <div class="interrogation-controls">
               <select id="interrogateSuspectSelect" aria-label="اختر المشتبه به للاستجواب">
                 <option value="">اختر المشتبه به...</option>
@@ -1092,6 +1096,17 @@
             <button type="button" class="verdict-cta-btn" id="choicesVerdictBtn">
               <span>إصدار الاتهام النهائي وحسم القضية ←</span>
             </button>
+          </div>
+
+          <!-- Desktop Detective Keyboard Shortcuts Legend -->
+          <div class="desktop-shortcut-legend" aria-label="اختصارات لوحة المفاتيح للمحقق">
+            <span>⌨️ اختصارات المحقق:</span>
+            <span><kbd>1</kbd>-<kbd>3</kbd> المسارات</span>
+            <span><kbd>I</kbd> فحص البؤرة</span>
+            <span><kbd>M</kbd> قصر الذهن</span>
+            <span><kbd>H</kbd> بصيرة المحقق</span>
+            <span><kbd>F</kbd> الكشاف</span>
+            <span><kbd>R</kbd> قراءة المشهد</span>
           </div>
         </section>
       </div>
@@ -1454,11 +1469,76 @@
           </div>
         </div>
 
+        <div class="library-career-bar" id="libraryCareerBar">
+          <div class="career-bar-top">
+            <strong id="libCareerRankTitle">🎖️ محقق ميداني</strong>
+            <span class="mono-stat" id="libCareerXpLabel">0 / 250 XP</span>
+          </div>
+          <div class="career-xp-track">
+            <div class="career-xp-fill" id="libCareerXpFill" style="width: 6%"></div>
+          </div>
+        </div>
+
         <div class="library-cases-grid" id="libraryCasesGrid"></div>
       </div>
 
       <div class="modal-footer">
         <button type="button" class="start-adventure-btn" id="doneLibraryBtn">إغلاق السجل</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AAA Visual Mind Palace & Red-String Corkboard Modal -->
+  <div class="modal-backdrop hidden" id="mindPalaceModal" role="dialog" aria-modal="true" aria-labelledby="mindPalaceModalTitle">
+    <div class="modal-card mind-palace-modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span aria-hidden="true">🧠</span>
+          <h2 id="mindPalaceModalTitle">قصر الذهن ولوحة الخيوط الجنائية الحمراء</h2>
+        </div>
+        <button class="modal-close-btn" id="closeMindPalaceBtn" type="button" aria-label="إغلاق">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="mp-toolbar">
+          <p class="mp-instruction">
+            📌 اضغط على <strong>دليل مادي</strong> من اليمين ثم اضغط على <strong>مشتبه به</strong> من اليسار لشد خيط التحقيق بينهما والتحقق من استنتاجك فورا!
+          </p>
+          <div class="mp-relation-switch">
+            <label for="mpRelationSelect">نوع الخيط:</label>
+            <select id="mpRelationSelect">
+              <option value="contradicts">🔴 يناقض إفادته (كسر حجة)</option>
+              <option value="supports">🟡 يدعم الشبهة والدافع</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mp-board-stage" id="mpBoardStage">
+          <svg class="mp-threads-svg" id="mpThreadsSvg" aria-hidden="true"></svg>
+          <div class="mp-column mp-clues-col">
+            <div class="mp-col-title">🔍 الأدلة المادية المكتشفة</div>
+            <div class="mp-nodes-list" id="mpCluesList"></div>
+          </div>
+          <div class="mp-column mp-suspects-col">
+            <div class="mp-col-title">👤 المشتبه بهم وإفاداتهم</div>
+            <div class="mp-nodes-list" id="mpSuspectsList"></div>
+          </div>
+        </div>
+
+        <div class="mp-timeline-box">
+          <div class="mp-timeline-title">⏱️ الخط الزمني للوقائع المرصودة في ملف القضية</div>
+          <div class="mp-timeline-strip" id="mpTimelineStrip"></div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="secondary-btn" id="mpOpenVerdictFromBoardBtn">⚖️ الانتقال لغرفة الاتهام</button>
+        <button type="button" class="start-adventure-btn" id="doneMindPalaceBtn">العودة لمسرح الجريمة</button>
       </div>
     </div>
   </div>

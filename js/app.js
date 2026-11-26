@@ -780,6 +780,254 @@
   }
 
   /**
+   * ============================================================================
+   * قصر الذهن البصري ولوحة الخيوط الجنائية الحمراء (AAA Visual Mind Palace & Red-String Board)
+   * ============================================================================
+   */
+  let selectedMindPalaceClueId = null;
+
+  function openMindPalaceModal() {
+    const modal = document.getElementById('mindPalaceModal');
+    if (!modal) return;
+    lastFocusedElementBeforeModal = document.activeElement;
+    ensureGameStateHasLockedBible();
+    selectedMindPalaceClueId = null;
+    if (typeof audioEngine.playDossierPaperSound === 'function') {
+      audioEngine.playDossierPaperSound();
+    }
+    renderMindPalaceBoard();
+    modal.classList.remove('hidden');
+    requestAnimationFrame(() => drawMindPalaceSvgThreads());
+    const closeBtn = document.getElementById('closeMindPalaceBtn');
+    if (closeBtn) {
+      setTimeout(() => {
+        try {
+          closeBtn.focus();
+        } catch (_) {}
+      }, 40);
+    }
+  }
+
+  function closeMindPalaceModal() {
+    const modal = document.getElementById('mindPalaceModal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    if (lastFocusedElementBeforeModal && typeof lastFocusedElementBeforeModal.focus === 'function') {
+      try {
+        lastFocusedElementBeforeModal.focus();
+      } catch (_) {}
+    }
+  }
+
+  function drawMindPalaceSvgThreads() {
+    const stage = document.getElementById('mpBoardStage');
+    const svg = document.getElementById('mpThreadsSvg');
+    if (!stage || !svg) return;
+    const stageRect = stage.getBoundingClientRect();
+    if (stageRect.width <= 0 || stageRect.height <= 0) {
+      svg.innerHTML = '';
+      return;
+    }
+
+    const links = Array.isArray(gameState.boardLinks) ? gameState.boardLinks : [];
+    const svgNs = 'http://www.w3.org/2000/svg';
+    svg.innerHTML = '';
+    svg.setAttribute('viewBox', `0 0 ${stageRect.width} ${stageRect.height}`);
+
+    links.forEach(link => {
+      const clueEl = stage.querySelector(`[data-mp-clue-id="${CSS.escape(link.clueId)}"]`);
+      const susEl = stage.querySelector(`[data-mp-suspect-id="${CSS.escape(link.suspectId)}"]`);
+      if (!clueEl || !susEl) return;
+
+      const cRect = clueEl.getBoundingClientRect();
+      const sRect = susEl.getBoundingClientRect();
+
+      const x1 = cRect.left - stageRect.left + 8;
+      const y1 = cRect.top - stageRect.top + cRect.height / 2;
+      const x2 = sRect.right - stageRect.left - 8;
+      const y2 = sRect.top - stageRect.top + sRect.height / 2;
+      const midX = (x1 + x2) / 2;
+
+      const isVerified = Boolean(link.verified);
+      const strokeColor = !isVerified
+        ? '#f43f5e'
+        : link.relationType === 'contradicts'
+          ? '#10b981'
+          : '#f5b95f';
+
+      const path = document.createElementNS(svgNs, 'path');
+      path.setAttribute('d', `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', strokeColor);
+      path.setAttribute('stroke-width', isVerified ? '2.6' : '2');
+      path.setAttribute('stroke-linecap', 'round');
+      if (!isVerified) {
+        path.setAttribute('stroke-dasharray', '6 5');
+        path.setAttribute('opacity', '0.7');
+      } else {
+        path.setAttribute('opacity', '0.92');
+      }
+      svg.appendChild(path);
+
+      [
+        [x1, y1],
+        [x2, y2]
+      ].forEach(([px, py]) => {
+        const dot = document.createElementNS(svgNs, 'circle');
+        dot.setAttribute('cx', String(px));
+        dot.setAttribute('cy', String(py));
+        dot.setAttribute('r', '4.5');
+        dot.setAttribute('fill', strokeColor);
+        dot.setAttribute('stroke', '#090e18');
+        dot.setAttribute('stroke-width', '1.5');
+        svg.appendChild(dot);
+      });
+    });
+  }
+
+  function renderMindPalaceBoard() {
+    ensureGameStateHasLockedBible();
+    const bible = gameState.caseBible || {};
+    const cluesListEl = document.getElementById('mpCluesList');
+    const suspectsListEl = document.getElementById('mpSuspectsList');
+    const timelineEl = document.getElementById('mpTimelineStrip');
+
+    if (cluesListEl) {
+      const discovered = Array.isArray(gameState.clues) ? gameState.clues : [];
+      if (discovered.length === 0) {
+        cluesListEl.innerHTML = '<div class="empty-note">لم تكتشف أدلة بعد. افحص مسرح الجريمة أولا.</div>';
+      } else {
+        cluesListEl.innerHTML = discovered
+          .map(c => {
+            const cid = c.id || c.title;
+            const isSelected = selectedMindPalaceClueId === cid;
+            return `
+              <button type="button" class="mp-node-card ${isSelected ? 'selected-pin' : ''}" data-mp-clue-id="${escapeHtml(cid)}">
+                <strong>📌 ${escapeHtml(c.title)}</strong>
+                <small>${escapeHtml(c.description || '')}</small>
+              </button>
+            `;
+          })
+          .join('');
+
+        cluesListEl.querySelectorAll('[data-mp-clue-id]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const cid = btn.getAttribute('data-mp-clue-id');
+            selectedMindPalaceClueId = selectedMindPalaceClueId === cid ? null : cid;
+            if (typeof audioEngine.playPinSnapSound === 'function') {
+              audioEngine.playPinSnapSound();
+            }
+            renderMindPalaceBoard();
+            requestAnimationFrame(() => drawMindPalaceSvgThreads());
+          });
+        });
+      }
+    }
+
+    if (suspectsListEl) {
+      const suspects = Array.isArray(gameState.suspects) ? gameState.suspects : [];
+      suspectsListEl.innerHTML = suspects
+        .map(s => {
+          const sid = s.id || s.name;
+          return `
+            <button type="button" class="mp-node-card ${s.alibiBroken ? 'alibi-broken' : ''}" data-mp-suspect-id="${escapeHtml(sid)}">
+              <strong>${s.alibiBroken ? '💥' : '👤'} ${escapeHtml(s.name)}</strong>
+              <small>${escapeHtml(s.alibi || s.note || '')}</small>
+            </button>
+          `;
+        })
+        .join('');
+
+      suspectsListEl.querySelectorAll('[data-mp-suspect-id]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const sid = btn.getAttribute('data-mp-suspect-id');
+          if (!selectedMindPalaceClueId) {
+            const targetSus = (gameState.suspects || []).find(s => (s.id || s.name) === sid);
+            if (targetSus && targetSus.alibi) {
+              audioEngine.stopSpeaking();
+              audioEngine.speakSingleText(targetSus.alibi, 'توتر وانفعال دفاعي', true, targetSus.voice || null);
+              showToast(`📌 اختر دليلا من العمود الأيمن أولا، ثم اضغط على «${targetSus.name}» لشد الخيط بينهما.`);
+            }
+            return;
+          }
+
+          const relEl = document.getElementById('mpRelationSelect');
+          const relationType = relEl ? relEl.value : 'contradicts';
+          const check = window.MysteryCaseBibles.verifyCorkboardLink(
+            gameState.caseBible,
+            selectedMindPalaceClueId,
+            sid,
+            relationType
+          );
+
+          if (!Array.isArray(gameState.boardLinks)) gameState.boardLinks = [];
+          const duplicate = gameState.boardLinks.some(
+            l => l.clueId === check.clueId && l.suspectId === check.suspectId && l.relationType === relationType
+          );
+          if (duplicate) {
+            showToast('هذا الخيط مثبت بالفعل على لوحة قصر الذهن.');
+            selectedMindPalaceClueId = null;
+            renderMindPalaceBoard();
+            requestAnimationFrame(() => drawMindPalaceSvgThreads());
+            return;
+          }
+
+          const clueObj = (gameState.caseBible?.clues || []).find(c => c.id === check.clueId) || { title: check.clueId };
+          const susObj = (gameState.caseBible?.suspects || []).find(s => s.id === check.suspectId) || { name: check.suspectId };
+
+          gameState.boardLinks.unshift({
+            clueId: check.clueId,
+            suspectId: check.suspectId,
+            clueTitle: clueObj.title,
+            suspectName: susObj.name,
+            relationType,
+            verified: check.verified,
+            feedback: check.feedback
+          });
+
+          if (typeof audioEngine.playPinSnapSound === 'function') {
+            audioEngine.playPinSnapSound();
+          }
+          if (check.verified) {
+            audioEngine.playClueSound();
+          }
+
+          selectedMindPalaceClueId = null;
+          renderSidebarState();
+          saveGameState();
+          renderMindPalaceBoard();
+          requestAnimationFrame(() => drawMindPalaceSvgThreads());
+          showToast(check.feedback);
+        });
+      });
+    }
+
+    if (timelineEl) {
+      const timeline = Array.isArray(bible.timeline) ? bible.timeline : [];
+      if (timeline.length === 0) {
+        timelineEl.innerHTML = '<div class="mp-time-chip">الوقائع الزمنية قيد التجميع.</div>';
+      } else {
+        const culpritObj = (bible.suspects || []).find(s => s.id === bible.culpritId);
+        const culpritBaseName = culpritObj ? culpritObj.name.split('(')[0].trim() : '';
+        const culpritBroken = (gameState.suspects || []).some(
+          s => s.id === bible.culpritId && s.alibiBroken
+        );
+        const shouldMaskCulprit = Boolean(culpritBaseName && !culpritBroken && !gameState.caseSolved);
+
+        timelineEl.innerHTML = timeline
+          .map(t => {
+            let safeText = String(t.text || '');
+            if (shouldMaskCulprit && safeText.includes(culpritBaseName)) {
+              safeText = safeText.split(culpritBaseName).join('الجاني المجهول');
+            }
+            return `<div class="mp-time-chip"><strong>[${escapeHtml(t.time)}]</strong><span>${escapeHtml(safeText)}</span></div>`;
+          })
+          .join('');
+      }
+    }
+  }
+
+  /**
    * تفعيل استوديو الانتشار الفيروسي، وعضوية المحقق الأعلى، وروابط التحدي المباشرة، وتحميل بطاقة الستوري (PNG)
    */
   function initViralAndMonetizationFeatures() {
@@ -2000,6 +2248,33 @@
       });
     }
 
+    // أزرار قصر الذهن البصري (#mindPalaceModal)
+    const openMindPalaceBtn = document.getElementById('openMindPalaceBtn');
+    const closeMindPalaceBtn = document.getElementById('closeMindPalaceBtn');
+    const doneMindPalaceBtn = document.getElementById('doneMindPalaceBtn');
+    const mpOpenVerdictBtn = document.getElementById('mpOpenVerdictFromBoardBtn');
+    const mindPalaceModal = document.getElementById('mindPalaceModal');
+
+    if (openMindPalaceBtn) openMindPalaceBtn.addEventListener('click', openMindPalaceModal);
+    if (closeMindPalaceBtn) closeMindPalaceBtn.addEventListener('click', closeMindPalaceModal);
+    if (doneMindPalaceBtn) doneMindPalaceBtn.addEventListener('click', closeMindPalaceModal);
+    if (mpOpenVerdictBtn) {
+      mpOpenVerdictBtn.addEventListener('click', () => {
+        closeMindPalaceModal();
+        openVerdictModal(false);
+      });
+    }
+    if (mindPalaceModal) {
+      mindPalaceModal.addEventListener('click', e => {
+        if (e.target === mindPalaceModal) closeMindPalaceModal();
+      });
+    }
+    window.addEventListener('resize', () => {
+      if (mindPalaceModal && !mindPalaceModal.classList.contains('hidden')) {
+        drawMindPalaceSvgThreads();
+      }
+    });
+
     // نموذج التصرف الحر المخصص (مع فلترة وحد أقصى للطول)
     dom.customActionForm.addEventListener('submit', e => {
       e.preventDefault();
@@ -2051,6 +2326,11 @@
           dismissTwistOverlayEarly();
           return;
         }
+        const mpModal = document.getElementById('mindPalaceModal');
+        if (mpModal && !mpModal.classList.contains('hidden')) {
+          closeMindPalaceModal();
+          return;
+        }
         if (dom.verdictModal && !dom.verdictModal.classList.contains('hidden')) {
           closeVerdictModal();
           return;
@@ -2067,7 +2347,9 @@
 
       // F23 Fix: حصر تنقل مفتاح Tab داخل النافذة المنبثقة النشطة (Focus Trap)
       if (e.key === 'Tab') {
+        const mpModalEl = document.getElementById('mindPalaceModal');
         const activeModal =
+          (mpModalEl && !mpModalEl.classList.contains('hidden') && mpModalEl) ||
           (dom.verdictModal && !dom.verdictModal.classList.contains('hidden') && dom.verdictModal) ||
           (dom.libraryModal && !dom.libraryModal.classList.contains('hidden') && dom.libraryModal) ||
           (dom.settingsModal && !dom.settingsModal.classList.contains('hidden') && dom.settingsModal);
@@ -2092,6 +2374,10 @@
         }
       }
 
+      const mpOpen =
+        document.getElementById('mindPalaceModal') &&
+        !document.getElementById('mindPalaceModal').classList.contains('hidden');
+
       if (
         isTyping ||
         !dom.settingsModal.classList.contains('hidden') ||
@@ -2100,7 +2386,15 @@
       ) {
         return;
       }
-      if (dom.gameStage.classList.contains('hidden') || isLoadingTurn) return;
+
+      if (e.key.toLowerCase() === 'm' && !dom.gameStage.classList.contains('hidden')) {
+        e.preventDefault();
+        if (mpOpen) closeMindPalaceModal();
+        else openMindPalaceModal();
+        return;
+      }
+
+      if (mpOpen || dom.gameStage.classList.contains('hidden') || isLoadingTurn) return;
 
       if (['1', '2', '3', '4'].includes(e.key)) {
         const idx = parseInt(e.key, 10) - 1;
@@ -2113,6 +2407,20 @@
         if (!dom.suspiciousHotspot.classList.contains('hidden') && !dom.inspectHotspotBtn.disabled) {
           e.preventDefault();
           inspectCurrentHotspot();
+        }
+      } else if (e.key.toLowerCase() === 'h') {
+        e.preventDefault();
+        triggerDetectiveInsightHint();
+      } else if (e.key.toLowerCase() === 'f') {
+        const flashBtn = document.getElementById('toggleFlashlightModeBtn');
+        if (flashBtn) {
+          e.preventDefault();
+          flashBtn.click();
+        }
+      } else if (e.key.toLowerCase() === 'r') {
+        if (dom.speakSceneBtn) {
+          e.preventDefault();
+          dom.speakSceneBtn.click();
         }
       }
     });
@@ -3075,6 +3383,50 @@
           .join('');
       if (prevSus) dom.linkSuspectSelect.value = prevSus;
     }
+
+    renderInterrogationSuspectCards();
+    if (dom.interrogateSuspectSelect && !dom.interrogateSuspectSelect.dataset.cardSyncBound) {
+      dom.interrogateSuspectSelect.dataset.cardSyncBound = '1';
+      dom.interrogateSuspectSelect.addEventListener('change', renderInterrogationSuspectCards);
+    }
+  }
+
+  function renderInterrogationSuspectCards() {
+    const container = document.getElementById('interrogationSuspectCards');
+    if (!container) return;
+    const suspects = gameState.suspects || [];
+    const selectedVal = dom.interrogateSuspectSelect ? dom.interrogateSuspectSelect.value : '';
+
+    container.innerHTML = suspects
+      .map(s => {
+        const val = s.id || s.name;
+        const isSel = selectedVal === val;
+        return `
+          <button type="button" class="int-suspect-card ${isSel ? 'selected' : ''} ${
+          s.alibiBroken ? 'broken' : ''
+        }" data-int-card-suspect="${escapeHtml(val)}">
+            <div class="int-suspect-head">
+              <strong>${s.alibiBroken ? '💥' : '👤'} ${escapeHtml(s.name)}</strong>
+              <span class="int-suspect-status">${s.alibiBroken ? 'حجة مكسورة ✓' : 'قيد التحقق'}</span>
+            </div>
+            <span class="int-suspect-alibi">${escapeHtml(s.alibi || s.note || '')}</span>
+          </button>
+        `;
+      })
+      .join('');
+
+    container.querySelectorAll('[data-int-card-suspect]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sVal = btn.getAttribute('data-int-card-suspect');
+        if (dom.interrogateSuspectSelect) dom.interrogateSuspectSelect.value = sVal;
+        if (dom.linkSuspectSelect) dom.linkSuspectSelect.value = sVal;
+        if (typeof audioEngine.playPuzzleClickSound === 'function') {
+          audioEngine.playPuzzleClickSound();
+        }
+        renderInterrogationSuspectCards();
+        if (dom.interrogateClueSelect) dom.interrogateClueSelect.focus();
+      });
+    });
   }
 
   /**
@@ -4209,14 +4561,16 @@
       xp += ((rec.unlockedEndings && rec.unlockedEndings.length) || 0) * 35;
     }
     const ranks = [
-      { min: 2000, title: '👑 أسطورة قلب الغموض' },
-      { min: 1200, title: '🎖️ عميد البصيرة الجنائية' },
-      { min: 650, title: '🎖️ رئيس شعبة الاستنتاج' },
-      { min: 250, title: '🎖️ محقق جنائي أول' },
-      { min: 0, title: '🎖️ محقق ميداني' }
+      { min: 2000, next: 3000, title: '👑 أسطورة قلب الغموض' },
+      { min: 1200, next: 2000, title: '🎖️ عميد البصيرة الجنائية' },
+      { min: 650, next: 1200, title: '🎖️ رئيس شعبة الاستنتاج' },
+      { min: 250, next: 650, title: '🎖️ محقق جنائي أول' },
+      { min: 0, next: 250, title: '🎖️ محقق ميداني' }
     ];
     const matched = ranks.find(r => xp >= r.min) || ranks[ranks.length - 1];
-    return { xp, title: matched.title };
+    const span = Math.max(1, matched.next - matched.min);
+    const progressPct = Math.min(100, Math.max(5, Math.round(((xp - matched.min) / span) * 100)));
+    return { xp, nextThreshold: matched.next, progressPct, title: matched.title };
   }
 
   function updateHeaderStreakBadge() {
@@ -4237,6 +4591,14 @@
     const lib = loadLibraryData();
     const allCaseIds = ['multiverse', 'daily', 'unknown_land', 'manor', 'station', 'train', 'museum', 'island'];
     const solvedCount = allCaseIds.filter(id => lib.cases[id] && lib.cases[id].bestStars >= 3).length;
+
+    const careerProf = calculateDetectiveCareerProfile(lib);
+    const libRankEl = document.getElementById('libCareerRankTitle');
+    const libXpEl = document.getElementById('libCareerXpLabel');
+    const libFillEl = document.getElementById('libCareerXpFill');
+    if (libRankEl) libRankEl.textContent = careerProf.title;
+    if (libXpEl) libXpEl.textContent = `${careerProf.xp} / ${careerProf.nextThreshold} XP`;
+    if (libFillEl) libFillEl.style.width = `${careerProf.progressPct}%`;
 
     if (dom.libSolvedCasesCount) {
       dom.libSolvedCasesCount.textContent = `${solvedCount} / ${allCaseIds.length}`;
@@ -4270,11 +4632,23 @@
                 <span class="mono-stat">${escapeHtml(starStr)}</span>
               </div>
               <p>${escapeHtml(endingText)}</p>
-              <small>النهايات المفتوحة في هذا الملف: ${endingsCount} / 6</small>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px;">
+                <small>النهايات المفتوحة: ${endingsCount} / 6</small>
+                <button type="button" class="notebook-quick-action-btn" data-lib-play-case="${escapeHtml(id)}">▶ ${stars > 0 ? 'أعد اللعب' : 'ابدأ الآن'}</button>
+              </div>
             </div>
           `;
         })
         .join('');
+
+      dom.libraryCasesGrid.querySelectorAll('[data-lib-play-case]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const cid = btn.getAttribute('data-lib-play-case');
+          closeLibraryModal();
+          selectScenarioById(cid);
+          startNewAdventure();
+        });
+      });
     }
 
     dom.libraryModal.classList.remove('hidden');

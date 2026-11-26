@@ -2303,6 +2303,29 @@ class MysteryAudioEngine {
   }
 
   /**
+   * صوت تثبيت دبوس وشد خيط أحمر على لوحة قصر الذهن (Corkboard Pin Snap SFX)
+   */
+  playPinSnapSound() {
+    if (!this.sfxEnabled) return;
+    try {
+      this.initAudioContext();
+      const now = this.audioCtx.currentTime;
+      const osc = this.audioCtx.createOscillator();
+      const gain = this.audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(520, now);
+      osc.frequency.exponentialRampToValueAtTime(140, now + 0.08);
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.16, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+      osc.connect(gain);
+      gain.connect(this.audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.13);
+    } catch (_) {}
+  }
+
+  /**
    * تبديل حالة الصوت المحيطي الواقعي أو تحديثه حسب السيناريو المختار
    */
   toggleAmbientDrone(scenarioId = 'mansion') {
