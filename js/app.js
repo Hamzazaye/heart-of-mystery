@@ -485,6 +485,7 @@
       bindEvents();
       tryRestoreSavedGame();
       updateHeaderStreakBadge();
+      syncScenarioCardCompletionBadges();
 
       // عرض تدرج الصعوبة الأسبوعي لقضية اليوم (Weekly Difficulty Ramp)
       if (window.MysteryCaseBibles && typeof window.MysteryCaseBibles.getWeeklyDifficultyProfile === 'function') {
@@ -1002,11 +1003,47 @@
       });
     }
 
+    const linksStripEl = document.getElementById('mpActiveLinksStrip');
+    if (linksStripEl) {
+      const links = Array.isArray(gameState.boardLinks) ? gameState.boardLinks : [];
+      if (links.length === 0) {
+        linksStripEl.innerHTML = '';
+      } else {
+        linksStripEl.innerHTML = links
+          .map(
+            (l, idx) => `
+          <span class="mp-link-chip ${l.verified ? 'verified' : 'unverified'}">
+            <span>${l.verified ? '✓' : '×'} ${escapeHtml(l.clueTitle)} ➔ ${escapeHtml(l.suspectName)}</span>
+            <button type="button" class="mp-unpin-btn" data-mp-unpin-idx="${idx}" title="فك هذا الخيط">×</button>
+          </span>`
+          )
+          .join('');
+
+        linksStripEl.querySelectorAll('[data-mp-unpin-idx]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const idx = Number(btn.getAttribute('data-mp-unpin-idx'));
+            if (!Number.isNaN(idx) && Array.isArray(gameState.boardLinks)) {
+              gameState.boardLinks.splice(idx, 1);
+              if (typeof audioEngine.playPinSnapSound === 'function') {
+                audioEngine.playPinSnapSound();
+              }
+              renderSidebarState();
+              saveGameState();
+              renderMindPalaceBoard();
+              requestAnimationFrame(() => drawMindPalaceSvgThreads());
+            }
+          });
+        });
+      }
+    }
+
     if (timelineEl) {
       const timeline = Array.isArray(bible.timeline) ? bible.timeline : [];
       if (timeline.length === 0) {
         timelineEl.innerHTML = '<div class="mp-time-chip">الوقائع الزمنية قيد التجميع.</div>';
       } else {
+        const realCluesFound = (gameState.clues || []).filter(c => !c.isRedHerring).length;
+        const brokenAlibis = (gameState.suspects || []).filter(s => s.alibiBroken).length;
         const culpritObj = (bible.suspects || []).find(s => s.id === bible.culpritId);
         const culpritBaseName = culpritObj ? culpritObj.name.split('(')[0].trim() : '';
         const culpritBroken = (gameState.suspects || []).some(
@@ -1015,7 +1052,17 @@
         const shouldMaskCulprit = Boolean(culpritBaseName && !culpritBroken && !gameState.caseSolved);
 
         timelineEl.innerHTML = timeline
-          .map(t => {
+          .map((t, idx) => {
+            const isUnlocked =
+              Boolean(gameState.caseSolved) ||
+              (idx === 0 && realCluesFound >= 2) ||
+              (idx === 1 && (realCluesFound >= 3 || brokenAlibis >= 1)) ||
+              (idx >= 2 && (realCluesFound >= 4 || culpritBroken));
+
+            if (!isUnlocked) {
+              return `<div class="mp-time-chip"><strong>🔒 [${escapeHtml(t.time)}]</strong><span>واقعة زمنية غامضة (افحص المزيد من الأدلة لكشف ما جرى في هذه الساعة)</span></div>`;
+            }
+
             let safeText = String(t.text || '');
             if (shouldMaskCulprit && safeText.includes(culpritBaseName)) {
               safeText = safeText.split(culpritBaseName).join('الجاني المجهول');
@@ -2098,6 +2145,7 @@
       dom.scenarioScreen.classList.remove('hidden');
       syncMobileBottomNavVisibility();
       updateResumeBannerVisibility();
+      syncScenarioCardCompletionBadges();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -2117,6 +2165,14 @@
       dom.mobNavNotebookBtn.addEventListener('click', () => {
         const isOpen = dom.mysterySidebar && dom.mysterySidebar.classList.contains('mobile-drawer-open');
         setMobileDrawerOpen(!isOpen);
+      });
+    }
+
+    const mobNavMindPalaceBtn = document.getElementById('mobNavMindPalaceBtn');
+    if (mobNavMindPalaceBtn) {
+      mobNavMindPalaceBtn.addEventListener('click', () => {
+        setMobileDrawerOpen(false);
+        openMindPalaceModal();
       });
     }
 
@@ -4246,10 +4302,18 @@
     renderVerdictOutcomeView(finalOutcome);
 
     audioEngine.stopSpeaking();
-    if (finalOutcome.endingCode === 'ENDING_1_PERFECT') {
-      audioEngine.playClueSound();
+    if (finalOutcome.isMythicSecret || Number(finalOutcome.stars) >= 6) {
+      if (typeof audioEngine.playVictoryFanfare === 'function') {
+        audioEngine.playVictoryFanfare(true);
+      }
+    } else if (finalOutcome.endingCode === 'ENDING_1_PERFECT' || finalOutcome.endingCode === 'ENDING_2_WRONG_MOTIVE') {
+      if (typeof audioEngine.playVictoryFanfare === 'function') {
+        audioEngine.playVictoryFanfare(false);
+      }
     } else {
-      audioEngine.playTwistSound();
+      if (typeof audioEngine.playDefeatSting === 'function') {
+        audioEngine.playDefeatSting();
+      }
     }
 
     if (audioEngine.autoTtsEnabled) {
@@ -4403,7 +4467,9 @@
     renderVerdictOutcomeView(finalOutcome);
 
     audioEngine.stopSpeaking();
-    audioEngine.playTwistSound();
+    if (typeof audioEngine.playVictoryFanfare === 'function') {
+      audioEngine.playVictoryFanfare(true);
+    }
 
     if (audioEngine.autoTtsEnabled) {
       const spokenClosing = finalOutcome.vocalClosingLine
@@ -4417,6 +4483,15 @@
     if (!outcome) return;
     dom.verdictBuilderSection.classList.add('hidden');
     dom.verdictOutcomeBox.classList.remove('hidden');
+
+    const headerBanner = document.getElementById('endingHeaderBanner');
+    if (headerBanner) {
+      const isMythic = Boolean(outcome.isMythicSecret || Number(outcome.stars) >= 6);
+      const isVictory =
+        outcome.endingCode === 'ENDING_1_PERFECT' || outcome.endingCode === 'ENDING_2_WRONG_MOTIVE';
+      headerBanner.classList.toggle('mythic-glow', isMythic);
+      headerBanner.classList.toggle('victory-glow', !isMythic && isVictory);
+    }
 
     if (dom.verdictEndingBadge) {
       dom.verdictEndingBadge.textContent = outcome.endingBadge || outcome.endingCode;
@@ -4549,6 +4624,39 @@
     try {
       localStorage.setItem(STORAGE_KEY_LIBRARY, JSON.stringify(lib));
     } catch (_) {}
+    syncScenarioCardCompletionBadges();
+  }
+
+  /**
+   * عرض شارات الإنجاز والنهايات المحققة على بطاقات القضايا في القائمة الرئيسية
+   */
+  function syncScenarioCardCompletionBadges() {
+    const lib = loadLibraryData();
+    const casesObj = (lib && lib.cases) || {};
+    dom.scenarioCards.forEach(card => {
+      const scenId = card.dataset.scenario;
+      const rec = casesObj[scenId];
+      let badge = card.querySelector('.scenario-solved-badge');
+      const stars = rec ? Number(rec.bestStars) || 0 : 0;
+      if (stars >= 3) {
+        if (!badge) {
+          badge = document.createElement('div');
+          const headerEl = card.querySelector('.scenario-card-header');
+          if (headerEl && headerEl.parentNode) {
+            headerEl.parentNode.insertBefore(badge, headerEl.nextSibling);
+          } else {
+            card.appendChild(badge);
+          }
+        }
+        const isMythic = stars >= 6;
+        badge.className = `scenario-solved-badge${isMythic ? ' mythic' : ''}`;
+        badge.textContent = isMythic
+          ? '👑 نهاية أسطورية مكتشفة • ★★★★★★'
+          : `✓ قضية محلولة • ${'★'.repeat(stars)}`;
+      } else if (badge) {
+        badge.remove();
+      }
+    });
   }
 
   function calculateDetectiveCareerProfile(lib) {

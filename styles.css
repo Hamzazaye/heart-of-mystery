@@ -6188,3 +6188,226 @@ body.flashlight-mode-active .narrative-card::after {
     display: none;
   }
 }
+
+/* Inline Unpinning Strip inside Mind Palace */
+.mp-active-links-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.mp-link-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(17, 25, 42, 0.9);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.mp-link-chip.verified {
+  border-color: rgba(16, 185, 129, 0.55);
+  background: rgba(16, 185, 129, 0.14);
+  color: #6ee7b7;
+}
+
+.mp-link-chip.unverified {
+  border-color: rgba(244, 63, 94, 0.45);
+  background: rgba(244, 63, 94, 0.12);
+  color: #fda4af;
+}
+
+.mp-unpin-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: inherit;
+}
+
+.mp-unpin-btn:hover {
+  background: rgba(244, 63, 94, 0.4);
+  color: #ffffff;
+}
+
+/* Main Menu Solved Case Badges */
+.scenario-solved-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: rgba(16, 185, 129, 0.16);
+  border: 1px solid rgba(16, 185, 129, 0.48);
+  color: #34d399;
+  align-self: flex-start;
+}
+
+.scenario-solved-badge.mythic {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(245, 185, 95, 0.22));
+  border-color: rgba(245, 185, 95, 0.72);
+  color: #fde68a;
+}
+
+/* Verdict Celebration Glow Animations */
+.ending-header-banner.victory-glow {
+  border-color: rgba(16, 185, 129, 0.65);
+  box-shadow: 0 0 32px rgba(16, 185, 129, 0.25);
+  animation: verdictGlowPulse 2.4s ease-in-out infinite alternate;
+}
+
+.ending-header-banner.mythic-glow {
+  border-color: rgba(245, 185, 95, 0.82);
+  box-shadow: 0 0 38px rgba(245, 185, 95, 0.34);
+  animation: verdictGlowPulse 2.1s ease-in-out infinite alternate;
+}
+
+@keyframes verdictGlowPulse {
+  from { box-shadow: 0 0 22px rgba(245, 185, 95, 0.2); }
+  to { box-shadow: 0 0 42px rgba(245, 185, 95, 0.42); }
+}
+
+/* ==========================================================================
+   Warm Parchment Light Theme ("detective-light") Parity Overrides
+   ========================================================================== */
+html[data-theme="detective-light"] .immersive-forensic-hud,
+html[data-theme="detective-light"] .crime-scene-scanner-bar,
+html[data-theme="detective-light"] .mp-toolbar,
+html[data-theme="detective-light"] .mp-timeline-box,
+html[data-theme="detective-light"] .library-career-bar {
+  background: #fbf8f1;
+  border-color: rgba(62, 48, 33, 0.2);
+  color: #241f1a;
+  box-shadow: 0 8px 22px -8px rgba(42, 33, 22, 0.12);
+}
+
+html[data-theme="detective-light"] .hud-telemetry-pill,
+html[data-theme="detective-light"] .scanner-zone-card,
+html[data-theme="detective-light"] .int-suspect-card,
+html[data-theme="detective-light"] .mp-node-card,
+html[data-theme="detective-light"] .mp-time-chip,
+html[data-theme="detective-light"] .desktop-shortcut-legend {
+  background: #f2ece0;
+  border-color: rgba(62, 48, 33, 0.22);
+  color: #241f1a;
+}
+
+html[data-theme="detective-light"] .hud-telemetry-pill strong,
+html[data-theme="detective-light"] .scanner-zone-loc,
+html[data-theme="detective-light"] .int-suspect-head strong,
+html[data-theme="detective-light"] .mp-node-card strong,
+html[data-theme="detective-light"] .career-bar-top {
+  color: #241f1a;
+}
+
+html[data-theme="detective-light"] .hud-telemetry-pill .hud-label,
+html[data-theme="detective-light"] .scanner-bar-sub,
+html[data-theme="detective-light"] .scanner-zone-desc,
+html[data-theme="detective-light"] .int-suspect-alibi,
+html[data-theme="detective-light"] .mp-instruction,
+html[data-theme="detective-light"] .mp-node-card small,
+html[data-theme="detective-light"] .mp-time-chip {
+  color: #4a4238;
+}
+
+html[data-theme="detective-light"] .hud-insight-btn,
+html[data-theme="detective-light"] .hud-flashlight-toggle,
+html[data-theme="detective-light"] .mind-palace-trigger-btn {
+  background: #eae3d5;
+  border-color: rgba(140, 82, 26, 0.45);
+  color: #734010;
+}
+
+html[data-theme="detective-light"] .hud-insight-btn:hover,
+html[data-theme="detective-light"] .hud-flashlight-toggle.active,
+html[data-theme="detective-light"] .mind-palace-trigger-btn:hover {
+  background: #dfcfb5;
+  color: #241f1a;
+  border-color: #8c521a;
+}
+
+html[data-theme="detective-light"] .scanner-zone-card.available,
+html[data-theme="detective-light"] .int-suspect-card.selected {
+  background: linear-gradient(135deg, #f8edd9, #fbf8f1);
+  border-color: #8c521a;
+}
+
+html[data-theme="detective-light"] .scanner-zone-card.scanned,
+html[data-theme="detective-light"] .int-suspect-card.broken,
+html[data-theme="detective-light"] .mp-node-card.alibi-broken {
+  background: linear-gradient(135deg, #e3f2eb, #fbf8f1);
+  border-color: #266e52;
+}
+
+html[data-theme="detective-light"] .scanner-zone-card.scanned .scanner-zone-badge,
+html[data-theme="detective-light"] .int-suspect-card.broken .int-suspect-status,
+html[data-theme="detective-light"] .scenario-solved-badge {
+  color: #165b41;
+  background: rgba(38, 110, 82, 0.14);
+  border-color: rgba(38, 110, 82, 0.45);
+}
+
+html[data-theme="detective-light"] .scanner-zone-card.locked {
+  background: #eae3d5;
+  color: #6e6457;
+}
+
+html[data-theme="detective-light"] .mp-board-stage {
+  background:
+    repeating-linear-gradient(0deg, rgba(62, 48, 33, 0.05) 0 1px, transparent 1px 28px),
+    repeating-linear-gradient(90deg, rgba(62, 48, 33, 0.05) 0 1px, transparent 1px 28px),
+    #f2ece0;
+  border-color: rgba(140, 82, 26, 0.35);
+}
+
+html[data-theme="detective-light"] .mp-node-card.selected-pin {
+  background: #fae8e8;
+  border-color: #ad3737;
+}
+
+html[data-theme="detective-light"] .mp-link-chip {
+  background: #fbf8f1;
+  color: #241f1a;
+  border-color: rgba(62, 48, 33, 0.25);
+}
+
+html[data-theme="detective-light"] .mp-link-chip.verified {
+  background: #e3f2eb;
+  color: #165b41;
+  border-color: #266e52;
+}
+
+html[data-theme="detective-light"] .mp-link-chip.unverified {
+  background: #fae8e8;
+  color: #8f2424;
+  border-color: #ad3737;
+}
+
+html[data-theme="detective-light"] .desktop-shortcut-legend kbd {
+  background: #eae3d5;
+  border-color: rgba(62, 48, 33, 0.28);
+  color: #734010;
+}
+
+html[data-theme="detective-light"] body.flashlight-mode-active .narrative-card::after {
+  background: radial-gradient(
+    360px circle at var(--spot-x, 50%) var(--spot-y, 35%),
+    rgba(245, 185, 95, 0.14),
+    rgba(140, 82, 26, 0.04) 45%,
+    rgba(62, 48, 33, 0.06) 100%
+  );
+}

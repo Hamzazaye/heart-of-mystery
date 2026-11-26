@@ -2326,6 +2326,64 @@ class MysteryAudioEngine {
   }
 
   /**
+   * لحن انتصار احتفالي دافئ عند كشف الجاني أو فتح النهاية السرية الأسطورية (Victory Fanfare)
+   */
+  playVictoryFanfare(isMythic = false) {
+    if (!this.sfxEnabled) return;
+    try {
+      this.initAudioContext();
+      const now = this.audioCtx.currentTime;
+      const notes = isMythic
+        ? [261.63, 329.63, 392.0, 493.88, 587.33, 783.99]
+        : [261.63, 329.63, 392.0, 493.88, 587.33];
+      notes.forEach((freq, idx) => {
+        const osc = this.audioCtx.createOscillator();
+        const gain = this.audioCtx.createGain();
+        const start = now + idx * 0.095;
+        osc.type = idx >= 4 ? 'sine' : 'triangle';
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.linearRampToValueAtTime(0.11, start + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.65);
+        osc.connect(gain);
+        gain.connect(this.audioCtx.destination);
+        osc.start(start);
+        osc.stop(start + 0.7);
+      });
+    } catch (_) {}
+  }
+
+  /**
+   * نغمة توتر درامية منخفضة عند إخفاق الاتهام أو إغلاق القضية ضد مجهول (Noir Defeat Sting)
+   */
+  playDefeatSting() {
+    if (!this.sfxEnabled) return;
+    try {
+      this.initAudioContext();
+      const now = this.audioCtx.currentTime;
+      const notes = [146.83, 138.59, 110.0];
+      notes.forEach((freq, idx) => {
+        const osc = this.audioCtx.createOscillator();
+        const gain = this.audioCtx.createGain();
+        const start = now + idx * 0.22;
+        osc.type = 'sawtooth';
+        const filter = this.audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(480, start);
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.linearRampToValueAtTime(0.09, start + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.52);
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.audioCtx.destination);
+        osc.start(start);
+        osc.stop(start + 0.56);
+      });
+    } catch (_) {}
+  }
+
+  /**
    * تبديل حالة الصوت المحيطي الواقعي أو تحديثه حسب السيناريو المختار
    */
   toggleAmbientDrone(scenarioId = 'mansion') {
