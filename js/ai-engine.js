@@ -834,16 +834,46 @@ ${cluesLedger}
 
     const cleanAction = String(playerChoiceText || '').trim();
     const isForceAction = /(حطم|أحطم|احطم|كسر|أكسر|اكسر|خلع|باب|عنف|قوة|ركل|ضرب)/i.test(cleanAction);
+    const isInspectAction = /(افحص|أفحص|فحص|فتش|تفتيش|ابحث|بحث|عدسة|مكبر|بصم|قراءة|اقرأ|أقرأ|دقق)/i.test(cleanAction);
+    const isStealthAction = /(تسلل|اختب|تخف|راقب|مراقبة|صمت|تنصت|استمع|ترقب|هدوء)/i.test(cleanAction);
+    const isConfrontAction = /(اسأل|أسأل|سؤال|واجه|مواجهة|استجوب|اتهام|اتهم|واجهه|صارح|اضغط)/i.test(cleanAction);
 
-    const paragraph1 = isForceAction
-      ? `تندفع يا ${name} لتنفيذ قرارك الحاسم («${cleanAction}») وسط مسرح "${bible.title || gameState.scenarioTitle}"؛ فيدوي ارتطام عنيف يهز الإطار المعدني للباب ويرتج معه القفل المغناطيسي دون أن ينخلع بالكامل، تاركا خدشا واضحا على حافة المزلاج بينما يتردد صدى الضربة في أرجاء القاعة.`
-      : cleanAction
-        ? `تشرع فورا يا ${name} في تنفيذ قرارك («${cleanAction}») داخل مسرح "${bible.title || gameState.scenarioTitle}". تتغير زاوية الرؤية أمامك وتبرز التفاصيل المادية المرتبطة بالساعة [${timelineItem ? timelineItem.time : '23:00'}]， بينما ترصد عيناك أثر حركتك المباشر في المكان.`
-        : `مع بدء فحصك الميداني في "${bible.title || gameState.scenarioTitle}"، تزداد وطأة الترقب في أرجاء المكان. كل زاوية هنا تحمل أثرا ماديا صامتا يرتبط بالساعة [${timelineItem ? timelineItem.time : '23:00'}].`;
+    const sceneTitle = bible.title || gameState.scenarioTitle;
+    const timeTag = timelineItem ? timelineItem.time : '23:00';
 
-    const paragraph2 = isForceAction
-      ? `يلتفت إليك "${focusSuspect.name}" (${focusSuspect.role}) مذعورا من شدة الضربة على الباب، ويقول بنبرة متوترة: «تمهل يا ${name}! محاولة تحطيم الباب بالقوة لن تفتح القفل المشفر، وقد تتلف الآثار المادية هنا... أنا متمسك بإفادتي: ${focusSuspect.alibi}».`
-      : `يقترب منك "${focusSuspect.name}" (${focusSuspect.role}) متفاعلا مع خطوتك («${cleanAction || 'المعاينة الميدانية'}»)، ويتمسك بإفادته الأولية: «${focusSuspect.alibi}». تسجل في دفترك نبرته وتوقيت إفادته لمقارنتها مع القرائن المادية.`;
+    let paragraph1;
+    let paragraph2;
+    let semanticMood;
+    let semanticReaction;
+
+    if (isForceAction) {
+      paragraph1 = `تندفع يا ${name} لتنفيذ قرارك الحاسم («${cleanAction}») وسط مسرح "${sceneTitle}"؛ فيدوي ارتطام عنيف يهز الإطار المعدني للباب ويرتج معه القفل المغناطيسي دون أن ينخلع بالكامل، تاركا خدشا واضحا على حافة المزلاج بينما يتردد صدى الضربة في أرجاء القاعة.`;
+      paragraph2 = `يلتفت إليك "${focusSuspect.name}" (${focusSuspect.role}) مذعورا من شدة الضربة على الباب، ويقول بنبرة متوترة: «تمهل يا ${name}! محاولة تحطيم الباب بالقوة لن تفتح القفل المشفر، وقد تتلف الآثار المادية هنا... أنا متمسك بإفادتي: ${focusSuspect.alibi}».`;
+      semanticMood = 'ارتجاج عنيف وتوتر حاد';
+      semanticReaction = `<gasp> ضربة عنيفة هزت الباب يا ${name}! <short pause> انظر إلى رد فعل "${focusSuspect.name}" وما انكشف قرب الإطار!`;
+    } else if (isInspectAction) {
+      paragraph1 = `تقترب بهدوء وتركيز يا ${name} لتنفيذ خطوتك الميدانية («${cleanAction}») في أرجاء "${sceneTitle}"، فتسلط نظرك الدقيق على الزوايا والأسطح المرتبطة بالساعة [${timeTag}] لتلتقط ما غفلت عنه العيون المتعجلة.`;
+      paragraph2 = `يراقب "${focusSuspect.name}" (${focusSuspect.role}) فحصك الدقيق بقلق مكبوت، ويحاول الحفاظ على هدوئه وهو يكرر: «أفحص ما تشاء يا ${name}، لكن ذلك لن يغير من إفادتي عند الساعة [${timeTag}]: ${focusSuspect.alibi}».`;
+      semanticMood = 'تفحص دقيق وترقب صامت';
+      semanticReaction = `<breath> عينك الجنائية التقطت تفصيلا حاسما يا ${name}... <short pause> قارن ما وجدته الآن مع إفادة "${focusSuspect.name}"!`;
+    } else if (isStealthAction) {
+      paragraph1 = `تتراجع خطوة إلى الظل يا ${name} لتنفذ خطتك الصامتة («${cleanAction}») وسط "${sceneTitle}"؛ فتتباطأ أنفاسك وتبدأ برصد الإيماءات الخفية، وتوقيت الحركات قرب الساعة [${timeTag}] دون إثارة ضجيج.`;
+      paragraph2 = `دون أن يدرك "${focusSuspect.name}" (${focusSuspect.role}) مدى انتباهك لتفاصيل تردده، يختلس نظرة جانبية مرتبكة نحو موضع الدليل ثم يتمتم بإفادته المعتادة: «${focusSuspect.alibi}».`;
+      semanticMood = 'ترقب خفي وحذر مشحون';
+      semanticReaction = `<whisper> خطوة ذكية في الظل يا ${name}... <short pause> ارتباك "${focusSuspect.name}" فضح خيطا لم يكن ينوي البوح به!`;
+    } else if (isConfrontAction) {
+      paragraph1 = `تواجه الحاضرين بنبرة قاطعة يا ${name} وتبادر فورا بخطوتك («${cleanAction}») داخل "${sceneTitle}"، واضعا تسلسل أحداث الساعة [${timeTag}] على طاولة المساءلة المباشرة دون مواربة.`;
+      paragraph2 = `يتصلب وجه "${focusSuspect.name}" (${focusSuspect.role}) تحت ضغط مواجهتك الصريحة («${cleanAction}»)، فيحاول الدفاع عن موقفه قائلا بتحفظ: «أسئلتك المباشرة لا تنقض كلامي يا ${name}... سأظل عند إفادتي: ${focusSuspect.alibi}».`;
+      semanticMood = 'مساءلة حادة وتوتر نفسي';
+      semanticReaction = `<short pause> مواجهة مباشرة أصابت الوتر الحساس يا ${name}! <breath> اختبر ثغرة "${focusSuspect.name}" بالمعروض المناسب الآن.`;
+    } else {
+      paragraph1 = cleanAction
+        ? `تشرع فورا يا ${name} في تنفيذ قرارك («${cleanAction}») داخل مسرح "${sceneTitle}". تتغير زاوية الرؤية أمامك وتبرز التفاصيل المادية المرتبطة بالساعة [${timeTag}]، بينما ترصد عيناك أثر حركتك المباشر في المكان.`
+        : `مع بدء فحصك الميداني في "${sceneTitle}"، تزداد وطأة الترقب في أرجاء المكان. كل زاوية هنا تحمل أثرا ماديا صامتا يرتبط بالساعة [${timeTag}].`;
+      paragraph2 = `يقترب منك "${focusSuspect.name}" (${focusSuspect.role}) متفاعلا مع خطوتك («${cleanAction || 'المعاينة الميدانية'}»)، ويتمسك بإفادته الأولية: «${focusSuspect.alibi}». تسجل في دفترك نبرته وتوقيت إفادته لمقارنتها مع القرائن المادية.`;
+      semanticMood = earnedTwist ? 'انكشاف قرينة مركبة' : 'معاينة ميدانية ورصد';
+      semanticReaction = `<breath> خطوة لافتة يا ${name} («${cleanAction.slice(0, 40) || 'معاينة المسرح'}»)... <short pause> قارن ما يقوله "${focusSuspect.name}" بالأثر المادي أمامك!`;
+    }
 
     const paragraph3 = nextClue
       ? `وإثر ما أحدثه تصرفك («${cleanAction || 'البحث الدقيق'}») في مسرح الحدث، تنكشف أمامك قرينة مادية حاسمة: "${nextClue.title}" (${nextClue.description}). يضاف هذا الدليل إلى ملف التحقيق لمواجهة المشتبه بهم الثلاثة به مباشرة.`
@@ -855,10 +885,8 @@ ${cluesLedger}
         : nextClue
           ? `أثر ميداني: ${nextClue.title}`
           : `مقارنة القرائن في ${bible.shortTitle || 'القضية'}`,
-      mood: isForceAction ? 'ارتجاج عنيف وتوتر حاد' : earnedTwist ? 'انكشاف قرينة مركبة' : 'معاينة ميدانية ورصد',
-      vocal_reaction: isForceAction
-        ? `<gasp> ضربة عنيفة هزت الباب يا ${name}! <short pause> انظر إلى رد فعل "${focusSuspect.name}" وما انكشف قرب الإطار!`
-        : `<breath> خطوة لافتة يا ${name} («${cleanAction.slice(0, 40) || 'معاينة المسرح'}»)... <short pause> قارن ما يقوله "${focusSuspect.name}" بالأثر المادي أمامك!`,
+      mood: semanticMood,
+      vocal_reaction: semanticReaction,
       vocal_emotion: earnedTwist ? 'صدمة وذهول درامي' : 'تساؤل ماكر وتشكيك',
       paragraph_emotions: ['ترقب وتوتر', 'تساؤل ماكر وتشكيك', 'تحذير حاد وتوتر'],
       narrative: `${paragraph1}\n\n${paragraph2}\n\n${paragraph3}`,

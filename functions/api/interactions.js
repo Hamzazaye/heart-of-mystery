@@ -22,6 +22,11 @@ const edgeRateMap = new Map();
 
 function checkEdgeRateLimit(ip) {
   const now = Date.now();
+  if (edgeRateMap.size > 400) {
+    for (const [k, v] of edgeRateMap.entries()) {
+      if (now - v.start > 60000) edgeRateMap.delete(k);
+    }
+  }
   const rec = edgeRateMap.get(ip);
   if (!rec || now - rec.start > 60000) {
     edgeRateMap.set(ip, { start: now, count: 1 });
@@ -114,7 +119,13 @@ export async function onRequestPost(context) {
     } catch (_) {
       return new Response(
         JSON.stringify({ error: { code: 'invalid_request', message: 'صيغة JSON غير صالحة.' } }),
-        { status: 400, headers: { 'Content-Type': 'application/json; charset=utf-8' } }
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Access-Control-Allow-Origin': allowedOrigin
+          }
+        }
       );
     }
 
@@ -180,6 +191,7 @@ export async function onRequestPost(context) {
       `https://generativelanguage.googleapis.com/v1beta/interactions?key=${encodeURIComponent(effectiveApiKey)}`,
       {
         method: 'POST',
+        signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(25000) : undefined,
         headers: {
           'Content-Type': 'application/json'
         },

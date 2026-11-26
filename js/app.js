@@ -67,7 +67,7 @@
       title: 'قطار منتصف الليل: الرحلة 404',
       shortTitle: 'قطار منتصف الليل 404',
       teaserVoice:
-        'القطار يشق الضباب بلا توقف... اختفى القاضي سليمان خلف باب المقصورة الثالثة الموصد من الداخل، وكل راكب في العربة يخفي سرا يخشى افتضاحه قبل الفجر.',
+        'القطار يشق عباب الضباب كالسهم... القاضي سليمان اختفى خلف باب المقصورة الثالثة الموصد من الداخل، وكل راكب في العربة يخفي سرا تحت معطفه!',
       teaserEmotion: 'تساؤل ماكر وتشكيك',
       prompt:
         'يشق قطار فخم ستائر الضباب دون توقف. في المقصورة رقم 3 اختفى القاضي سليمان العلام خلف باب موصد بالسلسلة من الداخل، تاركا رائحة لوز مر. السكرتيرة ليلى الموصلي، العقيد فريد الشذر، والسائق عمران الحلبي هم المشتبه بهم.'
@@ -2275,6 +2275,22 @@
     if (dom.copyShareCardBtn) {
       dom.copyShareCardBtn.addEventListener('click', copyShareCardToClipboard);
     }
+    const copyFullDossierBtn = document.getElementById('copyFullDossierBtn');
+    if (copyFullDossierBtn) {
+      copyFullDossierBtn.addEventListener('click', copyFullDossierToClipboard);
+    }
+    const openShortcutsBtn = document.getElementById('openShortcutsBtn');
+    const closeShortcutsBtn = document.getElementById('closeShortcutsBtn');
+    const doneShortcutsBtn = document.getElementById('doneShortcutsBtn');
+    const shortcutsModalEl = document.getElementById('shortcutsModal');
+    if (openShortcutsBtn) openShortcutsBtn.addEventListener('click', openShortcutsModal);
+    if (closeShortcutsBtn) closeShortcutsBtn.addEventListener('click', closeShortcutsModal);
+    if (doneShortcutsBtn) doneShortcutsBtn.addEventListener('click', closeShortcutsModal);
+    if (shortcutsModalEl) {
+      shortcutsModalEl.addEventListener('click', e => {
+        if (e.target === shortcutsModalEl) closeShortcutsModal();
+      });
+    }
     if (dom.verdictOpenLibraryBtn) {
       dom.verdictOpenLibraryBtn.addEventListener('click', () => {
         closeVerdictModal();
@@ -2376,10 +2392,21 @@
     document.addEventListener('keydown', e => {
       const tag = e.target && e.target.tagName ? e.target.tagName.toLowerCase() : '';
       const isTyping = tag === 'input' || tag === 'textarea' || tag === 'select';
+      const isInteractiveTarget =
+        isTyping ||
+        tag === 'button' ||
+        tag === 'a' ||
+        tag === 'summary' ||
+        (e.target && e.target.getAttribute && e.target.getAttribute('role') === 'button');
+      const shortcutsModal = document.getElementById('shortcutsModal');
 
       if (e.key === 'Escape') {
         if (!dom.twistOverlay.classList.contains('hidden')) {
           dismissTwistOverlayEarly();
+          return;
+        }
+        if (shortcutsModal && !shortcutsModal.classList.contains('hidden')) {
+          closeShortcutsModal();
           return;
         }
         const mpModal = document.getElementById('mindPalaceModal');
@@ -2405,6 +2432,7 @@
       if (e.key === 'Tab') {
         const mpModalEl = document.getElementById('mindPalaceModal');
         const activeModal =
+          (shortcutsModal && !shortcutsModal.classList.contains('hidden') && shortcutsModal) ||
           (mpModalEl && !mpModalEl.classList.contains('hidden') && mpModalEl) ||
           (dom.verdictModal && !dom.verdictModal.classList.contains('hidden') && dom.verdictModal) ||
           (dom.libraryModal && !dom.libraryModal.classList.contains('hidden') && dom.libraryModal) ||
@@ -2433,6 +2461,7 @@
       const mpOpen =
         document.getElementById('mindPalaceModal') &&
         !document.getElementById('mindPalaceModal').classList.contains('hidden');
+      const shortcutsOpen = shortcutsModal && !shortcutsModal.classList.contains('hidden');
 
       if (
         isTyping ||
@@ -2443,6 +2472,15 @@
         return;
       }
 
+      if ((e.key === '?' || e.key === '/') && !dom.gameStage.classList.contains('hidden')) {
+        e.preventDefault();
+        if (shortcutsOpen) closeShortcutsModal();
+        else openShortcutsModal();
+        return;
+      }
+
+      if (shortcutsOpen) return;
+
       if (e.key.toLowerCase() === 'm' && !dom.gameStage.classList.contains('hidden')) {
         e.preventDefault();
         if (mpOpen) closeMindPalaceModal();
@@ -2450,7 +2488,25 @@
         return;
       }
 
-      if (mpOpen || dom.gameStage.classList.contains('hidden') || isLoadingTurn) return;
+      if (mpOpen || dom.gameStage.classList.contains('hidden')) return;
+
+      if (e.code === 'Space' && !isInteractiveTarget) {
+        e.preventDefault();
+        if (audioEngine && audioEngine.isSpeaking) {
+          audioEngine.stopSpeaking();
+        } else if (dom.speakSceneBtn) {
+          dom.speakSceneBtn.click();
+        }
+        return;
+      }
+
+      if (e.key.toLowerCase() === 'v') {
+        e.preventDefault();
+        openVerdictModal();
+        return;
+      }
+
+      if (isLoadingTurn) return;
 
       if (['1', '2', '3', '4'].includes(e.key)) {
         const idx = parseInt(e.key, 10) - 1;
@@ -3268,6 +3324,7 @@
 
     paragraphs.forEach((paraText, pIdx) => {
       const p = document.createElement('p');
+      p.className = 'narrative-para';
       p.textContent = paraText;
       p.title = 'اضغط للاستماع إلى هذه الفقرة بصوت الراوي';
       p.style.cursor = 'pointer';
@@ -3278,6 +3335,7 @@
           'سرد سينمائي متدرج';
         dom.narrativeBody.querySelectorAll('p').forEach((el, i) => {
           el.classList.toggle('speaking-paragraph', i === pIdx);
+          el.classList.toggle('narrative-para-active', i === pIdx);
         });
         audioEngine.speakSingleText(paraText, paraEmo, false);
       });
@@ -4479,8 +4537,11 @@
     }
   }
 
+  let lastRenderedOutcome = null;
+
   function renderVerdictOutcomeView(outcome) {
     if (!outcome) return;
+    lastRenderedOutcome = outcome;
     dom.verdictBuilderSection.classList.add('hidden');
     dom.verdictOutcomeBox.classList.remove('hidden');
 
@@ -4564,6 +4625,95 @@
       }
     } catch (_) {}
     showToast('تم تجهيز بطاقة النتيجة للمشاركة.');
+  }
+
+  function buildFullCaseDossierText() {
+    const lib = loadLibraryData();
+    const career = getDetectiveCareerProfile(lib);
+    const outcome = lastRenderedOutcome || gameState.finalVerdictResult || {};
+    const bible = gameState.caseBible || {};
+    const title = bible.title || gameState.scenarioTitle || 'قضية غامضة';
+    const player = gameState.playerName || 'المحقق';
+    const starsNum = Number(outcome.stars) || 0;
+    const starText = starsNum >= 6 ? '6/6 (نهاية سرية أسطورية)' : `${starsNum}/5`;
+    const timelineLines = (outcome.truthTimeline || []).map(item => `- ${item}`);
+    const clueLines = (gameState.clues || []).map(c => `- ${c.title}: ${c.description || ''}`);
+    const suspectLines = (gameState.suspects || []).map(
+      s => `- ${s.name} (${s.role || ''}): ${s.alibiBroken ? '[انكسرت حجته]' : '[قيد التقييم]'} ${s.note || s.alibi || ''}`
+    );
+    const historyLines = (gameState.history || []).map(
+      h => `- الفصل ${h.turn}: ${h.title} (تصرف المحقق: ${h.choice || 'بداية التحقيق'})`
+    );
+
+    return [
+      `====================================`,
+      `ملف التحقيق الجنائي الرسمي | قلب الغموض`,
+      `====================================`,
+      `القضية: ${title}`,
+      `اسم المحقق: ${player} | الرتبة: ${career.icon} ${career.title}`,
+      `النتيجة: ${outcome.endingTitle || 'تقرير التحقيق'}`,
+      `التقييم: ${starText}`,
+      ``,
+      `[ملخص الحسم]`,
+      outcome.summary || '',
+      ``,
+      `[التسلسل الزمني للحقيقة]`,
+      ...(timelineLines.length ? timelineLines : ['- لم يسجل تسلسل زمني بعد']),
+      ``,
+      `[الأدلة والقرائن المكتشفة (${clueLines.length})]`,
+      ...(clueLines.length ? clueLines : ['- لا توجد أدلة مكتشفة']),
+      ``,
+      `[المشتبه بهم ونتائج الاستجواب (${suspectLines.length})]`,
+      ...(suspectLines.length ? suspectLines : ['- لا توجد إفادات مسجلة']),
+      ``,
+      `[سجل خطوات التحقيق (${historyLines.length})]`,
+      ...(historyLines.length ? historyLines : ['- لا توجد فصول مسجلة'])
+    ].join('\n');
+  }
+
+  async function copyFullDossierToClipboard() {
+    const dossierText = buildFullCaseDossierText();
+    if (!dossierText) return;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(dossierText);
+        showToast('📄 تم نسخ ملف التحقيق الرسمي الكامل إلى الحافظة!');
+        return;
+      }
+    } catch (_) {}
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = dossierText;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      showToast('📄 تم نسخ ملف التحقيق الرسمي الكامل إلى الحافظة!');
+      return;
+    } catch (_) {}
+    showToast('تعذر النسخ التلقائي إلى الحافظة في هذا المتصفح.');
+  }
+
+  function openShortcutsModal() {
+    const modal = document.getElementById('shortcutsModal');
+    if (!modal) return;
+    lastFocusedElementBeforeModal = document.activeElement;
+    modal.classList.remove('hidden');
+    const closeBtn = document.getElementById('closeShortcutsBtn');
+    if (closeBtn) closeBtn.focus();
+  }
+
+  function closeShortcutsModal() {
+    const modal = document.getElementById('shortcutsModal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    if (lastFocusedElementBeforeModal && typeof lastFocusedElementBeforeModal.focus === 'function') {
+      try {
+        lastFocusedElementBeforeModal.focus();
+      } catch (_) {}
+    }
   }
 
   /**
@@ -4681,16 +4831,76 @@
     return { xp, nextThreshold: matched.next, progressPct, title: matched.title };
   }
 
+  function getDetectiveCareerProfile(lib) {
+    const coreIds = ['daily', 'unknown_land', 'manor', 'station', 'train', 'museum', 'island'];
+    const casesObj = (lib && lib.cases) || {};
+    let totalStars = 0;
+    let solvedCount = 0;
+    let mythicCount = 0;
+    for (const id of coreIds) {
+      const rec = casesObj[id];
+      if (!rec) continue;
+      const best = Number(rec.bestStars) || 0;
+      totalStars += best;
+      if (best >= 4) solvedCount += 1;
+      if (best >= 6 || (Array.isArray(rec.unlockedEndings) && rec.unlockedEndings.some(c => /MYTHIC/i.test(c)))) {
+        mythicCount += 1;
+      }
+    }
+    const tiers = [
+      { min: 28, title: 'أسطورة التحقيق', icon: '👑', nextStars: 42 },
+      { min: 20, title: 'رئيس المباحث', icon: '⚖️', nextStars: 28 },
+      { min: 12, title: 'مفتش جنائي', icon: '🎖️', nextStars: 20 },
+      { min: 5, title: 'محقق ميداني', icon: '🕵️', nextStars: 12 },
+      { min: 0, title: 'محقق مبتدئ', icon: '🔎', nextStars: 5 }
+    ];
+    const matched = tiers.find(t => totalStars >= t.min) || tiers[tiers.length - 1];
+    return {
+      title: matched.title,
+      icon: matched.icon,
+      nextStars: matched.nextStars,
+      totalStars,
+      solvedCount,
+      mythicCount
+    };
+  }
+
+  function renderDetectiveCareerUI(libInput = null) {
+    const lib = libInput || loadLibraryData();
+    const xpProf = calculateDetectiveCareerProfile(lib);
+    const starProf = getDetectiveCareerProfile(lib);
+
+    const heroBadge = document.getElementById('detectiveCareerBadge');
+    if (heroBadge) {
+      heroBadge.textContent = `${starProf.icon} ${starProf.title} • ${starProf.solvedCount}/7 قضايا`;
+    }
+
+    const rankEl = document.getElementById('detectiveRankBadge');
+    if (rankEl) {
+      rankEl.textContent = `${starProf.icon} ${starProf.title} (${xpProf.xp} XP)`;
+    }
+
+    const libRankEl = document.getElementById('libCareerRankTitle');
+    const libXpEl = document.getElementById('libCareerXpLabel');
+    const libFillEl = document.getElementById('libCareerXpFill');
+    const libBannerEl = document.getElementById('libraryCareerBanner');
+    if (libRankEl) libRankEl.textContent = `${starProf.icon} ${starProf.title}`;
+    if (libXpEl) libXpEl.textContent = `${starProf.totalStars} / ${starProf.nextStars} ★ (${xpProf.xp} XP)`;
+    if (libFillEl) {
+      const pct = Math.min(100, Math.max(6, Math.round((starProf.totalStars / Math.max(1, starProf.nextStars)) * 100)));
+      libFillEl.style.width = `${pct}%`;
+    }
+    if (libBannerEl) {
+      libBannerEl.textContent = `حسمت ${starProf.solvedCount} / 7 قضايا • ${starProf.totalStars} نجمة • ${starProf.mythicCount} آثار أسطورية`;
+    }
+  }
+
   function updateHeaderStreakBadge() {
     const lib = loadLibraryData();
     if (dom.dailyStreakBadge) {
       dom.dailyStreakBadge.textContent = `🔥 ${lib.streak || 0}`;
     }
-    const rankEl = document.getElementById('detectiveRankBadge');
-    if (rankEl) {
-      const prof = calculateDetectiveCareerProfile(lib);
-      rankEl.textContent = `${prof.title} (${prof.xp} XP)`;
-    }
+    renderDetectiveCareerUI(lib);
   }
 
   function openLibraryModal() {
@@ -4700,13 +4910,7 @@
     const allCaseIds = ['multiverse', 'daily', 'unknown_land', 'manor', 'station', 'train', 'museum', 'island'];
     const solvedCount = allCaseIds.filter(id => lib.cases[id] && lib.cases[id].bestStars >= 3).length;
 
-    const careerProf = calculateDetectiveCareerProfile(lib);
-    const libRankEl = document.getElementById('libCareerRankTitle');
-    const libXpEl = document.getElementById('libCareerXpLabel');
-    const libFillEl = document.getElementById('libCareerXpFill');
-    if (libRankEl) libRankEl.textContent = careerProf.title;
-    if (libXpEl) libXpEl.textContent = `${careerProf.xp} / ${careerProf.nextThreshold} XP`;
-    if (libFillEl) libFillEl.style.width = `${careerProf.progressPct}%`;
+    renderDetectiveCareerUI(lib);
 
     if (dom.libSolvedCasesCount) {
       dom.libSolvedCasesCount.textContent = `${solvedCount} / ${allCaseIds.length}`;

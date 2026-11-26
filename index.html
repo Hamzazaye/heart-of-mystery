@@ -4,17 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>قلب الغموض | لعبة تحقيق واستنتاج جنائي تفاعلية بالصوت</title>
-  <meta name="description" content="قلب الغموض: لعبة تحقيق واستنتاج جنائي عربية تفاعلية بالصوت. استجوب المشتبه بهم، اربط الأدلة الجنائية لكشف الأكاذيب، واصدر حكمك النهائي لفتح 5 نهايات حقيقية." />
+  <meta name="description" content="قلب الغموض: لعبة تحقيق واستنتاج جنائي عربية تفاعلية بالصوت. استجوب المشتبه بهم، اربط الأدلة الجنائية لكشف الأكاذيب، واصدر حكمك النهائي في 7 قضايا محبوكة و10,000 عالم مواز لفتح 6 نهايات حقيقية." />
   <meta name="theme-color" content="#07080d" />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="ar_AR" />
   <meta property="og:title" content="قلب الغموض | لعبة تحقيق واستنتاج جنائي تفاعلية" />
-  <meta property="og:description" content="حقق في مسرح الجريمة، واجه المشتبه بهم بالأدلة الدامغة، واكشف الجاني والدافع والدليل القاطع في 6 قضايا غامضة مع تمثيل صوتي متعدد الشخصيات." />
-  <meta property="og:image" content="assets/logo.png" />
+  <meta property="og:description" content="حقق في مسرح الجريمة، واجه المشتبه بهم بالأدلة الدامغة، واكشف الجاني والدافع والدليل القاطع في 7 قضايا محبوكة وطور عابر العوالم (10,000 عالم) مع 6 نهايات حقيقية وتمثيل صوتي متعدد الشخصيات." />
+  <meta property="og:image" content="https://labyrinth-of-shadows.pages.dev/assets/logo.png" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="قلب الغموض | تحقيق واستنتاج جنائي تفاعلي" />
-  <meta name="twitter:description" content="كل قضية مبنية على حقيقة جنائية ثابتة، 3 مشتبه بهم لكل منهم صوته وكذبته، و5 نهايات حقيقية يحسمها استنتاجك." />
-  <meta name="twitter:image" content="assets/logo.png" />
+  <meta name="twitter:description" content="7 قضايا جنائية محبوكة و10,000 عالم مواز، 3 مشتبه بهم لكل منهم صوته وكذبته، و6 نهايات حقيقية منها نهاية سرية أسطورية لكل قضية." />
+  <meta name="twitter:image" content="https://labyrinth-of-shadows.pages.dev/assets/logo.png" />
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" type="image/png" href="assets/logo.png" />
   <script type="application/ld+json">
@@ -198,8 +198,9 @@
 
             <div class="hero-spotlight-chips" id="heroDynamicMetaRow">
               <span class="hero-spotlight-chip" id="heroChipSuspects">👥 3 مشتبه بهم</span>
-              <span class="hero-spotlight-chip" id="heroChipClues">🔍 4 أدلة حاسمة</span>
+              <span class="hero-spotlight-chip" id="heroChipClues">🔍 5 أدلة حاسمة</span>
               <span class="hero-spotlight-chip">🎙️ تمثيل صوتي درامي</span>
+              <span class="hero-spotlight-chip detective-career-pill" id="detectiveCareerBadge">🔎 محقق مبتدئ • 0/7 قضايا</span>
             </div>
 
             <div class="hero-cta-row">
@@ -272,7 +273,7 @@
               </div>
               <div class="case-stat">
                 <span class="case-stat-label">الأدلة الجنائية</span>
-                <strong>4 أدلة</strong>
+                <strong>5 أدلة (1 تمويه)</strong>
               </div>
               <div class="case-stat">
                 <span class="case-stat-label">الحسم النهائي</span>
@@ -558,7 +559,7 @@
           <article class="scenario-card" data-scenario="museum" data-category="expedition classic" tabindex="0" role="button" aria-pressed="false">
             <div class="case-dossier-ribbon">
               <span class="case-code mono-stat">CASE #04 • SUBSEA LAB</span>
-              <span class="case-difficulty-badge">درجة الغموض: ★★★★★</span>
+              <span class="case-difficulty-badge">درجة الغموض: ★★★★☆</span>
             </div>
             <div class="scenario-card-header">
               <span class="scenario-tag">غموض علمي • قبة الأبحاث تحت الماء</span>
@@ -770,6 +771,9 @@
           </button>
           <button type="button" class="hud-flashlight-toggle active" id="toggleFlashlightModeBtn" title="تفعيل أو إيقاف عدسة الكشاف الجنائي التفاعلي مع حركة المؤشر">
             <span>🔦 كشاف المحقق: نشط</span>
+          </button>
+          <button type="button" class="hud-insight-btn hud-shortcuts-btn" id="openShortcutsBtn" title="قائمة اختصارات لوحة المفاتيح للمحقق [?]" aria-label="اختصارات لوحة المفاتيح">
+            <span>⌨️</span>
           </button>
         </div>
 
@@ -1101,12 +1105,15 @@
           <!-- Desktop Detective Keyboard Shortcuts Legend -->
           <div class="desktop-shortcut-legend" aria-label="اختصارات لوحة المفاتيح للمحقق">
             <span>⌨️ اختصارات المحقق:</span>
-            <span><kbd>1</kbd>-<kbd>3</kbd> المسارات</span>
+            <span><kbd>1</kbd>-<kbd>4</kbd> المسارات</span>
+            <span><kbd>Space</kbd> الصوت</span>
             <span><kbd>I</kbd> فحص البؤرة</span>
             <span><kbd>M</kbd> قصر الذهن</span>
             <span><kbd>H</kbd> بصيرة المحقق</span>
             <span><kbd>F</kbd> الكشاف</span>
             <span><kbd>R</kbd> قراءة المشهد</span>
+            <span><kbd>V</kbd> الاتهام</span>
+            <span><kbd>?</kbd> الكل</span>
           </div>
         </section>
       </div>
@@ -1435,6 +1442,7 @@
                 <button type="button" class="small-btn" id="shareWhatsappBtn">🟢 واتساب</button>
                 <button type="button" class="small-btn" id="shareTwitterBtn">𝕏 منصة X</button>
                 <button type="button" class="small-btn accent" id="copyShareCardBtn">📋 نسخ النص والرابط</button>
+                <button type="button" class="small-btn" id="copyFullDossierBtn">📄 نسخ ملف التحقيق الكامل</button>
               </div>
             </div>
             <pre class="share-card-preview" id="shareCardPreview"></pre>
@@ -1489,6 +1497,7 @@
           <div class="career-xp-track">
             <div class="career-xp-fill" id="libCareerXpFill" style="width: 6%"></div>
           </div>
+          <small class="career-banner-meta" id="libraryCareerBanner">حسمت 0 / 7 قضايا • 0 نجمة • 0 آثار أسطورية</small>
         </div>
 
         <div class="library-cases-grid" id="libraryCasesGrid"></div>
@@ -1849,6 +1858,41 @@
 
       <div class="modal-footer">
         <button type="button" class="start-adventure-btn" id="doneProViralModalBtn">العودة إلى اللعبة</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Keyboard Shortcuts Overlay Modal -->
+  <div class="modal-backdrop hidden" id="shortcutsModal" role="dialog" aria-modal="true" aria-labelledby="shortcutsModalTitle">
+    <div class="modal-card shortcuts-modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span aria-hidden="true">⌨️</span>
+          <h2 id="shortcutsModalTitle">اختصارات المحقق السريعة</h2>
+        </div>
+        <button class="modal-close-btn" id="closeShortcutsBtn" type="button" aria-label="إغلاق">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="shortcuts-grid">
+          <div class="shortcut-row"><kbd>1</kbd>-<kbd>4</kbd><span>اختيار مسار التحقيق مباشرة</span></div>
+          <div class="shortcut-row"><kbd>Space</kbd><span>تشغيل أو إيقاف الصوت الروائي</span></div>
+          <div class="shortcut-row"><kbd>R</kbd><span>إعادة سرد المشهد الحالي</span></div>
+          <div class="shortcut-row"><kbd>M</kbd><span>فتح أو إغلاق قصر الذهن</span></div>
+          <div class="shortcut-row"><kbd>I</kbd><span>فحص الموضع المريب في المشهد</span></div>
+          <div class="shortcut-row"><kbd>H</kbd><span>تفعيل بصيرة المحقق الجنائية</span></div>
+          <div class="shortcut-row"><kbd>F</kbd><span>تشغيل أو إطفاء كشاف الظلام</span></div>
+          <div class="shortcut-row"><kbd>V</kbd><span>فتح غرفة الاتهام والحسم النهائي</span></div>
+          <div class="shortcut-row"><kbd>?</kbd><span>عرض أو إخفاء قائمة الاختصارات</span></div>
+          <div class="shortcut-row"><kbd>Esc</kbd><span>إغلاق أي نافذة مفتوحة</span></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="start-adventure-btn" id="doneShortcutsBtn">فهمت، العودة للتحقيق</button>
       </div>
     </div>
   </div>
