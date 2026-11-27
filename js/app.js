@@ -754,51 +754,347 @@
     }
   }
 
+  const CASE_MAP_LAYOUTS = {
+    daily: {
+      sectorTitle: 'SECTOR-01 // مخطط المختبر الجنائي الموصد',
+      blueprintSvg: `
+        <rect class="bp-wall" x="45" y="42" width="910" height="436" rx="10" />
+        <line class="bp-wall" x1="360" y1="42" x2="360" y2="305" />
+        <line class="bp-wall" x1="360" y1="365" x2="360" y2="478" />
+        <line class="bp-wall" x1="650" y1="42" x2="650" y2="255" />
+        <line class="bp-wall" x1="650" y1="315" x2="650" y2="478" />
+        <line class="bp-wall" x1="45" y1="265" x2="295" y2="265" />
+        <rect class="bp-room" x="62" y="58" width="282" height="192" rx="6" />
+        <rect class="bp-room" x="378" y="58" width="256" height="220" rx="6" />
+        <rect class="bp-room" x="668" y="58" width="270" height="398" rx="6" />
+        <rect class="bp-room" x="62" y="282" width="282" height="178" rx="6" />
+        <path class="bp-door" d="M 360 305 A 32 32 0 0 1 392 337" />
+        <path class="bp-door" d="M 650 255 A 32 32 0 0 1 682 287" />
+        <text class="bp-label" x="203" y="84">غرفة التحكم الأمني</text>
+        <text class="bp-label" x="506" y="84">قسم تطوير البرمجيات</text>
+        <text class="bp-label" x="803" y="84">جناح التبريد الخلفي</text>
+        <text class="bp-label" x="203" y="308">ممر الصيانة الجانبي</text>
+      `,
+      pins: {
+        c1: { x: 20, y: 31, code: 'LAB-A1' },
+        c3: { x: 77, y: 31, code: 'VAULT-B2' },
+        c2: { x: 50, y: 33, code: 'DEV-C1' },
+        c4: { x: 80, y: 71, code: 'CRYO-D4' },
+        c5: { x: 22, y: 73, code: 'CORR-E2' }
+      }
+    },
+    manor: {
+      sectorTitle: 'SECTOR-02 // مخطط المصحة الجبلية وأرشيف الأبحاث',
+      blueprintSvg: `
+        <rect class="bp-wall" x="45" y="42" width="910" height="436" rx="12" />
+        <line class="bp-wall" x1="45" y1="285" x2="955" y2="285" />
+        <line class="bp-wall" x1="340" y1="42" x2="340" y2="235" />
+        <line class="bp-wall" x1="670" y1="42" x2="670" y2="285" />
+        <line class="bp-wall" x1="500" y1="335" x2="500" y2="478" />
+        <rect class="bp-room" x="64" y="60" width="258" height="206" rx="6" />
+        <rect class="bp-room" x="358" y="60" width="294" height="206" rx="6" />
+        <rect class="bp-room" x="688" y="60" width="248" height="206" rx="6" />
+        <rect class="bp-room" x="64" y="302" width="872" height="158" rx="6" />
+        <path class="bp-door" d="M 340 235 A 30 30 0 0 0 310 265" />
+        <text class="bp-label" x="193" y="84">مدخل المكتب</text>
+        <text class="bp-label" x="505" y="84">جناح الأبحاث والساعة</text>
+        <text class="bp-label" x="812" y="84">خزانة الأرشيف</text>
+        <text class="bp-label" x="500" y="328">البهو الرئيسي وحامل المظلات</text>
+      `,
+      pins: {
+        c1: { x: 50, y: 29, code: 'DESK-A1' },
+        c3: { x: 53, y: 69, code: 'CLK-B3' },
+        c2: { x: 20, y: 31, code: 'DOOR-C1' },
+        c4: { x: 81, y: 31, code: 'ARCH-D2' },
+        c5: { x: 22, y: 74, code: 'HALL-E1' }
+      }
+    },
+    station: {
+      sectorTitle: 'SECTOR-03 // مخطط المحطة القطبية ونفق التهوية',
+      blueprintSvg: `
+        <polygon class="bp-wall" points="95,48 905,48 955,140 955,380 905,472 95,472 45,380 45,140" />
+        <line class="bp-wall" x1="330" y1="48" x2="330" y2="472" />
+        <line class="bp-wall" x1="670" y1="48" x2="670" y2="472" />
+        <rect class="bp-room" x="105" y="74" width="205" height="372" rx="8" />
+        <rect class="bp-room" x="352" y="74" width="296" height="220" rx="8" />
+        <rect class="bp-room" x="692" y="74" width="205" height="372" rx="8" />
+        <circle class="bp-room" cx="500" cy="382" r="68" />
+        <text class="bp-label" x="208" y="98">برج الترددات الشمالي</text>
+        <text class="bp-label" x="500" y="98">قاعة الخادم المركزي</text>
+        <text class="bp-label" x="795" y="98">وحدة التهوية والقبو</text>
+        <text class="bp-label" x="500" y="388">عمود المصعد الحراري</text>
+      `,
+      pins: {
+        c1: { x: 21, y: 30, code: 'RF-B4' },
+        c3: { x: 50, y: 71, code: 'THERM-C2' },
+        c2: { x: 50, y: 29, code: 'SRV-D1' },
+        c4: { x: 80, y: 69, code: 'VENT-E4' },
+        c5: { x: 21, y: 73, code: 'GATE-N1' }
+      }
+    },
+    train: {
+      sectorTitle: 'SECTOR-04 // مخطط قطار منتصف الليل 404',
+      blueprintSvg: `
+        <rect class="bp-wall" x="38" y="105" width="280" height="310" rx="14" />
+        <rect class="bp-wall" x="342" y="105" width="320" height="310" rx="14" />
+        <path class="bp-wall" d="M 686 105 L 875 105 Q 958 105 962 260 Q 958 415 875 415 L 686 415 Z" />
+        <line class="bp-wall" x1="318" y1="260" x2="342" y2="260" />
+        <line class="bp-wall" x1="662" y1="260" x2="686" y2="260" />
+        <line class="bp-wall" x1="38" y1="305" x2="662" y2="305" />
+        <rect class="bp-room" x="56" y="122" width="244" height="164" rx="6" />
+        <rect class="bp-room" x="360" y="122" width="142" height="164" rx="6" />
+        <rect class="bp-room" x="508" y="122" width="136" height="164" rx="6" />
+        <text class="bp-label" x="178" y="148">العربة 3 (مقصورة 3)</text>
+        <text class="bp-label" x="498" y="148">مقصورة القاضي 4</text>
+        <text class="bp-label" x="822" y="148">قمرة القيادة</text>
+        <text class="bp-label" x="340" y="365">الممر الطولي للعربات</text>
+      `,
+      pins: {
+        c1: { x: 56, y: 69, code: 'CAR4-A1' },
+        c3: { x: 20, y: 31, code: 'LOCK-B3' },
+        c2: { x: 43, y: 31, code: 'CAB3-C2' },
+        c4: { x: 83, y: 50, code: 'CABIN-D1' },
+        c5: { x: 20, y: 72, code: 'SEAT-E5' }
+      }
+    },
+    museum: {
+      sectorTitle: 'SECTOR-05 // مخطط القبة المائية تحت البحر',
+      blueprintSvg: `
+        <circle class="bp-wall" cx="500" cy="260" r="222" />
+        <circle class="bp-room" cx="500" cy="260" r="142" />
+        <circle class="bp-room" cx="500" cy="108" r="42" />
+        <rect class="bp-wall" x="72" y="170" width="168" height="180" rx="8" />
+        <rect class="bp-wall" x="760" y="170" width="168" height="180" rx="8" />
+        <line class="bp-door" x1="240" y1="260" x2="278" y2="260" />
+        <line class="bp-door" x1="722" y1="260" x2="760" y2="260" />
+        <text class="bp-label" x="500" y="218">القبة الزجاجية المركزية</text>
+        <text class="bp-label" x="500" y="84">فتحة الغواصين العلوية</text>
+        <text class="bp-label" x="156" y="196">الطاولة الجانبية</text>
+        <text class="bp-label" x="844" y="196">خزانة الغوص</text>
+      `,
+      pins: {
+        c1: { x: 48, y: 54, code: 'GLS-A1' },
+        c3: { x: 50, y: 21, code: 'HATCH-B2' },
+        c2: { x: 50, y: 78, code: 'FLR-C1' },
+        c4: { x: 18, y: 49, code: 'DESK-D3' },
+        c5: { x: 82, y: 49, code: 'GEAR-E1' }
+      }
+    },
+    island: {
+      sectorTitle: 'SECTOR-06 // مخطط فنار الضباب الأسود والقبو',
+      blueprintSvg: `
+        <rect class="bp-wall" x="50" y="45" width="900" height="430" rx="14" />
+        <circle class="bp-wall" cx="500" cy="255" r="118" />
+        <rect class="bp-room" x="72" y="68" width="262" height="180" rx="8" />
+        <rect class="bp-room" x="666" y="68" width="262" height="180" rx="8" />
+        <rect class="bp-room" x="72" y="295" width="262" height="158" rx="8" />
+        <rect class="bp-room" x="666" y="295" width="262" height="158" rx="8" />
+        <text class="bp-label" x="203" y="92">المدفأة الحجرية</text>
+        <text class="bp-label" x="797" y="92">طاولة جهاز الاستقبال</text>
+        <text class="bp-label" x="500" y="260">برج الفنار الدائري</text>
+        <text class="bp-label" x="203" y="320">القبو السفلي</text>
+        <text class="bp-label" x="797" y="320">خزانة الملاحة</text>
+      `,
+      pins: {
+        c1: { x: 20, y: 31, code: 'FIRE-A1' },
+        c3: { x: 22, y: 74, code: 'BSMT-B2' },
+        c2: { x: 80, y: 31, code: 'RAD-C1' },
+        c4: { x: 80, y: 74, code: 'NAV-D3' },
+        c5: { x: 50, y: 50, code: 'DOOR-E1' }
+      }
+    },
+    unknown_land: {
+      sectorTitle: 'SECTOR-07 // مخطط مرصد الأفق والقبة الفلكية',
+      blueprintSvg: `
+        <circle class="bp-wall" cx="500" cy="255" r="205" />
+        <circle class="bp-room" cx="500" cy="255" r="95" />
+        <rect class="bp-wall" x="58" y="130" width="215" height="250" rx="8" />
+        <rect class="bp-wall" x="727" y="130" width="215" height="250" rx="8" />
+        <text class="bp-label" x="165" y="156">المكتب الغربي</text>
+        <text class="bp-label" x="500" y="260">قبة البوصلة المركزية</text>
+        <text class="bp-label" x="835" y="156">مخزن المعدات</text>
+      `,
+      pins: {
+        c1: { x: 18, y: 40, code: 'WEST-A1' },
+        c3: { x: 38, y: 74, code: 'DIR-B2' },
+        c2: { x: 50, y: 45, code: 'DOME-C1' },
+        c4: { x: 68, y: 73, code: 'HALL-D2' },
+        c5: { x: 82, y: 40, code: 'STOR-E1' }
+      }
+    },
+    default: {
+      sectorTitle: 'SECTOR-X // مخطط المسح الميداني الديناميكي',
+      blueprintSvg: `
+        <rect class="bp-wall" x="45" y="42" width="910" height="436" rx="12" />
+        <line class="bp-wall" x1="500" y1="42" x2="500" y2="478" />
+        <line class="bp-wall" x1="45" y1="260" x2="955" y2="260" />
+        <circle class="bp-room" cx="500" cy="260" r="110" />
+        <text class="bp-label" x="250" y="75">القطاع الغربي</text>
+        <text class="bp-label" x="750" y="75">القطاع الشرقي</text>
+        <text class="bp-label" x="500" y="264">بؤرة الحادث المركزية</text>
+      `,
+      pins: {
+        c1: { x: 22, y: 28, code: 'SEC-A1' },
+        c2: { x: 78, y: 28, code: 'SEC-B1' },
+        c3: { x: 24, y: 72, code: 'SEC-A2' },
+        c4: { x: 78, y: 72, code: 'SEC-B2' },
+        c5: { x: 50, y: 50, code: 'SEC-C0' }
+      }
+    }
+  };
+
   /**
-   * خريطة المسح الميداني التفاعلي لزوايا مسرح الجريمة (AAA Interactive Crime Scene Tactical Scanner)
+   * خريطة المسح الميداني التفاعلي لزوايا مسرح الجريمة (AAA Interactive Crime Scene Tactical Map)
    */
   function renderCrimeSceneScanner() {
     const gridEl = document.getElementById('scannerZonesGrid');
     const countPill = document.getElementById('scannerZonesCountPill');
+    const backdropEl = document.getElementById('scannerMapBackdrop');
+    const floorplanSvg = document.getElementById('scannerMapFloorplanSvg');
+    const linksSvg = document.getElementById('scannerMapLinksSvg');
+    const activeInfoEl = document.getElementById('scannerMapActiveInfo');
     if (!gridEl) return;
+
     ensureGameStateHasLockedBible();
     const bible = gameState.caseBible;
     if (!bible || !Array.isArray(bible.clues)) return;
 
+    const scenarioId = gameState.scenarioId || 'daily';
+    const layout = CASE_MAP_LAYOUTS[scenarioId] || CASE_MAP_LAYOUTS.default;
     const allClues = bible.clues;
+    const fallbackCoords = [
+      { x: 22, y: 29, code: 'SEC-A1' },
+      { x: 78, y: 29, code: 'SEC-B1' },
+      { x: 24, y: 72, code: 'SEC-A2' },
+      { x: 78, y: 72, code: 'SEC-B2' },
+      { x: 50, y: 50, code: 'SEC-C0' }
+    ];
+
+    if (backdropEl) {
+      const artUrl = SCENE_ARTWORK_MAP[scenarioId] || 'assets/hero-noir-backdrop.webp';
+      backdropEl.style.backgroundImage = `url('${artUrl}')`;
+    }
+
+    if (floorplanSvg) {
+      floorplanSvg.innerHTML = `
+        ${layout.blueprintSvg}
+        <text class="bp-sector-tag" x="935" y="462">${escapeHtml(layout.sectorTitle)}</text>
+      `;
+    }
+
+    const pinCoordMap = new Map();
+    allClues.forEach((clue, idx) => {
+      const preset = (layout.pins && layout.pins[clue.id]) || fallbackCoords[idx % fallbackCoords.length];
+      pinCoordMap.set(clue.id, preset);
+    });
+
+    if (linksSvg) {
+      const linkSegments = [];
+      allClues.forEach(clue => {
+        const targetPos = pinCoordMap.get(clue.id);
+        if (!targetPos || !Array.isArray(clue.needs)) return;
+        clue.needs.forEach(reqId => {
+          const sourcePos = pinCoordMap.get(reqId);
+          if (!sourcePos) return;
+          const isUnlocked = hasDiscoveredClueId(reqId);
+          linkSegments.push(
+            `<line class="map-link-line ${isUnlocked ? 'unlocked' : 'locked'}" x1="${sourcePos.x}" y1="${sourcePos.y}" x2="${targetPos.x}" y2="${targetPos.y}" />`
+          );
+        });
+      });
+      linksSvg.innerHTML = linkSegments.join('');
+    }
+
     let scannedCount = 0;
+    let defaultPreviewClue = null;
+
+    const updateActiveInfoBar = clue => {
+      if (!activeInfoEl || !clue) return;
+      const pos = pinCoordMap.get(clue.id) || { code: 'SEC-01' };
+      const isScanned = hasDiscoveredClueId(clue.id);
+      const prereqsMet = (clue.needs || []).every(reqId => hasDiscoveredClueId(reqId));
+      const locTitle = clue.locationLabel || clue.title;
+
+      let titleText = '';
+      let hintText = '';
+      let stateClass = 'is-available';
+
+      if (isScanned) {
+        stateClass = clue.isRedHerring ? 'is-herring' : 'is-scanned';
+        titleText = `${locTitle} • ${clue.title}`;
+        hintText = clue.isRedHerring
+          ? 'تمويه مستبعد (اضغط لإعادة الاستماع)'
+          : 'دليل مفحوص ✓ (اضغط لسماع التقرير الصوتي)';
+      } else if (prereqsMet) {
+        stateClass = 'is-available';
+        titleText = `${locTitle} (زاوية جاهزة للمسح)`;
+        hintText = 'اضغط الآن لاستخراج الأثر المادي (+5% ضغط الوقت)';
+      } else {
+        stateClass = 'is-locked';
+        const missing = (bible.clues || []).find(
+          c => (clue.needs || []).includes(c.id) && !hasDiscoveredClueId(c.id)
+        );
+        const missingLoc = missing ? missing.locationLabel || missing.title : 'الزاوية السابقة';
+        titleText = `${locTitle} (نقطة مقفلة)`;
+        hintText = `افحص أولا: «${missingLoc}» لفتح المسار`;
+      }
+
+      activeInfoEl.className = `tactical-map-footer ${stateClass}`;
+      activeInfoEl.innerHTML = `
+        <span class="map-info-code mono-stat">${escapeHtml(pos.code)}</span>
+        <strong class="map-info-title">${escapeHtml(titleText)}</strong>
+        <span class="map-info-hint">${escapeHtml(hintText)}</span>
+      `;
+    };
 
     gridEl.innerHTML = allClues
       .map(clue => {
         const isScanned = hasDiscoveredClueId(clue.id);
         if (isScanned) scannedCount += 1;
         const prereqsMet = (clue.needs || []).every(reqId => hasDiscoveredClueId(reqId));
+        if (!defaultPreviewClue && !isScanned && prereqsMet && !clue.isRedHerring) {
+          defaultPreviewClue = clue;
+        }
+
         const stateClass = isScanned
           ? `scanned${clue.isRedHerring ? ' red-herring' : ''}`
           : prereqsMet
             ? 'available'
             : 'locked';
-        const badgeText = isScanned
+        const iconSymbol = isScanned ? (clue.isRedHerring ? '✕' : '✓') : prereqsMet ? '🔍' : '🔒';
+        const shortStateLabel = isScanned
           ? clue.isRedHerring
-            ? 'تمويه مستبعد ✓'
-            : 'تم المسح ✓'
+            ? 'تمويه'
+            : 'مفحوص'
           : prereqsMet
-            ? '🔍 متاح للمسح'
-            : '🔒 مقفل';
-        const descText = isScanned
-          ? `${clue.title} (اضغط لسماع التقرير)`
-          : prereqsMet
-            ? 'اضغط لمعاينة هذا الموضع واستخراج الأثر المادي (+5% ضغط الوقت)'
-            : 'يتطلب فحص الزوايا المفتوحة في المسرح أولا';
+            ? 'افحص'
+            : 'مقفل';
+
+        const pos = pinCoordMap.get(clue.id) || { x: 50, y: 50, code: 'SEC-01' };
+        const alignClasses = [
+          pos.x < 24 ? 'align-left' : pos.x > 76 ? 'align-right' : '',
+          pos.y > 70 ? 'align-top' : ''
+        ]
+          .filter(Boolean)
+          .join(' ');
         const locTitle = clue.locationLabel || clue.title;
 
         return `
-          <button type="button" class="scanner-zone-card ${stateClass}" data-scan-clue-id="${escapeHtml(clue.id)}">
-            <div class="scanner-zone-top">
-              <span class="scanner-zone-loc">📍 ${escapeHtml(locTitle)}</span>
-              <span class="scanner-zone-badge">${escapeHtml(badgeText)}</span>
-            </div>
-            <span class="scanner-zone-desc">${escapeHtml(descText)}</span>
+          <button
+            type="button"
+            class="map-pin-node ${stateClass} ${alignClasses}"
+            data-scan-clue-id="${escapeHtml(clue.id)}"
+            style="left: ${pos.x}%; top: ${pos.y}%;"
+            aria-label="${escapeHtml(locTitle)} (${escapeHtml(shortStateLabel)})"
+          >
+            <span class="map-pin-beacon" aria-hidden="true">
+              ${!isScanned && prereqsMet ? '<span class="map-pin-ring"></span>' : ''}
+              <span class="map-pin-icon">${iconSymbol}</span>
+            </span>
+            <span class="map-pin-label">
+              <span class="map-pin-loc">${escapeHtml(locTitle)}</span>
+              <span class="map-pin-tag">${escapeHtml(shortStateLabel)}</span>
+            </span>
           </button>
         `;
       })
@@ -808,12 +1104,30 @@
       countPill.textContent = `${scannedCount} / ${allClues.length} مواقع مفحوصة`;
     }
 
-    gridEl.querySelectorAll('[data-scan-clue-id]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const cid = btn.getAttribute('data-scan-clue-id');
-        const targetClue = (bible.clues || []).find(c => c.id === cid);
-        if (!targetClue) return;
+    if (activeInfoEl) {
+      const initialFocusClue = defaultPreviewClue || allClues.find(c => !hasDiscoveredClueId(c.id)) || allClues[0];
+      if (scannedCount >= allClues.length) {
+        activeInfoEl.className = 'tactical-map-footer is-scanned';
+        activeInfoEl.innerHTML = `
+          <span class="map-info-code mono-stat">ALL-CLEAR</span>
+          <strong class="map-info-title">تم مسح جميع زوايا مسرح الجريمة بالكامل</strong>
+          <span class="map-info-hint">اضغط على أي نقطة خضراء لإعادة سماع تقريرها الصوتي</span>
+        `;
+      } else if (initialFocusClue) {
+        updateActiveInfoBar(initialFocusClue);
+      }
+    }
 
+    gridEl.querySelectorAll('[data-scan-clue-id]').forEach(btn => {
+      const cid = btn.getAttribute('data-scan-clue-id');
+      const targetClue = (bible.clues || []).find(c => c.id === cid);
+      if (!targetClue) return;
+
+      btn.addEventListener('mouseenter', () => updateActiveInfoBar(targetClue));
+      btn.addEventListener('focus', () => updateActiveInfoBar(targetClue));
+
+      btn.addEventListener('click', () => {
+        updateActiveInfoBar(targetClue);
         const alreadyScanned = hasDiscoveredClueId(targetClue.id);
         if (alreadyScanned) {
           audioEngine.stopSpeaking();

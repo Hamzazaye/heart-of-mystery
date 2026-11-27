@@ -5710,22 +5710,24 @@ body.flashlight-mode-active .narrative-card::after {
   transform: translateY(-1px);
 }
 
-/* AAA Interactive Crime Scene Tactical Scanner Bar */
+/* AAA Interactive Crime Scene Tactical Investigation Blueprint Map */
 .crime-scene-scanner-bar {
-  background: linear-gradient(145deg, rgba(13, 21, 36, 0.92), rgba(18, 28, 46, 0.88));
-  border: 1px solid rgba(56, 189, 248, 0.26);
+  background: linear-gradient(155deg, rgba(10, 17, 30, 0.94), rgba(14, 24, 42, 0.92));
+  border: 1px solid rgba(56, 189, 248, 0.28);
   border-radius: var(--radius-lg);
-  padding: 14px 18px;
+  padding: 16px 18px;
   box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .scanner-bar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
-  margin-bottom: 12px;
 }
 
 .scanner-bar-title {
@@ -5736,13 +5738,61 @@ body.flashlight-mode-active .narrative-card::after {
 }
 
 .scanner-bar-title strong {
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   color: var(--accent-gold-bright);
 }
 
 .scanner-bar-sub {
   font-size: 0.76rem;
   color: var(--text-secondary);
+}
+
+.scanner-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.scanner-map-legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.71rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--border-subtle);
+}
+
+.legend-chip i {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.legend-chip.legend-available i {
+  background: #f5b95f;
+  box-shadow: 0 0 8px #f5b95f;
+}
+
+.legend-chip.legend-scanned i {
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.legend-chip.legend-locked i {
+  background: #64748b;
 }
 
 .scanner-radar-dot {
@@ -5764,92 +5814,418 @@ body.flashlight-mode-active .narrative-card::after {
   color: #7dd3fc;
 }
 
-.scanner-zones-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
-  gap: 9px;
+.tactical-map-viewport {
+  position: relative;
+  direction: ltr;
+  width: 100%;
+  min-height: 318px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(56, 189, 248, 0.32);
+  background:
+    radial-gradient(circle at 50% 48%, rgba(14, 165, 233, 0.14), rgba(5, 11, 22, 0.96) 76%),
+    #06101e;
+  box-shadow:
+    inset 0 0 46px rgba(2, 6, 23, 0.9),
+    0 12px 28px rgba(0, 0, 0, 0.42);
 }
 
-.scanner-zone-card {
+.tactical-map-backdrop {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.24;
+  filter: saturate(0.42) contrast(1.2) hue-rotate(175deg) brightness(0.68);
+  pointer-events: none;
+  transition: background-image 360ms ease;
+}
+
+.tactical-map-grid-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgba(56, 189, 248, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(56, 189, 248, 0.08) 1px, transparent 1px),
+    linear-gradient(to right, rgba(56, 189, 248, 0.16) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(56, 189, 248, 0.16) 1px, transparent 1px);
+  background-size: 32px 32px, 32px 32px, 160px 160px, 160px 160px;
+}
+
+.map-compass-badge,
+.map-scale-badge {
+  position: absolute;
+  top: 10px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 6px;
+  color: rgba(125, 211, 252, 0.85);
+  background: rgba(7, 15, 28, 0.72);
+  border: 1px solid rgba(56, 189, 248, 0.24);
+  z-index: 2;
+}
+
+.map-compass-badge {
+  left: 12px;
+}
+
+.map-scale-badge {
+  right: 12px;
+}
+
+.tactical-radar-sweep {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 680px;
+  height: 680px;
+  margin-left: -340px;
+  margin-top: -340px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(56, 189, 248, 0.14) 0deg,
+    rgba(56, 189, 248, 0.04) 38deg,
+    transparent 76deg,
+    transparent 360deg
+  );
+  pointer-events: none;
+  animation: tacticalRadarSweep 9.5s linear infinite;
+}
+
+@keyframes tacticalRadarSweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.tactical-map-floorplan,
+.tactical-map-links {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.tactical-map-floorplan .bp-wall {
+  fill: rgba(10, 24, 46, 0.36);
+  stroke: rgba(56, 189, 248, 0.45);
+  stroke-width: 2.2;
+}
+
+.tactical-map-floorplan .bp-room {
+  fill: rgba(14, 165, 233, 0.08);
+  stroke: rgba(125, 211, 252, 0.32);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+}
+
+.tactical-map-floorplan .bp-door {
+  fill: none;
+  stroke: rgba(245, 185, 95, 0.58);
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+}
+
+.tactical-map-floorplan .bp-label {
+  fill: rgba(186, 230, 253, 0.72);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  text-anchor: middle;
+  direction: rtl;
+  unicode-bidi: plaintext;
+}
+
+.tactical-map-floorplan .bp-sector-tag {
+  fill: rgba(125, 211, 252, 0.65);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-anchor: end;
+}
+
+.tactical-map-links {
+  z-index: 3;
+}
+
+.tactical-map-links .map-link-line {
+  fill: none;
+  stroke-width: 0.7;
+  stroke-linecap: round;
+}
+
+.tactical-map-links .map-link-line.locked {
+  stroke: rgba(148, 163, 184, 0.45);
+  stroke-dasharray: 1.8 1.8;
+}
+
+.tactical-map-links .map-link-line.unlocked {
+  stroke: rgba(52, 211, 153, 0.85);
+  stroke-dasharray: 2.2 1.2;
+  animation: mapTrailFlow 1.8s linear infinite;
+}
+
+@keyframes mapTrailFlow {
+  from { stroke-dashoffset: 6.8; }
+  to { stroke-dashoffset: 0; }
+}
+
+.scanner-zones-grid.tactical-map-pins-layer {
+  position: absolute;
+  inset: 0;
+  display: block;
+  z-index: 4;
+}
+
+.map-pin-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  padding: 10px 12px;
-  border-radius: var(--radius-md);
-  text-align: right;
-  background: rgba(9, 14, 24, 0.82);
-  border: 1px solid var(--border-subtle);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.scanner-zone-card.available {
-  border-color: rgba(245, 185, 95, 0.52);
-  background: linear-gradient(135deg, rgba(245, 185, 95, 0.12), rgba(15, 23, 38, 0.9));
-}
-
-.scanner-zone-card.available:hover {
-  border-color: var(--accent-gold-bright);
-  box-shadow: 0 0 18px rgba(245, 185, 95, 0.22);
-  transform: translateY(-2px);
-}
-
-.scanner-zone-card.scanned {
-  border-color: rgba(16, 185, 129, 0.45);
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.11), rgba(15, 23, 38, 0.88));
-}
-
-.scanner-zone-card.scanned.red-herring {
-  border-color: rgba(148, 163, 184, 0.35);
-  background: rgba(15, 23, 38, 0.68);
-}
-
-.scanner-zone-card.locked {
-  opacity: 0.65;
-  border-style: dashed;
-}
-
-.scanner-zone-top {
-  display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
   gap: 6px;
+  background: transparent;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  z-index: 5;
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.scanner-zone-loc {
-  font-size: 0.8rem;
+.map-pin-node:hover,
+.map-pin-node:focus-visible {
+  transform: translate(-50%, -54%) scale(1.07);
+  z-index: 15;
+  outline: none;
+}
+
+.map-pin-beacon {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(148, 163, 184, 0.45);
+  background: rgba(9, 15, 28, 0.94);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+  transition: all 180ms ease;
+}
+
+.map-pin-icon {
+  font-size: 0.96rem;
+  line-height: 1;
   font-weight: 800;
-  color: var(--text-primary);
 }
 
-.scanner-zone-badge {
-  font-size: 0.67rem;
-  font-weight: 700;
-  padding: 1px 7px;
-  border-radius: 999px;
+.map-pin-ring {
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  border: 2px solid rgba(245, 185, 95, 0.72);
+  animation: mapPinPulse 2.1s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  pointer-events: none;
 }
 
-.scanner-zone-card.available .scanner-zone-badge {
-  background: rgba(245, 185, 95, 0.2);
+@keyframes mapPinPulse {
+  0% {
+    transform: scale(0.82);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.68);
+    opacity: 0;
+  }
+}
+
+.map-pin-node.available .map-pin-beacon {
+  border-color: var(--accent-gold-bright);
+  background: radial-gradient(circle at 35% 30%, rgba(245, 185, 95, 0.38), rgba(15, 23, 42, 0.96));
+  box-shadow: 0 0 22px rgba(245, 185, 95, 0.45);
   color: var(--accent-gold-bright);
 }
 
-.scanner-zone-card.scanned .scanner-zone-badge {
-  background: rgba(16, 185, 129, 0.2);
-  color: #34d399;
+.map-pin-node.scanned .map-pin-beacon {
+  border-color: #34d399;
+  background: radial-gradient(circle at 35% 30%, rgba(16, 185, 129, 0.42), rgba(10, 26, 24, 0.96));
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.36);
+  color: #6ee7b7;
 }
 
-.scanner-zone-card.locked .scanner-zone-badge {
-  background: rgba(148, 163, 184, 0.14);
+.map-pin-node.scanned.red-herring .map-pin-beacon {
+  border-color: rgba(148, 163, 184, 0.55);
+  background: rgba(24, 32, 48, 0.9);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  color: #cbd5e1;
+}
+
+.map-pin-node.locked .map-pin-beacon {
+  border-style: dashed;
+  border-color: rgba(148, 163, 184, 0.45);
+  background: rgba(9, 14, 24, 0.78);
   color: var(--text-muted);
+  opacity: 0.85;
 }
 
-.scanner-zone-desc {
-  font-size: 0.73rem;
+.map-pin-label {
+  direction: rtl;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(7, 13, 25, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.52);
+  white-space: nowrap;
+  max-width: 190px;
+}
+
+.map-pin-node.align-left .map-pin-label {
+  transform: translateX(26%);
+}
+
+.map-pin-node.align-right .map-pin-label {
+  transform: translateX(-26%);
+}
+
+.map-pin-node.align-top {
+  flex-direction: column-reverse;
+}
+
+.map-pin-loc {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.map-pin-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+
+.map-pin-node.available .map-pin-label {
+  border-color: rgba(245, 185, 95, 0.55);
+}
+
+.map-pin-node.available .map-pin-tag {
+  background: rgba(245, 185, 95, 0.22);
+  color: var(--accent-gold-bright);
+}
+
+.map-pin-node.scanned .map-pin-label {
+  border-color: rgba(16, 185, 129, 0.48);
+}
+
+.map-pin-node.scanned .map-pin-tag {
+  background: rgba(16, 185, 129, 0.22);
+  color: #6ee7b7;
+}
+
+.map-pin-node.scanned.red-herring .map-pin-tag {
+  background: rgba(148, 163, 184, 0.2);
+  color: #cbd5e1;
+}
+
+.map-pin-node.locked .map-pin-tag {
+  background: rgba(148, 163, 184, 0.14);
   color: var(--text-secondary);
-  line-height: 1.45;
+}
+
+.tactical-map-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 9px 13px;
+  border-radius: var(--radius-md);
+  background: rgba(8, 15, 28, 0.88);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+}
+
+.tactical-map-footer.is-available {
+  border-color: rgba(245, 185, 95, 0.42);
+}
+
+.tactical-map-footer.is-scanned {
+  border-color: rgba(16, 185, 129, 0.42);
+}
+
+.map-info-code {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(14, 165, 233, 0.16);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #7dd3fc;
+}
+
+.map-info-title {
+  font-size: 0.83rem;
+  color: var(--text-primary);
+}
+
+.map-info-hint {
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+  margin-inline-start: auto;
+}
+
+@media (max-width: 680px) {
+  .tactical-map-viewport {
+    min-height: 268px;
+  }
+
+  .map-pin-beacon {
+    width: 31px;
+    height: 31px;
+  }
+
+  .map-pin-icon {
+    font-size: 0.82rem;
+  }
+
+  .map-pin-label {
+    padding: 3px 7px;
+    max-width: 132px;
+    gap: 4px;
+  }
+
+  .map-pin-loc {
+    font-size: 0.66rem;
+  }
+
+  .map-pin-tag {
+    display: none;
+  }
+
+  .map-info-hint {
+    margin-inline-start: 0;
+  }
+}
+
+html.low-power-mode .tactical-radar-sweep,
+html.low-power-mode .map-pin-ring,
+html.low-power-mode .tactical-map-links .map-link-line.unlocked {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tactical-radar-sweep,
+  .map-pin-ring,
+  .tactical-map-links .map-link-line.unlocked {
+    animation: none;
+  }
 }
 
 /* Mind Palace Trigger Button */
@@ -6298,7 +6674,8 @@ html[data-theme="detective-light"] .library-career-bar {
 }
 
 html[data-theme="detective-light"] .hud-telemetry-pill,
-html[data-theme="detective-light"] .scanner-zone-card,
+html[data-theme="detective-light"] .legend-chip,
+html[data-theme="detective-light"] .tactical-map-footer,
 html[data-theme="detective-light"] .int-suspect-card,
 html[data-theme="detective-light"] .mp-node-card,
 html[data-theme="detective-light"] .mp-time-chip,
@@ -6309,7 +6686,8 @@ html[data-theme="detective-light"] .desktop-shortcut-legend {
 }
 
 html[data-theme="detective-light"] .hud-telemetry-pill strong,
-html[data-theme="detective-light"] .scanner-zone-loc,
+html[data-theme="detective-light"] .map-pin-loc,
+html[data-theme="detective-light"] .map-info-title,
 html[data-theme="detective-light"] .int-suspect-head strong,
 html[data-theme="detective-light"] .mp-node-card strong,
 html[data-theme="detective-light"] .career-bar-top {
@@ -6318,7 +6696,7 @@ html[data-theme="detective-light"] .career-bar-top {
 
 html[data-theme="detective-light"] .hud-telemetry-pill .hud-label,
 html[data-theme="detective-light"] .scanner-bar-sub,
-html[data-theme="detective-light"] .scanner-zone-desc,
+html[data-theme="detective-light"] .map-info-hint,
 html[data-theme="detective-light"] .int-suspect-alibi,
 html[data-theme="detective-light"] .mp-instruction,
 html[data-theme="detective-light"] .mp-node-card small,
@@ -6342,20 +6720,101 @@ html[data-theme="detective-light"] .mind-palace-trigger-btn:hover {
   border-color: #8c521a;
 }
 
-html[data-theme="detective-light"] .scanner-zone-card.available,
+html[data-theme="detective-light"] .tactical-map-viewport {
+  background:
+    radial-gradient(circle at 50% 48%, rgba(196, 155, 95, 0.18), rgba(236, 226, 206, 0.96) 78%),
+    #efe6d5;
+  border-color: rgba(35, 65, 92, 0.38);
+  box-shadow:
+    inset 0 0 36px rgba(62, 48, 33, 0.14),
+    0 8px 20px rgba(42, 33, 22, 0.1);
+}
+
+html[data-theme="detective-light"] .tactical-map-backdrop {
+  opacity: 0.16;
+  filter: sepia(0.75) contrast(1.06) brightness(1.05);
+}
+
+html[data-theme="detective-light"] .tactical-map-grid-overlay {
+  background-image:
+    linear-gradient(to right, rgba(35, 65, 92, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(35, 65, 92, 0.08) 1px, transparent 1px),
+    linear-gradient(to right, rgba(35, 65, 92, 0.16) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(35, 65, 92, 0.16) 1px, transparent 1px);
+}
+
+html[data-theme="detective-light"] .map-compass-badge,
+html[data-theme="detective-light"] .map-scale-badge,
+html[data-theme="detective-light"] .map-info-code {
+  background: rgba(251, 248, 241, 0.92);
+  border-color: rgba(35, 65, 92, 0.35);
+  color: #1f3b54;
+}
+
+html[data-theme="detective-light"] .tactical-radar-sweep {
+  background: conic-gradient(
+    from 0deg,
+    rgba(35, 65, 92, 0.14) 0deg,
+    rgba(35, 65, 92, 0.03) 40deg,
+    transparent 76deg,
+    transparent 360deg
+  );
+}
+
+html[data-theme="detective-light"] .tactical-map-floorplan .bp-wall {
+  fill: rgba(255, 252, 244, 0.45);
+  stroke: rgba(35, 65, 92, 0.65);
+}
+
+html[data-theme="detective-light"] .tactical-map-floorplan .bp-room {
+  fill: rgba(35, 65, 92, 0.06);
+  stroke: rgba(35, 65, 92, 0.4);
+}
+
+html[data-theme="detective-light"] .tactical-map-floorplan .bp-label {
+  fill: #1f3b54;
+}
+
+html[data-theme="detective-light"] .tactical-map-floorplan .bp-sector-tag {
+  fill: rgba(35, 65, 92, 0.72);
+}
+
+html[data-theme="detective-light"] .map-pin-label {
+  background: rgba(251, 248, 241, 0.96);
+  border-color: rgba(62, 48, 33, 0.28);
+  box-shadow: 0 6px 14px rgba(42, 33, 22, 0.16);
+}
+
+html[data-theme="detective-light"] .map-pin-node.available .map-pin-beacon {
+  background: #fff7e6;
+  border-color: #9a5b14;
+  color: #9a5b14;
+}
+
+html[data-theme="detective-light"] .map-pin-node.scanned .map-pin-beacon {
+  background: #e3f2eb;
+  border-color: #165b41;
+  color: #165b41;
+}
+
+html[data-theme="detective-light"] .map-pin-node.locked .map-pin-beacon {
+  background: #eae3d5;
+  border-color: rgba(62, 48, 33, 0.35);
+  color: #6e6457;
+}
+
 html[data-theme="detective-light"] .int-suspect-card.selected {
   background: linear-gradient(135deg, #f8edd9, #fbf8f1);
   border-color: #8c521a;
 }
 
-html[data-theme="detective-light"] .scanner-zone-card.scanned,
 html[data-theme="detective-light"] .int-suspect-card.broken,
 html[data-theme="detective-light"] .mp-node-card.alibi-broken {
   background: linear-gradient(135deg, #e3f2eb, #fbf8f1);
   border-color: #266e52;
 }
 
-html[data-theme="detective-light"] .scanner-zone-card.scanned .scanner-zone-badge,
+html[data-theme="detective-light"] .map-pin-node.scanned .map-pin-tag,
 html[data-theme="detective-light"] .int-suspect-card.broken .int-suspect-status,
 html[data-theme="detective-light"] .scenario-solved-badge {
   color: #165b41;
@@ -6363,8 +6822,13 @@ html[data-theme="detective-light"] .scenario-solved-badge {
   border-color: rgba(38, 110, 82, 0.45);
 }
 
-html[data-theme="detective-light"] .scanner-zone-card.locked {
-  background: #eae3d5;
+html[data-theme="detective-light"] .map-pin-node.available .map-pin-tag {
+  color: #734010;
+  background: rgba(140, 82, 26, 0.16);
+}
+
+html[data-theme="detective-light"] .map-pin-node.locked .map-pin-tag {
+  background: rgba(62, 48, 33, 0.1);
   color: #6e6457;
 }
 

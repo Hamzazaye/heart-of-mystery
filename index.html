@@ -897,18 +897,42 @@
           </div>
         </div>
 
-        <!-- AAA Interactive Crime Scene Tactical Scanner (Spatial Room Inspection Map) -->
+        <!-- AAA Interactive Crime Scene Tactical Scanner (Spatial Investigation Blueprint Map) -->
         <div class="crime-scene-scanner-bar" id="crimeSceneScannerBar" aria-label="خريطة المسح الميداني لزوايا مسرح الجريمة">
           <div class="scanner-bar-header">
             <div class="scanner-bar-title">
               <span class="scanner-radar-dot"></span>
-              <strong>🗺️ المسح الميداني لزوايا مسرح الجريمة</strong>
-              <span class="scanner-bar-sub">اضغط على أي موقع مفتوح في الغرفة لمعاينته واستخراج الأدلة المادية أو سماع تقريره</span>
+              <strong>🗺️ خريطة التحقيق الميداني لمسرح الجريمة</strong>
+              <span class="scanner-bar-sub">اضغط على النقاط المضيئة في المخطط المعماري لمعاينة موقع الجريمة واستخراج الأدلة المادية</span>
             </div>
-            <span class="scanner-progress-pill mono-stat" id="scannerZonesCountPill">1 / 5 مواقع مفحوصة</span>
+            <div class="scanner-header-meta">
+              <div class="scanner-map-legend" aria-label="دليل رموز الخريطة">
+                <span class="legend-chip legend-available"><i></i> متاح للمسح</span>
+                <span class="legend-chip legend-scanned"><i></i> مفحوص</span>
+                <span class="legend-chip legend-locked"><i></i> مقفل</span>
+              </div>
+              <span class="scanner-progress-pill mono-stat" id="scannerZonesCountPill">1 / 5 مواقع مفحوصة</span>
+            </div>
           </div>
-          <div class="scanner-zones-grid" id="scannerZonesGrid">
-            <!-- Populated dynamically with the crime scene locations from Case Bible -->
+
+          <div class="tactical-map-viewport" id="scannerMapViewport">
+            <div class="tactical-map-backdrop" id="scannerMapBackdrop" aria-hidden="true"></div>
+            <div class="tactical-map-grid-overlay" aria-hidden="true">
+              <span class="map-compass-badge mono-stat">N ⬆</span>
+              <span class="map-scale-badge mono-stat">GRID // SEC-01:100</span>
+            </div>
+            <div class="tactical-radar-sweep" aria-hidden="true"></div>
+            <svg class="tactical-map-floorplan" id="scannerMapFloorplanSvg" viewBox="0 0 1000 520" preserveAspectRatio="none" aria-hidden="true"></svg>
+            <svg class="tactical-map-links" id="scannerMapLinksSvg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+            <div class="scanner-zones-grid tactical-map-pins-layer" id="scannerZonesGrid" role="group" aria-label="نقاط المسح الميداني على الخريطة">
+              <!-- Populated dynamically with positioned blueprint hotspot pins from Case Bible -->
+            </div>
+          </div>
+
+          <div class="tactical-map-footer" id="scannerMapActiveInfo" aria-live="polite">
+            <span class="map-info-code mono-stat">SEC-01</span>
+            <strong class="map-info-title">جاري تهيئة مخطط مسرح الجريمة...</strong>
+            <span class="map-info-hint">مرر المؤشر أو اضغط على أي نقطة لفحصها جنائيا</span>
           </div>
         </div>
 
