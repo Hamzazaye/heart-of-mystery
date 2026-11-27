@@ -207,6 +207,30 @@
 
   let lastRenderedTurnData = null;
 
+  function updateGuidedObjectiveHint() {
+    const objEl = document.getElementById('guidedObjectiveText');
+    if (!objEl || !gameState) return;
+
+    const bible = gameState.caseBible;
+    const realCluesCount = (gameState.clues || []).filter(c => !c.isRedHerring).length;
+    const brokenCount = (gameState.suspects || []).filter(s => s.alibiBroken).length;
+    const hasDecisive = Boolean(
+      bible &&
+        bible.decisiveClueId &&
+        (gameState.clues || []).some(c => c.id === bible.decisiveClueId)
+    );
+
+    if (gameState.caseSolved) {
+      objEl.textContent = '✅ اكتمل التحقيق! يمكنك استعراض ملف القضية أو بدء قضية جديدة.';
+    } else if (hasDecisive && brokenCount >= 1) {
+      objEl.textContent = '⚖️ اكتملت الأدلة وانكسرت حجة الكذب! ادخل الآن «غرفة الاتهام» لإصدار الحكم.';
+    } else if (realCluesCount >= 2 && brokenCount === 0) {
+      objEl.textContent = '🗣️ اضغط على أي شخصية في المشهد أو منصة الاستجواب لمواجهتها بدليل وكسر حجتها.';
+    } else {
+      objEl.textContent = '🔍 الخطوة الحالية: اقرأ المشهد ثم افحص الموضع المريب أو امسح موقعا في الخريطة.';
+    }
+  }
+
   function renderSceneCastStrip(turnData) {
     const strip = document.getElementById('sceneCastStrip');
     if (!strip || !window.MysteryCharacterEngine) return;
@@ -660,8 +684,8 @@
         const active = document.body.classList.toggle('flashlight-mode-active');
         flashlightBtn.classList.toggle('active', active);
         flashlightBtn.innerHTML = active
-          ? '<span>🔦 كشاف المحقق: نشط</span>'
-          : '<span>🔦 كشاف المحقق: متوقف</span>';
+          ? '<span>🔦</span>'
+          : '<span style="opacity:0.55">🔦</span>';
         if (typeof audioEngine.playPuzzleClickSound === 'function') {
           audioEngine.playPuzzleClickSound();
         }
@@ -3449,6 +3473,7 @@
     dom.sceneMoodText.textContent = cleanStr(turnData.mood) || 'غموض وترقب';
     updateSceneArtwork(gameState.scenarioId, cleanStr(turnData.chapter_title));
     renderSceneCastStrip(turnData);
+    updateGuidedObjectiveHint();
     updateVocalSpeakerPortrait(
       { id: 'narrator', name: 'الراوي التفاعلي', role: 'راوي التحقيق', voice: 'Charon' },
       cleanStr(turnData.vocal_emotion || turnData.mood || 'همس مريب'),
@@ -4024,6 +4049,7 @@
     }
 
     if (dom.tabCountClues) dom.tabCountClues.textContent = String(gameState.clues.length);
+    updateGuidedObjectiveHint();
     if (dom.tabCountSecrets) dom.tabCountSecrets.textContent = String(gameState.secrets.length);
     if (dom.tabCountSuspects) dom.tabCountSuspects.textContent = String(gameState.suspects.length);
     if (dom.tabCountHistory) dom.tabCountHistory.textContent = String(gameState.history.length);

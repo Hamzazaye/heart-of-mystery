@@ -1,5 +1,5 @@
 /* PWA Service Worker for "قلب الغموض" (Heart of Mystery) */
-const CACHE_NAME = 'heart-of-mystery-v2026-5';
+const CACHE_NAME = 'heart-of-mystery-v2026-6';
 const CORE_ASSETS = [
   '/',
   '/index.html',
@@ -41,8 +41,12 @@ self.addEventListener('fetch', event => {
   // Never intercept API calls
   if (url.pathname.startsWith('/api/')) return;
 
-  // Cache-first for pre-baked MP3 audio clips & scene illustrations
-  if (url.pathname.startsWith('/audio/clips/') || url.pathname.startsWith('/assets/scenes/')) {
+  // Cache-first for pre-baked MP3 audio clips, scene illustrations & portraits
+  if (
+    url.pathname.startsWith('/audio/clips/') ||
+    url.pathname.startsWith('/assets/scenes/') ||
+    url.pathname.startsWith('/assets/portraits/')
+  ) {
     event.respondWith(
       caches.match(req).then(cached => {
         if (cached) return cached;

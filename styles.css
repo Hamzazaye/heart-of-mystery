@@ -6709,3 +6709,166 @@ html[data-theme="detective-light"] .scene-cast-expr {
 html[data-theme="detective-light"] .scene-cast-chip.is-broken .scene-cast-expr {
   color: #8f2424;
 }
+
+/* Streamlined Guided HUD & Realistic Portrait Frames */
+.guided-hud-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+}
+
+.guided-objective-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+  color: var(--text-primary);
+  min-width: 0;
+}
+
+.guided-objective-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--accent-gold-bright);
+  box-shadow: 0 0 8px var(--accent-gold-bright);
+}
+
+.guided-hud-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.scene-artwork-banner {
+  height: 210px;
+}
+
+@media (max-width: 768px) {
+  .scene-artwork-banner {
+    height: 150px;
+  }
+}
+
+.realistic-portrait-frame {
+  --portrait-rim: #f5b95f;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid var(--portrait-rim, var(--accent-gold));
+  background: #090e18;
+  box-shadow: var(--shadow-sm);
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 220ms ease;
+}
+
+.realistic-portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 18%;
+  display: block;
+}
+
+.realistic-portrait-mood-veil {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.realistic-portrait-frame.state-suspicious .realistic-portrait-img {
+  filter: contrast(1.08) saturate(0.88);
+}
+
+.realistic-portrait-frame.state-suspicious .realistic-portrait-mood-veil {
+  background: radial-gradient(circle, transparent 40%, rgba(14, 165, 233, 0.45) 100%);
+  opacity: 1;
+}
+
+.realistic-portrait-frame.state-tense {
+  border-color: #fb923c;
+  box-shadow: 0 0 0 2px rgba(251, 146, 60, 0.35), 0 0 12px rgba(251, 146, 60, 0.25);
+}
+
+.realistic-portrait-frame.state-tense .realistic-portrait-mood-veil {
+  background: linear-gradient(180deg, rgba(251, 146, 60, 0.12), rgba(180, 83, 9, 0.4));
+  opacity: 1;
+}
+
+.realistic-portrait-frame.state-shocked,
+.realistic-portrait-frame.state-angry {
+  border-color: #f97316;
+  box-shadow: 0 0 14px rgba(249, 115, 22, 0.42);
+}
+
+.realistic-portrait-frame.state-shocked .realistic-portrait-img,
+.realistic-portrait-frame.state-angry .realistic-portrait-img {
+  filter: contrast(1.16) saturate(1.15);
+}
+
+.realistic-portrait-frame.state-whisper .realistic-portrait-img {
+  filter: brightness(0.84) contrast(1.12);
+}
+
+.realistic-portrait-frame.state-sad .realistic-portrait-img {
+  filter: saturate(0.68) contrast(1.04);
+}
+
+.realistic-portrait-frame.state-broken {
+  border-color: #f43f5e;
+  box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.5), 0 0 16px rgba(244, 63, 94, 0.4);
+}
+
+.realistic-portrait-frame.state-broken .realistic-portrait-img {
+  filter: grayscale(0.35) contrast(1.22);
+}
+
+.portrait-broken-shatter {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.scene-cast-avatar,
+.scene-cast-avatar .realistic-portrait-frame {
+  width: 48px;
+  height: 48px;
+}
+
+.vocal-avatar-wrap {
+  width: 56px;
+  height: 56px;
+}
+
+#vocalAvatarIcon,
+#vocalAvatarIcon .realistic-portrait-frame {
+  width: 54px;
+  height: 54px;
+}
+
+html[data-theme="detective-light"] .guided-objective-pill {
+  color: #241f1a;
+}
+
+html[data-theme="detective-light"] .guided-objective-dot {
+  background: #8c521a;
+  box-shadow: 0 0 6px rgba(140, 82, 26, 0.4);
+}
+
+html[data-theme="detective-light"] .realistic-portrait-frame {
+  background: #eae3d5;
+}

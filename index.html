@@ -749,32 +749,26 @@
 
       <!-- Active Game Stage (Hidden until adventure starts) -->
       <div class="game-stage hidden" id="gameStage" data-emotion-aura="cinema">
-        <!-- Ultra-Immersive Forensic Environment & Sensory Telemetry HUD -->
-        <div class="immersive-forensic-hud" id="immersiveForensicHud" aria-label="قياسات مسرح الحدث الحية">
-          <div class="hud-telemetry-pill">
-            <span class="hud-icon">🌡️</span>
-            <span class="hud-label">بيئة المسرح:</span>
-            <strong id="hudEnvTempText">مختبر معزول (-18°C)</strong>
+        <!-- Streamlined Guided Investigation Objective & Control Strip -->
+        <div class="immersive-forensic-hud guided-hud-bar" id="immersiveForensicHud" aria-label="توجيه التحقيق المباشر">
+          <div class="guided-objective-pill">
+            <span class="guided-objective-dot" aria-hidden="true"></span>
+            <strong id="guidedObjectiveText">🔍 الخطوة التالية: اقرأ المشهد ثم افحص الأثر المادي المريب أو استمع للشخصيات.</strong>
           </div>
-          <div class="hud-telemetry-pill">
-            <span class="hud-icon">📡</span>
-            <span class="hud-label">الطيف الكهرومغناطيسي:</span>
-            <strong id="hudEmfStatusText">42.4 Hz • مستقر</strong>
+          <span class="hidden" id="hudEnvTempText">مختبر معزول (-18°C)</span>
+          <span class="hidden" id="hudEmfStatusText">42.4 Hz • مستقر</span>
+          <span class="hidden" id="hudPulseContainer"><span id="hudHeartbeatDot"></span><strong id="hudPulseBpmText">72 BPM</strong></span>
+          <div class="guided-hud-actions">
+            <button type="button" class="hud-insight-btn" id="detectiveInsightBtn" title="بصيرة المحقق: تحليل الخيوط الحالية وتوجيهك للخطوة التالية بدون حرق [H]">
+              <span>💡 بصيرة</span>
+            </button>
+            <button type="button" class="hud-flashlight-toggle active" id="toggleFlashlightModeBtn" title="تشغيل أو إيقاف عدسة الكشاف الجنائي [F]">
+              <span>🔦</span>
+            </button>
+            <button type="button" class="hud-insight-btn hud-shortcuts-btn" id="openShortcutsBtn" title="قائمة اختصارات لوحة المفاتيح [?]" aria-label="اختصارات لوحة المفاتيح">
+              <span>⌨️</span>
+            </button>
           </div>
-          <div class="hud-telemetry-pill hud-pulse-pill" id="hudPulseContainer">
-            <span class="hud-heartbeat-dot" id="hudHeartbeatDot"></span>
-            <span class="hud-label">نبض التوتر:</span>
-            <strong id="hudPulseBpmText" class="mono-stat">72 BPM</strong>
-          </div>
-          <button type="button" class="hud-insight-btn" id="detectiveInsightBtn" title="بصيرة المحقق: تحليل الخيوط الحالية وتوجيهك للخطوة الاستقصائية التالية بدون حرق">
-            <span>💡 بصيرة المحقق</span>
-          </button>
-          <button type="button" class="hud-flashlight-toggle active" id="toggleFlashlightModeBtn" title="تفعيل أو إيقاف عدسة الكشاف الجنائي التفاعلي مع حركة المؤشر">
-            <span>🔦 كشاف المحقق: نشط</span>
-          </button>
-          <button type="button" class="hud-insight-btn hud-shortcuts-btn" id="openShortcutsBtn" title="قائمة اختصارات لوحة المفاتيح للمحقق [?]" aria-label="اختصارات لوحة المفاتيح">
-            <span>⌨️</span>
-          </button>
         </div>
 
         <!-- Chapter & Location Banner -->
@@ -1112,8 +1106,8 @@
             </button>
           </div>
 
-          <!-- Desktop Detective Keyboard Shortcuts Legend -->
-          <div class="desktop-shortcut-legend" aria-label="اختصارات لوحة المفاتيح للمحقق">
+          <!-- Desktop Detective Keyboard Shortcuts Legend (accessible anytime via ⌨️ or [?]) -->
+          <div class="desktop-shortcut-legend hidden" aria-label="اختصارات لوحة المفاتيح للمحقق">
             <span>⌨️ اختصارات المحقق:</span>
             <span><kbd>1</kbd>-<kbd>4</kbd> المسارات</span>
             <span><kbd>Space</kbd> الصوت</span>

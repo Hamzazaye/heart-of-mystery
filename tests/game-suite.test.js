@@ -264,35 +264,71 @@ test('6. Hygiene & Asset budgets: dashes, diacritics, CJK punctuation, CSS vars,
     const size = fs.statSync(abs).size;
     assert.ok(size > 1000 && size < 150 * 1024, `${rel} size (${size}B) out of <150KB WebP budget`);
   }
+
+  for (let i = 1; i <= 12; i++) {
+    const rel = `assets/portraits/m_${String(i).padStart(2, '0')}.webp`;
+    const abs = path.join(ROOT, rel);
+    assert.ok(fs.existsSync(abs), `Missing portrait: ${rel}`);
+    const sz = fs.statSync(abs).size;
+    assert.ok(sz > 800 && sz < 40 * 1024, `${rel} (${sz}B) out of <40KB budget`);
+  }
+  for (let i = 1; i <= 8; i++) {
+    const rel = `assets/portraits/f_${String(i).padStart(2, '0')}.webp`;
+    const abs = path.join(ROOT, rel);
+    assert.ok(fs.existsSync(abs), `Missing portrait: ${rel}`);
+    const sz = fs.statSync(abs).size;
+    assert.ok(sz > 800 && sz < 40 * 1024, `${rel} (${sz}B) out of <40KB budget`);
+  }
 });
 
-test('7. Character Portrait Engine: 240+ archetypes, 8 expressions, core cast pinning & smart scene extraction', () => {
+test('7. Character Portrait Engine: realistic portraits, strict gender separation & smart scene extraction', () => {
   const ctx = { console, Math, Date, RegExp, Object, Array, JSON, Set, Map };
   ctx.window = ctx;
   ctx.globalThis = ctx;
   vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'js', 'character-portrait-engine.js'), 'utf8'), ctx);
+  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'js', 'multiverse-engine.js'), 'utf8'), ctx);
   const CE = ctx.MysteryCharacterEngine;
   assert.ok(CE, 'MysteryCharacterEngine should attach to window');
 
   const stats = CE.getCatalogStats();
   assert.ok(stats.totalArchetypes >= 240, `Expected >= 240 archetypes, found ${stats.totalArchetypes}`);
+  assert.equal(stats.malePortraitsCount, 12);
+  assert.equal(stats.femalePortraitsCount, 8);
   assert.equal(stats.expressionCount, 8);
 
-  // Core cast gender and profession accuracy across all 7 cases
+  // 1. Core cast gender & portrait pool separation across all 7 cases
   const { CASE_BIBLES } = loadCaseBibles();
   const renderedSet = new Set();
   for (const bible of Object.values(CASE_BIBLES)) {
     for (const s of bible.suspects) {
       const prof = CE.resolveCharacterProfile(s);
-      if (s.voice === 'Aoede' || s.voice === 'Kore') {
-        assert.equal(prof.gender, 'F', `${s.name} should resolve as female`);
-      }
-      const svg = CE.renderPortraitSvg(s, 'calm');
-      assert.ok(svg.includes('<svg') && svg.includes('suspect-portrait-svg'), `Invalid SVG for ${s.name}`);
+      const expectedFemale = s.voice === 'Aoede' || s.voice === 'Kore';
+      assert.equal(prof.gender, expectedFemale ? 'F' : 'M', `${s.name} gender mismatch`);
+      assert.ok(
+        prof.portrait.includes(expectedFemale ? '/f_' : '/m_'),
+        `${s.name} portrait (${prof.portrait}) must match gender pool`
+      );
+      const markup = CE.renderPortraitSvg(s, 'calm');
+      assert.ok(markup.includes('<img') && markup.includes('assets/portraits/'), `Invalid realistic portrait for ${s.name}`);
       renderedSet.add(prof.cleanName);
     }
   }
   assert.equal(renderedSet.size, 21, 'All 21 core cast suspects should be distinct');
+
+  // 2. Strict gender regression check on recurring Multiverse cast (specifically المهندس غسان الكيلاني!)
+  const mvCast = [
+    { name: 'المهندس غسان الكيلاني', voice: 'Puck', expect: 'M' },
+    { name: 'الدكتورة ريما نصار', voice: 'Aoede', expect: 'F' },
+    { name: 'القاضية سلافة الأنصاري', voice: 'Kore', expect: 'F' },
+    { name: 'المهندسة ليلى الشامي', voice: 'Kore', expect: 'F' },
+    { name: 'الكابتن رامي سنان', voice: 'Fenrir', expect: 'M' },
+    { name: 'الدكتور منذر العلي', voice: 'Charon', expect: 'M' }
+  ];
+  for (const mc of mvCast) {
+    const prof = CE.resolveCharacterProfile(mc);
+    assert.equal(prof.gender, mc.expect, `Strict gender failed for ${mc.name}`);
+    assert.ok(prof.portrait.includes(mc.expect === 'F' ? '/f_' : '/m_'));
+  }
 
   assert.equal(CE.resolveExpression('صدمة وذهول درامي').id, 'shocked');
   assert.equal(CE.resolveExpression('توتر وانفعال دفاعي').id, 'tense');
