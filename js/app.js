@@ -241,12 +241,14 @@
       return;
     }
     strip.classList.remove('hidden');
+    const stripUsedPortraits = new Set();
     strip.innerHTML = cast
       .map((ch, idx) => {
         const stateCls = ch.alibiBroken ? 'is-broken' : ch.isSuspect ? 'is-suspect' : 'is-npc';
         const svg = window.MysteryCharacterEngine.renderPortraitSvg(ch, ch.expression, {
           alibiBroken: ch.alibiBroken,
-          uid: `cast_${idx}`
+          uid: `cast_${idx}`,
+          usedPortraits: stripUsedPortraits
         });
         return `
           <button type="button" class="scene-cast-chip ${stateCls}" data-cast-id="${escapeHtml(

@@ -306,15 +306,28 @@ test('7. Character Portrait Engine: realistic portraits, same-face expressions &
 
   const stats = CE.getCatalogStats();
   assert.ok(stats.totalArchetypes >= 240, `Expected >= 240 archetypes, found ${stats.totalArchetypes}`);
-  assert.equal(stats.malePortraitsCount, 12);
-  assert.equal(stats.femalePortraitsCount, 8);
+  assert.equal(stats.malePortraitsCount, 32);
+  assert.equal(stats.femalePortraitsCount, 24);
   assert.equal(stats.expressionSheetsCount, 8);
-  assert.equal(stats.totalRealisticPortraits, 52);
+  assert.equal(stats.totalRealisticPortraits, 88);
   assert.equal(stats.expressionCount, 8);
 
-  // 1. Core cast gender & portrait pool separation across all 7 cases
+  // 0. Every single portrait file referenced in pools, sheets, and core cast must exist (> 2KB)
+  const allReferencedPortraits = new Set([
+    ...CE.MALE_PORTRAIT_POOL,
+    ...CE.FEMALE_PORTRAIT_POOL,
+    ...Object.values(CE.EXPRESSION_SHEETS).flatMap(sheet => Object.values(sheet)),
+    ...Object.values(CE.CORE_CAST_PROFILES).map(p => p.portrait)
+  ]);
+  for (const rel of allReferencedPortraits) {
+    const abs = path.join(ROOT, rel);
+    assert.ok(fs.existsSync(abs) && fs.statSync(abs).size > 2048, `Missing or tiny portrait asset: ${rel}`);
+  }
+
+  // 1. Core cast gender, portrait pool separation & 100% unique faces across all 21 core suspects
   const { CASE_BIBLES } = loadCaseBibles();
   const renderedSet = new Set();
+  const corePortraitUrls = new Set();
   for (const bible of Object.values(CASE_BIBLES)) {
     for (const s of bible.suspects) {
       const prof = CE.resolveCharacterProfile(s);
@@ -325,21 +338,29 @@ test('7. Character Portrait Engine: realistic portraits, same-face expressions &
           prof.portrait.includes(expectedFemale ? '_f_' : '_m_'),
         `${s.name} portrait (${prof.portrait}) must match gender pool`
       );
+      assert.ok(
+        !corePortraitUrls.has(prof.portrait),
+        `Duplicate portrait ${prof.portrait} found for core suspect ${s.name}`
+      );
+      corePortraitUrls.add(prof.portrait);
       const markup = CE.renderPortraitSvg(s, 'calm');
       assert.ok(markup.includes('<img') && markup.includes('assets/portraits/'), `Invalid realistic portrait for ${s.name}`);
       renderedSet.add(prof.cleanName);
     }
   }
   assert.equal(renderedSet.size, 21, 'All 21 core cast suspects should be distinct');
+  assert.equal(corePortraitUrls.size, 21, 'All 21 core cast suspects must have 21 distinct faces');
 
   // 2. Same-face expression switching check (calm -> tense -> angry -> broken on exact same person!)
-  const salma = { name: 'الدكتورة سلمى نصار', voice: 'Aoede' };
-  assert.ok(CE.renderPortraitSvg(salma, 'calm').includes('exp_f_scientist_calm.webp'));
-  assert.ok(CE.renderPortraitSvg(salma, 'تشكيك وتوتر').includes('exp_f_scientist_tense.webp'));
-  assert.ok(CE.renderPortraitSvg(salma, 'تحذير حاد').includes('exp_f_scientist_angry.webp'));
-  assert.ok(CE.renderPortraitSvg(salma, 'broken', { alibiBroken: true }).includes('exp_f_scientist_broken.webp'));
+  const maryam = { name: 'المهندسة مريم الهاشمي', voice: 'Kore' };
+  assert.ok(CE.renderPortraitSvg(maryam, 'calm').includes('exp_f_scientist_calm.webp'));
+  assert.ok(CE.renderPortraitSvg(maryam, 'تشكيك وتوتر').includes('exp_f_scientist_tense.webp'));
+  assert.ok(CE.renderPortraitSvg(maryam, 'تحذير حاد').includes('exp_f_scientist_angry.webp'));
+  assert.ok(CE.renderPortraitSvg(maryam, 'broken', { alibiBroken: true }).includes('exp_f_scientist_broken.webp'));
+  // Ensure Salma Nassar owns an exclusive face separate from Maryam
+  assert.ok(CE.resolveCharacterProfile({ name: 'الدكتورة سلمى نصار', voice: 'Aoede' }).portrait.includes('f_10.webp'));
 
-  // 3. Strict gender regression check on recurring Multiverse cast (specifically المهندس غسان الكيلاني!)
+  // 3. Strict gender regression + unique portraits across recurring Multiverse cast
   const mvCast = [
     { name: 'المهندس غسان الكيلاني', voice: 'Puck', expect: 'M' },
     { name: 'الدكتورة ريما نصار', voice: 'Aoede', expect: 'F' },
@@ -348,6 +369,7 @@ test('7. Character Portrait Engine: realistic portraits, same-face expressions &
     { name: 'الكابتن رامي سنان', voice: 'Fenrir', expect: 'M' },
     { name: 'الدكتور منذر العلي', voice: 'Charon', expect: 'M' }
   ];
+  const mvPortraits = new Set();
   for (const mc of mvCast) {
     const prof = CE.resolveCharacterProfile(mc);
     assert.equal(prof.gender, mc.expect, `Strict gender failed for ${mc.name}`);
@@ -355,12 +377,34 @@ test('7. Character Portrait Engine: realistic portraits, same-face expressions &
       prof.portrait.includes(mc.expect === 'F' ? '/f_' : '/m_') ||
         prof.portrait.includes(mc.expect === 'F' ? '_f_' : '_m_')
     );
+    assert.ok(!mvPortraits.has(prof.portrait), `Duplicate Multiverse portrait for ${mc.name}`);
+    mvPortraits.add(prof.portrait);
   }
+
+  // 4. Collision-free procedural assignment for 30 newly generated characters (15M + 15F)
+  const usedDynamic = new Set();
+  const dynamicPortraits = [];
+  for (let i = 1; i <= 15; i++) {
+    const mp = CE.resolveCharacterProfile({ name: `المهندس باسل ${i}`, voice: 'Puck' }, { usedPortraits: usedDynamic });
+    const fp = CE.resolveCharacterProfile({ name: `الباحثة سارة ${i}`, voice: 'Aoede' }, { usedPortraits: usedDynamic });
+    dynamicPortraits.push(mp.portrait, fp.portrait);
+  }
+  assert.equal(new Set(dynamicPortraits).size, 30, 'All 30 dynamic characters must receive 30 distinct faces');
 
   assert.equal(CE.resolveExpression('صدمة وذهول درامي').id, 'shocked');
   assert.equal(CE.resolveExpression('توتر وانفعال دفاعي').id, 'tense');
   assert.equal(CE.resolveExpression('همس مريب').id, 'whisper');
   assert.equal(CE.resolveExpression('calm', { alibiBroken: true }).id, 'broken');
+
+  // 5. Daily chapter cast deduplication check (must NOT duplicate role phrases as separate faces!)
+  const daily = CASE_BIBLES.daily;
+  const dailyCast = CE.extractSceneCharacters(daily.authoredChapters[0], {
+    suspects: daily.suspects,
+    dangerLevel: 15
+  });
+  const dailyPortraits = new Set(dailyCast.map(c => c.resolvedPortrait));
+  assert.equal(dailyPortraits.size, dailyCast.length, 'Daily scene cast strip must contain zero duplicate faces');
+  assert.ok(!dailyCast.some(c => !c.isSuspect && c.name === 'مسؤول الأمن'), 'Should not duplicate suspect Mazen role as separate chip');
 
   // Museum Chapter 1 extraction: 3 suspects + الأستاذ يونس
   const museum = CASE_BIBLES.museum;
