@@ -1053,10 +1053,36 @@
           <!-- Direct Suspect Cross-Examination / Interrogation Bar (Shown when 'interrogate' tab is active) -->
           <div class="interrogation-bar hidden" id="interrogationBar">
             <div class="interrogation-bar-head">
-              <span class="interrogation-badge">🗣️ استجواب ومواجهة مباشرة بالدليل</span>
-              <span class="interrogation-sub">اضغط على بطاقة المشتبه به ثم اختر الدليل المادي لمواجهته بصوته الخاص</span>
+              <span class="interrogation-badge">🗣️ منصة الاستجواب والمواجهة المباشرة</span>
+              <span class="interrogation-sub">اختر المشتبه به والدليل المادي لمواجهته وكشف انفعالاته بصوته</span>
             </div>
             <div class="interrogation-suspect-cards" id="interrogationSuspectCards" aria-label="بطاقات المشتبه بهم للاستجواب"></div>
+
+            <!-- Live Cinematic Interrogation Spotlight Stage -->
+            <div class="interrogation-live-stage" id="interrogationLiveStage">
+              <div class="interrogation-stage-portrait-wrap" id="interrogationStagePortrait"></div>
+              <div class="interrogation-stage-body">
+                <div class="interrogation-stage-header">
+                  <div>
+                    <strong class="interrogation-stage-name" id="interrogationStageName">اختر مشتبها به لبدء الاستجواب</strong>
+                    <small class="interrogation-stage-role" id="interrogationStageRole">اضغط على إحدى البطاقات أعلاه لمواجهته بالأدلة</small>
+                  </div>
+                  <span class="vocal-emotion-badge" id="interrogationStageEmotion">هادئ</span>
+                </div>
+                <div class="interrogation-composure-wrap" title="تماسك حجة المشتبه به">
+                  <span class="interrogation-composure-label">تماسك الحجة:</span>
+                  <div class="interrogation-composure-track">
+                    <div class="interrogation-composure-fill" id="interrogationComposureFill" style="width: 100%"></div>
+                  </div>
+                </div>
+                <blockquote class="interrogation-stage-dialogue" id="interrogationLiveDialogue">
+                  «اختر أحد المشتبه بهم أعلاه وقدم له الدليل المادي الذي يناقض إفادته.»
+                </blockquote>
+              </div>
+            </div>
+
+            <div class="interrogation-evidence-chips" id="interrogationEvidenceChips" aria-label="اختيار سريع للدليل المادي"></div>
+
             <div class="interrogation-controls">
               <select id="interrogateSuspectSelect" aria-label="اختر المشتبه به للاستجواب">
                 <option value="">اختر المشتبه به...</option>
@@ -1065,7 +1091,7 @@
                 <option value="">اختر الدليل المادي...</option>
               </select>
               <button type="button" class="interrogate-submit-btn" id="interrogateSubmitBtn">
-                <span>واجه المشتبه به بالدليل</span>
+                <span>⚡ واجه بالدليل الآن</span>
               </button>
             </div>
           </div>

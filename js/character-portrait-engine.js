@@ -53,6 +53,33 @@
     'assets/portraits/f_08.webp'  // f_08: young female witness
   ];
 
+  function makeSheet(prefix) {
+    return {
+      calm: `assets/portraits/${prefix}_calm.webp`,
+      tense: `assets/portraits/${prefix}_tense.webp`,
+      angry: `assets/portraits/${prefix}_angry.webp`,
+      broken: `assets/portraits/${prefix}_broken.webp`
+    };
+  }
+
+  const EXPRESSION_SHEETS = {
+    m_scientist: makeSheet('exp_m_scientist'),
+    m_lawyer: makeSheet('exp_m_lawyer'),
+    m_aristocrat: makeSheet('exp_m_aristocrat'),
+    m_doctor: makeSheet('exp_m_doctor'),
+    m_engineer: makeSheet('exp_m_engineer'),
+    f_scientist: makeSheet('exp_f_scientist'),
+    f_doctor: makeSheet('exp_f_doctor'),
+    f_noir: makeSheet('exp_f_noir')
+  };
+
+  function resolveSheetSlot(exprId) {
+    if (exprId === 'broken' || exprId === 'shocked') return 'broken';
+    if (exprId === 'angry') return 'angry';
+    if (exprId === 'tense' || exprId === 'suspicious' || exprId === 'whisper' || exprId === 'sad') return 'tense';
+    return 'calm';
+  }
+
   const PROFESSION_PORTRAIT_MAP = {
     M: {
       engineer: 'assets/portraits/m_01.webp',
@@ -84,6 +111,27 @@
       narrator: 'assets/portraits/f_07.webp',
       stranger: 'assets/portraits/f_08.webp',
       civilian: 'assets/portraits/f_08.webp'
+    }
+  };
+
+  const PROFESSION_SHEET_MAP = {
+    M: {
+      scientist: 'm_scientist',
+      lawyer: 'm_lawyer',
+      aristocrat: 'm_aristocrat',
+      captain: 'm_aristocrat',
+      doctor: 'm_doctor',
+      engineer: 'm_engineer'
+    },
+    F: {
+      scientist: 'f_scientist',
+      astronomer: 'f_scientist',
+      doctor: 'f_doctor',
+      journalist: 'f_noir',
+      lawyer: 'f_noir',
+      engineer: 'f_scientist',
+      aristocrat: 'f_scientist',
+      judge: 'f_noir'
     }
   };
 
@@ -119,40 +167,40 @@
     'الراوي التفاعلي': { gender: 'M', profession: 'narrator', portrait: 'assets/portraits/m_10.webp', rim: '#f5b95f' },
     'المحقق': { gender: 'M', profession: 'narrator', portrait: 'assets/portraits/m_10.webp', rim: '#f5b95f' },
     // Daily
-    'كريم نصار': { gender: 'M', profession: 'engineer', portrait: 'assets/portraits/m_01.webp', rim: '#38bdf8' },
-    'طارق زيدان': { gender: 'M', profession: 'scientist', portrait: 'assets/portraits/m_02.webp', rim: '#f5b95f' },
+    'كريم نصار': { gender: 'M', profession: 'engineer', expressionSheet: 'm_engineer', portrait: 'assets/portraits/exp_m_engineer_calm.webp', rim: '#38bdf8' },
+    'طارق زيدان': { gender: 'M', profession: 'scientist', expressionSheet: 'm_scientist', portrait: 'assets/portraits/exp_m_scientist_calm.webp', rim: '#f5b95f' },
     'مازن الكيلاني': { gender: 'M', profession: 'security', portrait: 'assets/portraits/m_03.webp', rim: '#a78bfa' },
     // Manor
-    'نديم زهران': { gender: 'M', profession: 'lawyer', portrait: 'assets/portraits/m_04.webp', rim: '#f5b95f' },
-    'سلمى الكيلاني': { gender: 'F', profession: 'doctor', portrait: 'assets/portraits/f_01.webp', rim: '#38bdf8' },
+    'نديم زهران': { gender: 'M', profession: 'lawyer', expressionSheet: 'm_lawyer', portrait: 'assets/portraits/exp_m_lawyer_calm.webp', rim: '#f5b95f' },
+    'سلمى الكيلاني': { gender: 'F', profession: 'doctor', expressionSheet: 'f_doctor', portrait: 'assets/portraits/exp_f_doctor_calm.webp', rim: '#38bdf8' },
     'منصور الجبلي': { gender: 'M', profession: 'security', portrait: 'assets/portraits/m_03.webp', rim: '#a78bfa' },
     // Station
-    'راشد النجدي': { gender: 'M', profession: 'scientist', portrait: 'assets/portraits/m_02.webp', rim: '#f5b95f' },
-    'مريم الهاشمي': { gender: 'F', profession: 'engineer', portrait: 'assets/portraits/f_03.webp', rim: '#38bdf8' },
+    'راشد النجدي': { gender: 'M', profession: 'scientist', expressionSheet: 'm_scientist', portrait: 'assets/portraits/exp_m_scientist_calm.webp', rim: '#f5b95f' },
+    'مريم الهاشمي': { gender: 'F', profession: 'engineer', expressionSheet: 'f_scientist', portrait: 'assets/portraits/exp_f_scientist_calm.webp', rim: '#38bdf8' },
     'طارق العتيبي': { gender: 'M', profession: 'security', portrait: 'assets/portraits/m_03.webp', rim: '#a78bfa' },
     // Train
-    'ليلى الموصلي': { gender: 'F', profession: 'lawyer', portrait: 'assets/portraits/f_04.webp', rim: '#f5b95f' },
-    'فريد الشذر': { gender: 'M', profession: 'aristocrat', portrait: 'assets/portraits/m_06.webp', rim: '#38bdf8' },
+    'ليلى الموصلي': { gender: 'F', profession: 'lawyer', expressionSheet: 'f_noir', portrait: 'assets/portraits/exp_f_noir_calm.webp', rim: '#f5b95f' },
+    'فريد الشذر': { gender: 'M', profession: 'aristocrat', expressionSheet: 'm_aristocrat', portrait: 'assets/portraits/exp_m_aristocrat_calm.webp', rim: '#38bdf8' },
     'عمران الحلبي': { gender: 'M', profession: 'captain', portrait: 'assets/portraits/m_11.webp', rim: '#a78bfa' },
     // Museum
-    'سلمى نصار': { gender: 'F', profession: 'scientist', portrait: 'assets/portraits/f_02.webp', rim: '#f5b95f' },
+    'سلمى نصار': { gender: 'F', profession: 'scientist', expressionSheet: 'f_scientist', portrait: 'assets/portraits/exp_f_scientist_calm.webp', rim: '#f5b95f' },
     'كمال البحيري': { gender: 'M', profession: 'diver', portrait: 'assets/portraits/m_07.webp', rim: '#38bdf8' },
-    'زياد الفاروقي': { gender: 'M', profession: 'engineer', portrait: 'assets/portraits/m_08.webp', rim: '#a78bfa' },
+    'زياد الفاروقي': { gender: 'M', profession: 'engineer', expressionSheet: 'm_engineer', portrait: 'assets/portraits/exp_m_engineer_calm.webp', rim: '#a78bfa' },
     // Island
-    'مازن الغساني': { gender: 'M', profession: 'doctor', portrait: 'assets/portraits/m_09.webp', rim: '#f5b95f' },
-    'رنا المقدسي': { gender: 'F', profession: 'journalist', portrait: 'assets/portraits/f_05.webp', rim: '#38bdf8' },
-    'سليم بحري': { gender: 'M', profession: 'captain', portrait: 'assets/portraits/m_05.webp', rim: '#a78bfa' },
+    'مازن الغساني': { gender: 'M', profession: 'doctor', expressionSheet: 'm_doctor', portrait: 'assets/portraits/exp_m_doctor_calm.webp', rim: '#f5b95f' },
+    'رنا المقدسي': { gender: 'F', profession: 'journalist', expressionSheet: 'f_noir', portrait: 'assets/portraits/exp_f_noir_calm.webp', rim: '#38bdf8' },
+    'سليم بحري': { gender: 'M', profession: 'captain', expressionSheet: 'm_aristocrat', portrait: 'assets/portraits/exp_m_aristocrat_calm.webp', rim: '#a78bfa' },
     // Unknown Land
-    'سنان راشد': { gender: 'M', profession: 'aristocrat', portrait: 'assets/portraits/m_06.webp', rim: '#f5b95f' },
-    'لينا الحسن': { gender: 'F', profession: 'scientist', portrait: 'assets/portraits/f_06.webp', rim: '#38bdf8' },
-    'جسار فهد': { gender: 'M', profession: 'engineer', portrait: 'assets/portraits/m_08.webp', rim: '#a78bfa' },
+    'سنان راشد': { gender: 'M', profession: 'aristocrat', expressionSheet: 'm_aristocrat', portrait: 'assets/portraits/exp_m_aristocrat_calm.webp', rim: '#f5b95f' },
+    'لينا الحسن': { gender: 'F', profession: 'scientist', expressionSheet: 'f_scientist', portrait: 'assets/portraits/exp_f_scientist_calm.webp', rim: '#38bdf8' },
+    'جسار فهد': { gender: 'M', profession: 'engineer', expressionSheet: 'm_engineer', portrait: 'assets/portraits/exp_m_engineer_calm.webp', rim: '#a78bfa' },
     // Recurring Multiverse Cast
-    'ريما نصار': { gender: 'F', profession: 'scientist', portrait: 'assets/portraits/f_02.webp', rim: '#38bdf8' },
-    'غسان الكيلاني': { gender: 'M', profession: 'engineer', portrait: 'assets/portraits/m_01.webp', rim: '#f5b95f' },
-    'سلافة الأنصاري': { gender: 'F', profession: 'aristocrat', portrait: 'assets/portraits/f_07.webp', rim: '#a78bfa' },
+    'ريما نصار': { gender: 'F', profession: 'scientist', expressionSheet: 'f_scientist', portrait: 'assets/portraits/exp_f_scientist_calm.webp', rim: '#38bdf8' },
+    'غسان الكيلاني': { gender: 'M', profession: 'engineer', expressionSheet: 'm_engineer', portrait: 'assets/portraits/exp_m_engineer_calm.webp', rim: '#f5b95f' },
+    'سلافة الأنصاري': { gender: 'F', profession: 'aristocrat', expressionSheet: 'f_noir', portrait: 'assets/portraits/exp_f_noir_calm.webp', rim: '#a78bfa' },
     'رامي سنان': { gender: 'M', profession: 'security', portrait: 'assets/portraits/m_03.webp', rim: '#f5b95f' },
-    'منذر العلي': { gender: 'M', profession: 'doctor', portrait: 'assets/portraits/m_09.webp', rim: '#38bdf8' },
-    'ليلى الشامي': { gender: 'F', profession: 'engineer', portrait: 'assets/portraits/f_03.webp', rim: '#a78bfa' }
+    'منذر العلي': { gender: 'M', profession: 'doctor', expressionSheet: 'm_doctor', portrait: 'assets/portraits/exp_m_doctor_calm.webp', rim: '#38bdf8' },
+    'ليلى الشامي': { gender: 'F', profession: 'engineer', expressionSheet: 'f_doctor', portrait: 'assets/portraits/exp_f_doctor_calm.webp', rim: '#a78bfa' }
   };
 
   // Strict Word-Token Sets (Prevents substring collisions like المهندس matching هند!)
@@ -321,10 +369,14 @@
             ? '#a78bfa'
             : RIM_ACCENTS[h % RIM_ACCENTS.length];
 
+    const sheetKey =
+      (PROFESSION_SHEET_MAP[gender] && PROFESSION_SHEET_MAP[gender][profession]) || null;
+
     return {
       archetypeId: `${profession}_${gender.toLowerCase()}_${(h % 10) + 1}`,
       gender,
       profession,
+      expressionSheet: sheetKey,
       portrait: chosenPortrait,
       rim: slotAccent,
       name: rawName,
@@ -356,6 +408,13 @@
     const extraClass = options.className ? ` ${escapeAttr(options.className)}` : '';
     const titleAttr = escapeAttr(`${profile.cleanName} (${expr.labelAr})`);
 
+    let portraitUrl = profile.portrait;
+    if (profile.expressionSheet && EXPRESSION_SHEETS[profile.expressionSheet]) {
+      const sheet = EXPRESSION_SHEETS[profile.expressionSheet];
+      const slot = resolveSheetSlot(expr.id);
+      if (sheet[slot]) portraitUrl = sheet[slot];
+    }
+
     const crackOverlay =
       expr.id === 'broken'
         ? `<svg class="portrait-broken-shatter" viewBox="0 0 80 80" fill="none" aria-hidden="true">
@@ -369,7 +428,7 @@
     )} state-${escapeAttr(expr.id)}${extraClass}" style="--portrait-rim:${escapeAttr(
       profile.rim || '#f5b95f'
     )};" title="${titleAttr}">
-      <img src="${escapeAttr(profile.portrait)}" alt="${titleAttr}" class="realistic-portrait-img" loading="lazy" />
+      <img src="${escapeAttr(portraitUrl)}" alt="${titleAttr}" class="realistic-portrait-img" loading="lazy" />
       <span class="realistic-portrait-mood-veil" aria-hidden="true"></span>
       ${crackOverlay}
     </span>`;
@@ -487,6 +546,11 @@
       pinnedCoreCount: Object.keys(CORE_CAST_PROFILES).length,
       malePortraitsCount: MALE_PORTRAIT_POOL.length,
       femalePortraitsCount: FEMALE_PORTRAIT_POOL.length,
+      expressionSheetsCount: Object.keys(EXPRESSION_SHEETS).length,
+      totalRealisticPortraits:
+        MALE_PORTRAIT_POOL.length +
+        FEMALE_PORTRAIT_POOL.length +
+        Object.keys(EXPRESSION_SHEETS).length * 4,
       totalArchetypes: ARCHETYPE_CATALOG.length,
       expressionCount: Object.keys(EXPRESSIONS).length,
       totalRenderedVariants: ARCHETYPE_CATALOG.length * Object.keys(EXPRESSIONS).length
@@ -495,6 +559,7 @@
 
   global.MysteryCharacterEngine = {
     EXPRESSIONS,
+    EXPRESSION_SHEETS,
     CORE_CAST_PROFILES,
     ARCHETYPE_CATALOG,
     MALE_PORTRAIT_POOL,

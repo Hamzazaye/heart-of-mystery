@@ -3684,9 +3684,107 @@
     }
 
     renderInterrogationSuspectCards();
+    renderInterrogationEvidenceChips();
     if (dom.interrogateSuspectSelect && !dom.interrogateSuspectSelect.dataset.cardSyncBound) {
       dom.interrogateSuspectSelect.dataset.cardSyncBound = '1';
       dom.interrogateSuspectSelect.addEventListener('change', renderInterrogationSuspectCards);
+    }
+    if (dom.interrogateClueSelect && !dom.interrogateClueSelect.dataset.chipSyncBound) {
+      dom.interrogateClueSelect.dataset.chipSyncBound = '1';
+      dom.interrogateClueSelect.addEventListener('change', renderInterrogationEvidenceChips);
+    }
+  }
+
+  function renderInterrogationEvidenceChips() {
+    const chipsContainer = document.getElementById('interrogationEvidenceChips');
+    if (!chipsContainer) return;
+    const clues = gameState.clues || [];
+    const selectedClue = dom.interrogateClueSelect ? dom.interrogateClueSelect.value : '';
+    if (clues.length === 0) {
+      chipsContainer.innerHTML = '';
+      return;
+    }
+    chipsContainer.innerHTML = clues
+      .map(c => {
+        const val = c.id || c.title;
+        const isSel = selectedClue === val;
+        return `<button type="button" class="interrogation-clue-chip ${
+          isSel ? 'selected' : ''
+        }" data-int-chip-clue="${escapeHtml(val)}">🔍 ${escapeHtml(c.title)}</button>`;
+      })
+      .join('');
+
+    chipsContainer.querySelectorAll('[data-int-chip-clue]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cVal = btn.getAttribute('data-int-chip-clue');
+        if (dom.interrogateClueSelect) dom.interrogateClueSelect.value = cVal;
+        if (dom.linkClueSelect) dom.linkClueSelect.value = cVal;
+        if (typeof audioEngine.playPuzzleClickSound === 'function') {
+          audioEngine.playPuzzleClickSound();
+        }
+        renderInterrogationEvidenceChips();
+      });
+    });
+  }
+
+  function renderInterrogationStage(suspect, emotionText = '', dialogueText = '', reactionClass = '') {
+    const stageEl = document.getElementById('interrogationLiveStage');
+    const portraitWrap = document.getElementById('interrogationStagePortrait');
+    const nameEl = document.getElementById('interrogationStageName');
+    const roleEl = document.getElementById('interrogationStageRole');
+    const emoEl = document.getElementById('interrogationStageEmotion');
+    const composureEl = document.getElementById('interrogationComposureFill');
+    const dialogueEl = document.getElementById('interrogationLiveDialogue');
+
+    if (!stageEl || !portraitWrap) return;
+
+    const targetSus =
+      suspect ||
+      (gameState.suspects && gameState.suspects[0]) || {
+        id: 's1',
+        name: 'المشتبه به',
+        role: 'قيد التحقيق',
+        alibi: 'اختر الدليل المادي لمواجهة المشتبه به.'
+      };
+
+    const resolvedEmo = emotionText || (targetSus.alibiBroken ? 'broken' : 'calm');
+    const exprInfo = window.MysteryCharacterEngine
+      ? window.MysteryCharacterEngine.resolveExpression(resolvedEmo, {
+          alibiBroken: Boolean(targetSus.alibiBroken)
+        })
+      : { id: targetSus.alibiBroken ? 'broken' : 'calm', labelAr: targetSus.alibiBroken ? 'حجة مكسورة' : 'هادئ' };
+
+    portraitWrap.innerHTML = renderSuspectPortraitSvg(
+      targetSus,
+      exprInfo.id,
+      resolvedEmo,
+      'interrogation_stage'
+    );
+
+    if (nameEl) nameEl.textContent = targetSus.name || 'المشتبه به';
+    if (roleEl) roleEl.textContent = targetSus.role || 'شخصية في القضية';
+    if (emoEl) emoEl.textContent = exprInfo.labelAr || 'هادئ';
+    if (dialogueEl) {
+      const quote = dialogueText || targetSus.note || targetSus.alibi || 'بانتظار تقديم الدليل المادي.';
+      dialogueEl.textContent = `«${quote}»`;
+    }
+    if (composureEl) {
+      const pct = targetSus.alibiBroken
+        ? 12
+        : exprInfo.id === 'angry'
+          ? 58
+          : exprInfo.id === 'tense'
+            ? 45
+            : 100;
+      composureEl.style.width = `${pct}%`;
+    }
+
+    stageEl.classList.remove('stage-broken', 'stage-shake');
+    if (reactionClass) {
+      void stageEl.offsetWidth;
+      stageEl.classList.add(reactionClass);
+    } else if (targetSus.alibiBroken) {
+      stageEl.classList.add('stage-broken');
     }
   }
 
@@ -3694,7 +3792,11 @@
     const container = document.getElementById('interrogationSuspectCards');
     if (!container) return;
     const suspects = gameState.suspects || [];
-    const selectedVal = dom.interrogateSuspectSelect ? dom.interrogateSuspectSelect.value : '';
+    let selectedVal = dom.interrogateSuspectSelect ? dom.interrogateSuspectSelect.value : '';
+    if (!selectedVal && suspects.length > 0 && dom.interrogateSuspectSelect) {
+      selectedVal = suspects[0].id || suspects[0].name;
+      dom.interrogateSuspectSelect.value = selectedVal;
+    }
 
     container.innerHTML = suspects
       .map(s => {
@@ -3715,6 +3817,16 @@
       })
       .join('');
 
+    const activeSuspect =
+      suspects.find(s => (s.id || s.name) === selectedVal) || suspects[0] || null;
+    if (activeSuspect) {
+      renderInterrogationStage(
+        activeSuspect,
+        activeSuspect.alibiBroken ? 'broken' : 'calm',
+        activeSuspect.alibi || activeSuspect.note || ''
+      );
+    }
+
     container.querySelectorAll('[data-int-card-suspect]').forEach(btn => {
       btn.addEventListener('click', () => {
         const sVal = btn.getAttribute('data-int-card-suspect');
@@ -3727,7 +3839,10 @@
           audioEngine.setMusicMood('interrogation');
         }
         renderInterrogationSuspectCards();
-        if (dom.interrogateClueSelect) dom.interrogateClueSelect.focus();
+        const pickedSus = (gameState.suspects || []).find(s => (s.id || s.name) === sVal);
+        if (pickedSus) {
+          renderInterrogationStage(pickedSus, pickedSus.alibiBroken ? 'broken' : 'tense', pickedSus.alibi || '');
+        }
       });
     });
   }
@@ -3789,6 +3904,14 @@
       result.emotion,
       result.outcomeType === 'ALIBI_BROKEN'
     );
+    const stageExpr =
+      result.outcomeType === 'ALIBI_BROKEN'
+        ? 'broken'
+        : result.outcomeType === 'SUPPORTS_GUILT'
+          ? 'tense'
+          : 'angry';
+    const stageAnim =
+      result.outcomeType === 'ALIBI_BROKEN' ? 'stage-broken' : 'stage-shake';
     renderSceneCastStrip(lastRenderedTurnData);
 
     // إضافة فقرة المواجهة إلى المشهد الحالي حتى يوثقها اللاعب بصريا
@@ -3836,6 +3959,12 @@
     });
 
     populateInterrogationAndCorkboardSelects();
+    renderInterrogationStage(
+      gameState.suspects[sIdx] || result.suspect,
+      stageExpr,
+      result.spokenResponse,
+      stageAnim
+    );
     renderSidebarState();
     saveGameState();
 

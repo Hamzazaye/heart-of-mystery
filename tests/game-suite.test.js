@@ -279,9 +279,23 @@ test('6. Hygiene & Asset budgets: dashes, diacritics, CJK punctuation, CSS vars,
     const sz = fs.statSync(abs).size;
     assert.ok(sz > 800 && sz < 40 * 1024, `${rel} (${sz}B) out of <40KB budget`);
   }
+
+  const sheetPrefixes = [
+    'exp_m_scientist', 'exp_m_lawyer', 'exp_m_aristocrat', 'exp_m_doctor',
+    'exp_m_engineer', 'exp_f_scientist', 'exp_f_doctor', 'exp_f_noir'
+  ];
+  for (const pref of sheetPrefixes) {
+    for (const ex of ['calm', 'tense', 'angry', 'broken']) {
+      const rel = `assets/portraits/${pref}_${ex}.webp`;
+      const abs = path.join(ROOT, rel);
+      assert.ok(fs.existsSync(abs), `Missing expression sheet portrait: ${rel}`);
+      const sz = fs.statSync(abs).size;
+      assert.ok(sz > 800 && sz < 45 * 1024, `${rel} (${sz}B) out of <45KB budget`);
+    }
+  }
 });
 
-test('7. Character Portrait Engine: realistic portraits, strict gender separation & smart scene extraction', () => {
+test('7. Character Portrait Engine: realistic portraits, same-face expressions & strict gender separation', () => {
   const ctx = { console, Math, Date, RegExp, Object, Array, JSON, Set, Map };
   ctx.window = ctx;
   ctx.globalThis = ctx;
@@ -294,6 +308,8 @@ test('7. Character Portrait Engine: realistic portraits, strict gender separatio
   assert.ok(stats.totalArchetypes >= 240, `Expected >= 240 archetypes, found ${stats.totalArchetypes}`);
   assert.equal(stats.malePortraitsCount, 12);
   assert.equal(stats.femalePortraitsCount, 8);
+  assert.equal(stats.expressionSheetsCount, 8);
+  assert.equal(stats.totalRealisticPortraits, 52);
   assert.equal(stats.expressionCount, 8);
 
   // 1. Core cast gender & portrait pool separation across all 7 cases
@@ -305,7 +321,8 @@ test('7. Character Portrait Engine: realistic portraits, strict gender separatio
       const expectedFemale = s.voice === 'Aoede' || s.voice === 'Kore';
       assert.equal(prof.gender, expectedFemale ? 'F' : 'M', `${s.name} gender mismatch`);
       assert.ok(
-        prof.portrait.includes(expectedFemale ? '/f_' : '/m_'),
+        prof.portrait.includes(expectedFemale ? '/f_' : '/m_') ||
+          prof.portrait.includes(expectedFemale ? '_f_' : '_m_'),
         `${s.name} portrait (${prof.portrait}) must match gender pool`
       );
       const markup = CE.renderPortraitSvg(s, 'calm');
@@ -315,7 +332,14 @@ test('7. Character Portrait Engine: realistic portraits, strict gender separatio
   }
   assert.equal(renderedSet.size, 21, 'All 21 core cast suspects should be distinct');
 
-  // 2. Strict gender regression check on recurring Multiverse cast (specifically المهندس غسان الكيلاني!)
+  // 2. Same-face expression switching check (calm -> tense -> angry -> broken on exact same person!)
+  const salma = { name: 'الدكتورة سلمى نصار', voice: 'Aoede' };
+  assert.ok(CE.renderPortraitSvg(salma, 'calm').includes('exp_f_scientist_calm.webp'));
+  assert.ok(CE.renderPortraitSvg(salma, 'تشكيك وتوتر').includes('exp_f_scientist_tense.webp'));
+  assert.ok(CE.renderPortraitSvg(salma, 'تحذير حاد').includes('exp_f_scientist_angry.webp'));
+  assert.ok(CE.renderPortraitSvg(salma, 'broken', { alibiBroken: true }).includes('exp_f_scientist_broken.webp'));
+
+  // 3. Strict gender regression check on recurring Multiverse cast (specifically المهندس غسان الكيلاني!)
   const mvCast = [
     { name: 'المهندس غسان الكيلاني', voice: 'Puck', expect: 'M' },
     { name: 'الدكتورة ريما نصار', voice: 'Aoede', expect: 'F' },
@@ -327,7 +351,10 @@ test('7. Character Portrait Engine: realistic portraits, strict gender separatio
   for (const mc of mvCast) {
     const prof = CE.resolveCharacterProfile(mc);
     assert.equal(prof.gender, mc.expect, `Strict gender failed for ${mc.name}`);
-    assert.ok(prof.portrait.includes(mc.expect === 'F' ? '/f_' : '/m_'));
+    assert.ok(
+      prof.portrait.includes(mc.expect === 'F' ? '/f_' : '/m_') ||
+        prof.portrait.includes(mc.expect === 'F' ? '_f_' : '_m_')
+    );
   }
 
   assert.equal(CE.resolveExpression('صدمة وذهول درامي').id, 'shocked');
