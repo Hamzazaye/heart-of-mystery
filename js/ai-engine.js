@@ -369,16 +369,16 @@ class MysteryAIEngine {
       return await this.callGeminiStructuredTurn(gameState, playerChoiceText);
     } catch (error) {
       console.warn('Gemini API fallback triggered due to:', error.message);
-      const isPresetChoiceOnTurn1 =
-        gameState.turn === 1 &&
+      const isPresetChoiceChapter =
+        (gameState.turn === 1 || gameState.turn === 2) &&
         bible &&
         Array.isArray(bible.authoredChapters) &&
-        bible.authoredChapters[1] &&
+        bible.authoredChapters[gameState.turn] &&
         Array.isArray(gameState.lastChoices) &&
         gameState.lastChoices.some(c => c.text === playerChoiceText);
-      if (isPresetChoiceOnTurn1) {
+      if (isPresetChoiceChapter) {
         return this.stripDisplayDiacritics(
-          this.buildStaticChapterTurn(gameState, bible.authoredChapters[1], playerChoiceText)
+          this.buildStaticChapterTurn(gameState, bible.authoredChapters[gameState.turn], playerChoiceText)
         );
       }
       const fallbackTurn = await this.generateCaseBibleTurn(gameState, playerChoiceText);
@@ -834,7 +834,7 @@ ${cluesLedger}
 
     const cleanAction = String(playerChoiceText || '').trim();
     const isForceAction = /(حطم|أحطم|احطم|كسر|أكسر|اكسر|خلع|باب|عنف|قوة|ركل|ضرب)/i.test(cleanAction);
-    const isInspectAction = /(افحص|أفحص|فحص|فتش|تفتيش|ابحث|بحث|عدسة|مكبر|بصم|قراءة|اقرأ|أقرأ|دقق)/i.test(cleanAction);
+    const isInspectAction = /(افحص|أفحص|فحص|فتش|تفتيش|ابحث|بحث|عدسة|مكبر|بصمة|بصمات|قراءة|اقرأ|أقرأ|دقق)/i.test(cleanAction);
     const isStealthAction = /(تسلل|اختب|تخف|راقب|مراقبة|صمت|تنصت|استمع|ترقب|هدوء)/i.test(cleanAction);
     const isConfrontAction = /(اسأل|أسأل|سؤال|واجه|مواجهة|استجوب|اتهام|اتهم|واجهه|صارح|اضغط)/i.test(cleanAction);
 

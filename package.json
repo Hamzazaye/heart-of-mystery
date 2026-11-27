@@ -4,6 +4,7 @@
   "description": "لعبة مغامرة نصية تفاعلية مليئة بالغموض والأسرار والتويست مدعومة بـ Google AI Studio API و Google TTS",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node --test tests/game-suite.test.js"
   }
 }

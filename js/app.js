@@ -120,6 +120,95 @@
   const audioEngine = new window.MysteryAudioEngine();
   const aiEngine = new window.MysteryAIEngine();
 
+  const SCENE_ARTWORK_MAP = {
+    daily: 'assets/scenes/daily.webp',
+    unknown_land: 'assets/scenes/unknown_land.webp',
+    manor: 'assets/scenes/manor.webp',
+    station: 'assets/scenes/station.webp',
+    train: 'assets/scenes/train.webp',
+    museum: 'assets/scenes/museum.webp',
+    island: 'assets/scenes/island.webp',
+    multiverse: 'assets/hero-noir-backdrop.webp',
+    custom: 'assets/hero-noir-backdrop.webp'
+  };
+
+  function updateSceneArtwork(scenarioId, chapterTitle = '') {
+    const imgEl = document.getElementById('sceneArtworkImg');
+    const capEl = document.getElementById('sceneArtworkCaption');
+    if (imgEl) {
+      const nextSrc = SCENE_ARTWORK_MAP[scenarioId] || 'assets/hero-noir-backdrop.webp';
+      if (imgEl.getAttribute('src') !== nextSrc) {
+        imgEl.setAttribute('src', nextSrc);
+      }
+    }
+    if (capEl) {
+      const preset = SCENARIO_PRESETS[scenarioId];
+      const label = preset ? preset.shortTitle : 'ملف القضية';
+      capEl.textContent = chapterTitle ? `${label} • ${chapterTitle}` : label;
+    }
+  }
+
+  function hydrateScenarioCardThumbnails() {
+    if (!dom.scenarioCards) return;
+    dom.scenarioCards.forEach(card => {
+      const sid = card.dataset.scenario;
+      const artSrc = SCENE_ARTWORK_MAP[sid];
+      if (!artSrc || sid === 'multiverse' || sid === 'custom') return;
+      if (card.querySelector('.scenario-card-thumb')) return;
+      const header = card.querySelector('.scenario-card-header');
+      if (!header || !header.parentNode) return;
+      const thumb = document.createElement('div');
+      thumb.className = 'scenario-card-thumb';
+      thumb.setAttribute('aria-hidden', 'true');
+      const img = document.createElement('img');
+      img.src = artSrc;
+      img.alt = '';
+      img.loading = 'lazy';
+      thumb.appendChild(img);
+      header.parentNode.insertBefore(thumb, header);
+    });
+  }
+
+  function renderSuspectPortraitSvg(suspect, state = 'calm') {
+    const sus = suspect || {};
+    const voice = String(sus.voice || '');
+    const isFemale = voice === 'Aoede' || voice === 'Kore';
+    const susId = String(sus.id || 's1');
+    const accentBySlot = {
+      s1: '#f5b95f',
+      s2: '#38bdf8',
+      s3: '#a78bfa'
+    };
+    const rim =
+      state === 'broken'
+        ? '#f43f5e'
+        : state === 'tense'
+          ? '#fb923c'
+          : accentBySlot[susId] || '#94a3b8';
+
+    const browOffset = state === 'broken' ? -1.5 : state === 'tense' ? 1.2 : 0;
+    const hairPath = isFemale
+      ? '<path d="M12 20c0-6 3.5-10 8-10s8 4 8 10v6c-1.5-2-2.5-4.5-2.5-7 0-3.2-2.4-5.5-5.5-5.5S14.5 15.8 14.5 19c0 2.5-1 5-2.5 7v-6z" fill="#1e293b"/>'
+      : '<path d="M13 17c0-4.8 3.2-7.8 7-7.8s7 3 7 7.8c-1.2-2-3.5-3.2-7-3.2s-5.8 1.2-7 3.2z" fill="#1e293b"/>';
+    const crackMark =
+      state === 'broken'
+        ? '<path d="M29 7l-3 5 2 2-3 5" stroke="#f43f5e" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>'
+        : '';
+
+    return `<svg class="suspect-portrait-svg state-${escapeHtml(state)}" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+      <circle cx="20" cy="20" r="18.5" stroke="${rim}" stroke-width="1.8" fill="rgba(15,23,42,0.88)"/>
+      <path d="M9.5 34.5c1.5-5.2 5.4-8 10.5-8s9 2.8 10.5 8" fill="#1e293b" stroke="${rim}" stroke-width="1.3" stroke-linecap="round"/>
+      <circle cx="20" cy="18.5" r="6.3" fill="#cbd5e1"/>
+      ${hairPath}
+      <line x1="16.5" y1="${17 + browOffset}" x2="18.8" y2="${17.4}" stroke="#0f172a" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="23.5" y1="${17 + browOffset}" x2="21.2" y2="${17.4}" stroke="#0f172a" stroke-width="1.2" stroke-linecap="round"/>
+      <circle cx="17.8" cy="19" r="0.9" fill="#0f172a"/>
+      <circle cx="22.2" cy="19" r="0.9" fill="#0f172a"/>
+      <path d="M18 22.3c1.2.4 2.8.4 4 0" stroke="#0f172a" stroke-width="1.1" stroke-linecap="round"/>
+      ${crackMark}
+    </svg>`;
+  }
+
   let selectedScenarioId = 'daily';
   let pendingMultiverseCombo = null;
   let currentTurnData = null;
@@ -930,9 +1019,10 @@
       suspectsListEl.innerHTML = suspects
         .map(s => {
           const sid = s.id || s.name;
+          const pState = s.alibiBroken ? 'broken' : 'calm';
           return `
             <button type="button" class="mp-node-card ${s.alibiBroken ? 'alibi-broken' : ''}" data-mp-suspect-id="${escapeHtml(sid)}">
-              <strong>${s.alibiBroken ? '💥' : '👤'} ${escapeHtml(s.name)}</strong>
+              <strong class="suspect-title-with-portrait">${renderSuspectPortraitSvg(s, pState)} <span>${escapeHtml(s.name)}</span></strong>
               <small>${escapeHtml(s.alibi || s.note || '')}</small>
             </button>
           `;
@@ -1881,6 +1971,7 @@
 
   function bindEvents() {
     rollAndPreviewMultiverseCard(false);
+    hydrateScenarioCardThumbnails();
 
     if (dom.rerollMultiverseCardBtn) {
       dom.rerollMultiverseCardBtn.addEventListener('click', e => {
@@ -3297,6 +3388,10 @@
     dom.chapterBadge.textContent = `الفصل ${gameState.turn}`;
     dom.sceneTitle.textContent = cleanStr(turnData.chapter_title) || 'فصل جديد';
     dom.sceneMoodText.textContent = cleanStr(turnData.mood) || 'غموض وترقب';
+    updateSceneArtwork(gameState.scenarioId, cleanStr(turnData.chapter_title));
+    if (typeof audioEngine.setMusicMood === 'function') {
+      audioEngine.setMusicMood(turnData.is_twist_moment ? 'revelation' : 'investigation');
+    }
     if (dom.detectiveStyleText) {
       dom.detectiveStyleText.textContent = cleanStr(gameState.detectiveStyle) || 'تحليلي حذر';
     }
@@ -3515,12 +3610,13 @@
       .map(s => {
         const val = s.id || s.name;
         const isSel = selectedVal === val;
+        const pState = s.alibiBroken ? 'broken' : isSel ? 'tense' : 'calm';
         return `
           <button type="button" class="int-suspect-card ${isSel ? 'selected' : ''} ${
           s.alibiBroken ? 'broken' : ''
         }" data-int-card-suspect="${escapeHtml(val)}">
             <div class="int-suspect-head">
-              <strong>${s.alibiBroken ? '💥' : '👤'} ${escapeHtml(s.name)}</strong>
+              <strong class="suspect-title-with-portrait">${renderSuspectPortraitSvg(s, pState)} <span>${escapeHtml(s.name)}</span></strong>
               <span class="int-suspect-status">${s.alibiBroken ? 'حجة مكسورة ✓' : 'قيد التحقق'}</span>
             </div>
             <span class="int-suspect-alibi">${escapeHtml(s.alibi || s.note || '')}</span>
@@ -3536,6 +3632,9 @@
         if (dom.linkSuspectSelect) dom.linkSuspectSelect.value = sVal;
         if (typeof audioEngine.playPuzzleClickSound === 'function') {
           audioEngine.playPuzzleClickSound();
+        }
+        if (typeof audioEngine.setMusicMood === 'function') {
+          audioEngine.setMusicMood('interrogation');
         }
         renderInterrogationSuspectCards();
         if (dom.interrogateClueSelect) dom.interrogateClueSelect.focus();
@@ -3569,6 +3668,9 @@
     }
 
     audioEngine.stopSpeaking();
+    if (typeof audioEngine.setMusicMood === 'function') {
+      audioEngine.setMusicMood('interrogation');
+    }
 
     // تحديث حالة المشتبه به في gameState
     const sIdx = gameState.suspects.findIndex(
@@ -4056,7 +4158,10 @@
           s => `
         <li class="suspect-item ${s.alibiBroken ? 'alibi-broken' : ''}">
           <div class="suspect-header">
-            <strong>${escapeHtml(s.name)}</strong>
+            <strong class="suspect-title-with-portrait">${renderSuspectPortraitSvg(
+              s,
+              s.alibiBroken ? 'broken' : 'calm'
+            )} <span>${escapeHtml(s.name)}</span></strong>
             <span class="suspect-status">${escapeHtml(s.trust_level)}</span>
           </div>
           <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:4px;">${escapeHtml(

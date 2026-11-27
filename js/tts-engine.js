@@ -24,6 +24,7 @@ class MysteryAudioEngine {
     this.isSynthesizing = false;
     this.sfxEnabled = true;
     this.autoTtsEnabled = true;
+    this.musicMood = 'investigation'; // 'investigation' | 'interrogation' | 'revelation'
 
     // ذاكرة تخزين مؤقت للصوتيات المولدة + تتبع الطلبات الجارية في الخلفية لمنع التكرار
     this.audioCache = new Map();
@@ -152,6 +153,14 @@ class MysteryAudioEngine {
       this.startWaveformAnimation();
     } else {
       this.stopWaveformAnimation();
+    }
+    if (this.ambientNodes && this.audioCtx && this.ambientNodes.masterGain && this.ambientEnabled) {
+      try {
+        const now = this.audioCtx.currentTime;
+        const baseVol = Math.max(0.01, Number(this.settings.ambientVolume ?? 0.45));
+        const duckedGain = speaking ? Math.max(0.004, baseVol * 0.14) : Math.max(0.01, baseVol * 0.38);
+        this.ambientNodes.masterGain.gain.setTargetAtTime(duckedGain, now, 0.25);
+      } catch (_) {}
     }
     if (typeof this.onSpeakingStateChange === 'function') {
       this.onSpeakingStateChange(speaking, activeLabel);
@@ -2144,6 +2153,32 @@ class MysteryAudioEngine {
   }
 
   /**
+   * تبديل المزاج الموسيقي التفاعلي بين مراحل التحقيق والاستجواب وانكشاف السر
+   * ('investigation' | 'interrogation' | 'revelation')
+   */
+  setMusicMood(mood = 'investigation') {
+    const allowed = ['investigation', 'interrogation', 'revelation'];
+    const nextMood = allowed.includes(mood) ? mood : 'investigation';
+    const changed = this.musicMood !== nextMood;
+    this.musicMood = nextMood;
+
+    if (!this.audioCtx || !this.ambientEnabled || this.settings.ambientMode === 'off') return;
+    try {
+      const now = this.audioCtx.currentTime;
+      if (this.ambientNodes && this.ambientNodes.filter) {
+        const freq =
+          nextMood === 'revelation' ? 1150 : nextMood === 'interrogation' ? 920 : 1800 + this.currentDangerLevel * 12;
+        if (this.activeAmbientType === 'rain') {
+          this.ambientNodes.filter.frequency.setTargetAtTime(freq, now, 0.35);
+        }
+      }
+      if (changed && nextMood !== 'investigation') {
+        this.triggerNoirMusicalMotif(this.currentDangerLevel);
+      }
+    } catch (_) {}
+  }
+
+  /**
    * موسيقى النوار التصويرية التفاعلية (Dynamic Noir Score & Tension Stems - H6 & Game Changer 7)
    * تتدرج من نغمات تشيلو وعود/بيانو هادئة على مقام الحجاز/نهاوند إلى نبض توتر متسارع مع ارتفاع مؤشر الخطر
    */
@@ -2151,19 +2186,26 @@ class MysteryAudioEngine {
     if (!this.audioCtx || !this.ambientEnabled || this.settings.ambientMode === 'off') return;
     try {
       const now = this.audioCtx.currentTime;
-      const baseVol = Number(this.settings.ambientVolume ?? 0.45);
+      const baseVol = Number(this.settings.ambientVolume ?? 0.45) * (this.isSpeaking ? 0.52 : 1.0);
       if (baseVol <= 0.02) return;
 
       const danger = Math.max(5, Math.min(100, Number(dangerLevel) || 15));
-      // سلم موسيقي شرقي-نوار (D Hijaz / Harmonic Minor: D3, Eb3, F#3, G3, A3, Bb3, C#4, D4)
-      const hijazScale = [146.83, 155.56, 185.0, 196.0, 220.0, 233.08, 277.18, 293.66];
+      const mood = this.musicMood || 'investigation';
+      // سلم موسيقي شرقي-نوار يتبدل وفق مزاج المرحلة (التحقيق / الاستجواب / كشف التويست)
+      const moodScales = {
+        investigation: [146.83, 155.56, 185.0, 196.0, 220.0, 233.08, 277.18, 293.66],
+        interrogation: [138.59, 146.83, 164.81, 185.0, 207.65, 220.0, 261.63, 277.18],
+        revelation: [146.83, 174.61, 220.0, 261.63, 329.63, 349.23, 440.0, 523.25]
+      };
+      const activeScale = moodScales[mood] || moodScales.investigation;
 
       // 1. نغمة قرار سينمائية دافئة (Cello Drone Pad)
       const droneOsc = this.audioCtx.createOscillator();
       const droneFilter = this.audioCtx.createBiquadFilter();
       const droneGain = this.audioCtx.createGain();
       droneOsc.type = 'triangle';
-      droneOsc.frequency.setValueAtTime(danger >= 70 ? 77.78 : 73.42, now); // D2 or Eb2 under high danger
+      const droneHz = mood === 'revelation' ? 110.0 : mood === 'interrogation' ? 82.41 : danger >= 70 ? 77.78 : 73.42;
+      droneOsc.frequency.setValueAtTime(droneHz, now);
       droneFilter.type = 'lowpass';
       droneFilter.frequency.setValueAtTime(240 + danger * 1.8, now);
 
@@ -2178,11 +2220,11 @@ class MysteryAudioEngine {
       droneOsc.start(now);
       droneOsc.stop(now + 4.5);
 
-      // 2. جملة لحنية نوارية (Plucked Noir Motif) تتغير كثافتها مع الخطر
-      const noteCount = danger >= 65 ? 4 : danger >= 35 ? 3 : 2;
+      // 2. جملة لحنية نوارية (Plucked Noir Motif) تتغير كثافتها مع الخطر ومزاج المشهد
+      const noteCount = mood === 'revelation' ? 4 : danger >= 65 ? 4 : danger >= 35 ? 3 : 2;
       for (let i = 0; i < noteCount; i++) {
-        const noteTime = now + 0.35 + i * (danger >= 65 ? 0.52 : 0.78);
-        const freq = hijazScale[(i * 2 + (danger >= 50 ? 1 : 0)) % hijazScale.length];
+        const noteTime = now + 0.35 + i * (mood === 'interrogation' ? 0.48 : danger >= 65 ? 0.52 : 0.78);
+        const freq = activeScale[(i * 2 + (danger >= 50 ? 1 : 0)) % activeScale.length];
         const noteOsc = this.audioCtx.createOscillator();
         const noteGain = this.audioCtx.createGain();
         noteOsc.type = 'sine';
