@@ -1,5 +1,5 @@
 /* PWA Service Worker for "قلب الغموض" (Heart of Mystery) */
-const CACHE_NAME = 'heart-of-mystery-v2026-3';
+const CACHE_NAME = 'heart-of-mystery-v2026-4';
 const CORE_ASSETS = [
   '/',
   '/index.html',
@@ -11,6 +11,7 @@ const CORE_ASSETS = [
   '/js/static-audio-manifest.js',
   '/js/tts-engine.js',
   '/js/ai-engine.js',
+  '/js/character-portrait-engine.js',
   '/js/app.js'
 ];
 

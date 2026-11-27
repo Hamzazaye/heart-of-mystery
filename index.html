@@ -818,6 +818,9 @@
           <span class="scene-artwork-caption mono-stat" id="sceneArtworkCaption">SCENE FILE</span>
         </div>
 
+        <!-- Live Dynamic Scene Cast Portrait Strip -->
+        <div class="scene-cast-strip hidden" id="sceneCastStrip" aria-label="شخصيات المشهد الحاضرون"></div>
+
         <!-- Narrator Vocal Reaction & Live Emotion Bar -->
         <div class="vocal-reaction-card" id="vocalReactionCard">
           <div class="vocal-avatar-wrap">
@@ -1914,6 +1917,7 @@
   <script src="js/static-audio-manifest.js"></script>
   <script src="js/tts-engine.js"></script>
   <script src="js/ai-engine.js"></script>
+  <script src="js/character-portrait-engine.js"></script>
   <script src="js/app.js"></script>
   <script>
     if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {

@@ -236,7 +236,7 @@ test('6. Hygiene & Asset budgets: dashes, diacritics, CJK punctuation, CSS vars,
     assert.equal(content.match(/[\u2013\u2014]/g), null, `Unexpected em/en dash in ${rel}`);
   }
 
-  for (const rel of ['index.html', 'styles.css', 'sw.js', 'js/ai-engine.js', 'js/app.js', 'js/case-bibles.js', 'js/multiverse-engine.js', 'js/viral-growth-engine.js']) {
+  for (const rel of ['index.html', 'styles.css', 'sw.js', 'js/ai-engine.js', 'js/app.js', 'js/case-bibles.js', 'js/character-portrait-engine.js', 'js/multiverse-engine.js', 'js/viral-growth-engine.js']) {
     const content = fs.readFileSync(path.join(ROOT, rel), 'utf8');
     assert.equal(content.match(/[\u064B-\u065F\u0670]/g), null, `Unexpected visible diacritic in ${rel}`);
     assert.equal(content.match(/[\u3000-\u303F\uFF00-\uFFEF]/g), null, `Unexpected CJK punctuation in ${rel}`);
@@ -264,4 +264,65 @@ test('6. Hygiene & Asset budgets: dashes, diacritics, CJK punctuation, CSS vars,
     const size = fs.statSync(abs).size;
     assert.ok(size > 1000 && size < 150 * 1024, `${rel} size (${size}B) out of <150KB WebP budget`);
   }
+});
+
+test('7. Character Portrait Engine: 240+ archetypes, 8 expressions, core cast pinning & smart scene extraction', () => {
+  const ctx = { console, Math, Date, RegExp, Object, Array, JSON, Set, Map };
+  ctx.window = ctx;
+  ctx.globalThis = ctx;
+  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'js', 'character-portrait-engine.js'), 'utf8'), ctx);
+  const CE = ctx.MysteryCharacterEngine;
+  assert.ok(CE, 'MysteryCharacterEngine should attach to window');
+
+  const stats = CE.getCatalogStats();
+  assert.ok(stats.totalArchetypes >= 240, `Expected >= 240 archetypes, found ${stats.totalArchetypes}`);
+  assert.equal(stats.expressionCount, 8);
+
+  // Core cast gender and profession accuracy across all 7 cases
+  const { CASE_BIBLES } = loadCaseBibles();
+  const renderedSet = new Set();
+  for (const bible of Object.values(CASE_BIBLES)) {
+    for (const s of bible.suspects) {
+      const prof = CE.resolveCharacterProfile(s);
+      if (s.voice === 'Aoede' || s.voice === 'Kore') {
+        assert.equal(prof.gender, 'F', `${s.name} should resolve as female`);
+      }
+      const svg = CE.renderPortraitSvg(s, 'calm');
+      assert.ok(svg.includes('<svg') && svg.includes('suspect-portrait-svg'), `Invalid SVG for ${s.name}`);
+      renderedSet.add(prof.cleanName);
+    }
+  }
+  assert.equal(renderedSet.size, 21, 'All 21 core cast suspects should be distinct');
+
+  assert.equal(CE.resolveExpression('صدمة وذهول درامي').id, 'shocked');
+  assert.equal(CE.resolveExpression('توتر وانفعال دفاعي').id, 'tense');
+  assert.equal(CE.resolveExpression('همس مريب').id, 'whisper');
+  assert.equal(CE.resolveExpression('calm', { alibiBroken: true }).id, 'broken');
+
+  // Museum Chapter 1 extraction: 3 suspects + الأستاذ يونس
+  const museum = CASE_BIBLES.museum;
+  const museumCast = CE.extractSceneCharacters(museum.authoredChapters[0], {
+    suspects: museum.suspects,
+    dangerLevel: 20
+  });
+  assert.ok(museumCast.some(c => c.isSuspect && c.id === 's1'));
+  assert.ok(museumCast.some(c => c.isSuspect && c.id === 's2'));
+  assert.ok(museumCast.some(c => c.isSuspect && c.id === 's3'));
+  assert.ok(museumCast.some(c => !c.isSuspect && c.name.includes('يونس')), 'Should detect incidental NPC الأستاذ يونس');
+
+  // Dynamic AI-invented custom characters
+  const customCast = CE.extractSceneCharacters(
+    {
+      chapter_title: 'مسرح مخصص',
+      mood: 'توتر وغموض',
+      vocal_emotion: 'تساؤل ماكر وتشكيك',
+      narrative: 'يدخل الطبيب الشرعي سامي وبجواره السيدة نادية التي تراقب الباب بصمت.'
+    },
+    { suspects: [], dangerLevel: 40 }
+  );
+  const sami = customCast.find(c => c.name.includes('سامي'));
+  const nadia = customCast.find(c => c.name.includes('نادية'));
+  assert.ok(sami && nadia, 'Should extract both dynamic custom NPCs');
+  assert.equal(CE.resolveCharacterProfile(sami).gender, 'M');
+  assert.equal(CE.resolveCharacterProfile(nadia).gender, 'F');
 });

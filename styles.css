@@ -6621,3 +6621,91 @@ html[data-theme="detective-light"] .scene-artwork-caption {
 html[data-theme="detective-light"] .suspect-portrait-svg {
   background: #fbf8f1;
 }
+
+/* Scene Cast Portrait Strip & Vocal Speaker Avatar */
+.scene-cast-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.scene-cast-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 11px 5px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  transition: transform 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.scene-cast-chip:hover {
+  transform: translateY(-1px);
+  border-color: var(--border-accent);
+}
+
+.scene-cast-chip.is-broken {
+  border-color: rgba(244, 63, 94, 0.55);
+  background: rgba(244, 63, 94, 0.12);
+}
+
+.scene-cast-chip.is-npc {
+  border-style: dashed;
+}
+
+.scene-cast-avatar {
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+}
+
+.scene-cast-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.25;
+}
+
+.scene-cast-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.scene-cast-expr {
+  font-size: 0.69rem;
+  color: var(--accent-gold-bright);
+}
+
+.scene-cast-chip.is-broken .scene-cast-expr {
+  color: var(--accent-crimson);
+}
+
+#vocalAvatarIcon .suspect-portrait-svg {
+  width: 44px;
+  height: 44px;
+}
+
+html[data-theme="detective-light"] .scene-cast-chip {
+  background: #fbf8f1;
+  border-color: rgba(62, 48, 33, 0.22);
+  color: #241f1a;
+}
+
+html[data-theme="detective-light"] .scene-cast-chip.is-broken {
+  background: #fae8e8;
+  border-color: #ad3737;
+}
+
+html[data-theme="detective-light"] .scene-cast-expr {
+  color: #734010;
+}
+
+html[data-theme="detective-light"] .scene-cast-chip.is-broken .scene-cast-expr {
+  color: #8f2424;
+}

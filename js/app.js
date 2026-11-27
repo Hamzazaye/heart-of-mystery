@@ -169,44 +169,101 @@
     });
   }
 
-  function renderSuspectPortraitSvg(suspect, state = 'calm') {
+  function renderSuspectPortraitSvg(suspect, state = 'calm', emotionHint = '', uid = '') {
+    if (window.MysteryCharacterEngine && typeof window.MysteryCharacterEngine.renderPortraitSvg === 'function') {
+      return window.MysteryCharacterEngine.renderPortraitSvg(
+        suspect,
+        emotionHint || state,
+        {
+          alibiBroken: state === 'broken',
+          isSelected: state === 'tense',
+          uid
+        }
+      );
+    }
     const sus = suspect || {};
     const voice = String(sus.voice || '');
     const isFemale = voice === 'Aoede' || voice === 'Kore';
-    const susId = String(sus.id || 's1');
-    const accentBySlot = {
-      s1: '#f5b95f',
-      s2: '#38bdf8',
-      s3: '#a78bfa'
-    };
-    const rim =
-      state === 'broken'
-        ? '#f43f5e'
-        : state === 'tense'
-          ? '#fb923c'
-          : accentBySlot[susId] || '#94a3b8';
-
-    const browOffset = state === 'broken' ? -1.5 : state === 'tense' ? 1.2 : 0;
+    const rim = state === 'broken' ? '#f43f5e' : state === 'tense' ? '#fb923c' : '#f5b95f';
     const hairPath = isFemale
       ? '<path d="M12 20c0-6 3.5-10 8-10s8 4 8 10v6c-1.5-2-2.5-4.5-2.5-7 0-3.2-2.4-5.5-5.5-5.5S14.5 15.8 14.5 19c0 2.5-1 5-2.5 7v-6z" fill="#1e293b"/>'
       : '<path d="M13 17c0-4.8 3.2-7.8 7-7.8s7 3 7 7.8c-1.2-2-3.5-3.2-7-3.2s-5.8 1.2-7 3.2z" fill="#1e293b"/>';
-    const crackMark =
-      state === 'broken'
-        ? '<path d="M29 7l-3 5 2 2-3 5" stroke="#f43f5e" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>'
-        : '';
-
     return `<svg class="suspect-portrait-svg state-${escapeHtml(state)}" viewBox="0 0 40 40" fill="none" aria-hidden="true">
       <circle cx="20" cy="20" r="18.5" stroke="${rim}" stroke-width="1.8" fill="rgba(15,23,42,0.88)"/>
-      <path d="M9.5 34.5c1.5-5.2 5.4-8 10.5-8s9 2.8 10.5 8" fill="#1e293b" stroke="${rim}" stroke-width="1.3" stroke-linecap="round"/>
       <circle cx="20" cy="18.5" r="6.3" fill="#cbd5e1"/>
       ${hairPath}
-      <line x1="16.5" y1="${17 + browOffset}" x2="18.8" y2="${17.4}" stroke="#0f172a" stroke-width="1.2" stroke-linecap="round"/>
-      <line x1="23.5" y1="${17 + browOffset}" x2="21.2" y2="${17.4}" stroke="#0f172a" stroke-width="1.2" stroke-linecap="round"/>
-      <circle cx="17.8" cy="19" r="0.9" fill="#0f172a"/>
-      <circle cx="22.2" cy="19" r="0.9" fill="#0f172a"/>
-      <path d="M18 22.3c1.2.4 2.8.4 4 0" stroke="#0f172a" stroke-width="1.1" stroke-linecap="round"/>
-      ${crackMark}
     </svg>`;
+  }
+
+  function updateVocalSpeakerPortrait(characterObj, emotionText = '', alibiBroken = false) {
+    if (!dom.vocalAvatarIcon || !window.MysteryCharacterEngine) return;
+    const expr = window.MysteryCharacterEngine.resolveExpression(emotionText, { alibiBroken });
+    dom.vocalAvatarIcon.innerHTML = window.MysteryCharacterEngine.renderPortraitSvg(
+      characterObj,
+      expr.id,
+      { alibiBroken, uid: 'vocal_avatar' }
+    );
+  }
+
+  let lastRenderedTurnData = null;
+
+  function renderSceneCastStrip(turnData) {
+    const strip = document.getElementById('sceneCastStrip');
+    if (!strip || !window.MysteryCharacterEngine) return;
+    const cast = window.MysteryCharacterEngine.extractSceneCharacters(turnData || lastRenderedTurnData, gameState);
+    if (!cast || cast.length === 0) {
+      strip.classList.add('hidden');
+      strip.innerHTML = '';
+      return;
+    }
+    strip.classList.remove('hidden');
+    strip.innerHTML = cast
+      .map((ch, idx) => {
+        const stateCls = ch.alibiBroken ? 'is-broken' : ch.isSuspect ? 'is-suspect' : 'is-npc';
+        const svg = window.MysteryCharacterEngine.renderPortraitSvg(ch, ch.expression, {
+          alibiBroken: ch.alibiBroken,
+          uid: `cast_${idx}`
+        });
+        return `
+          <button type="button" class="scene-cast-chip ${stateCls}" data-cast-id="${escapeHtml(
+          ch.id
+        )}" data-cast-suspect="${ch.isSuspect ? '1' : '0'}" data-cast-name="${escapeHtml(
+          ch.name
+        )}" data-cast-role="${escapeHtml(ch.role)}" title="${escapeHtml(
+          `${ch.name} (${ch.expressionLabel})`
+        )}">
+            <span class="scene-cast-avatar">${svg}</span>
+            <span class="scene-cast-info">
+              <strong class="scene-cast-name">${escapeHtml(ch.shortName || ch.name)}</strong>
+              <span class="scene-cast-expr">${escapeHtml(ch.expressionLabel)}</span>
+            </span>
+          </button>
+        `;
+      })
+      .join('');
+
+    strip.querySelectorAll('.scene-cast-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const isSuspect = btn.getAttribute('data-cast-suspect') === '1';
+        const cId = btn.getAttribute('data-cast-id');
+        const cName = btn.getAttribute('data-cast-name');
+        const cRole = btn.getAttribute('data-cast-role');
+        if (isSuspect) {
+          if (typeof window.__setActiveActionMode === 'function') {
+            window.__setActiveActionMode('interrogate');
+          }
+          if (dom.interrogateSuspectSelect) dom.interrogateSuspectSelect.value = cId;
+          renderInterrogationSuspectCards();
+          if (dom.interrogationBar) {
+            dom.interrogationBar.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+          if (dom.interrogateClueSelect) dom.interrogateClueSelect.focus();
+          showToast(`🗣️ جاهز لاستجواب «${cName}»؛ اختر الدليل المادي لمواجهته.`);
+        } else {
+          showToast(`🎭 شخصية في المشهد: ${cName} (${cRole})`);
+        }
+      });
+    });
   }
 
   let selectedScenarioId = 'daily';
@@ -1036,6 +1093,7 @@
             const targetSus = (gameState.suspects || []).find(s => (s.id || s.name) === sid);
             if (targetSus && targetSus.alibi) {
               audioEngine.stopSpeaking();
+              updateVocalSpeakerPortrait(targetSus, 'توتر وانفعال دفاعي', Boolean(targetSus.alibiBroken));
               audioEngine.speakSingleText(targetSus.alibi, 'توتر وانفعال دفاعي', true, targetSus.voice || null);
               showToast(`📌 اختر دليلا من العمود الأيمن أولا، ثم اضغط على «${targetSus.name}» لشد الخيط بينهما.`);
             }
@@ -3385,10 +3443,17 @@
       window.__setActiveActionMode('choices');
     }
 
+    lastRenderedTurnData = turnData;
     dom.chapterBadge.textContent = `الفصل ${gameState.turn}`;
     dom.sceneTitle.textContent = cleanStr(turnData.chapter_title) || 'فصل جديد';
     dom.sceneMoodText.textContent = cleanStr(turnData.mood) || 'غموض وترقب';
     updateSceneArtwork(gameState.scenarioId, cleanStr(turnData.chapter_title));
+    renderSceneCastStrip(turnData);
+    updateVocalSpeakerPortrait(
+      { id: 'narrator', name: 'الراوي التفاعلي', role: 'راوي التحقيق', voice: 'Charon' },
+      cleanStr(turnData.vocal_emotion || turnData.mood || 'همس مريب'),
+      false
+    );
     if (typeof audioEngine.setMusicMood === 'function') {
       audioEngine.setMusicMood(turnData.is_twist_moment ? 'revelation' : 'investigation');
     }
@@ -3684,7 +3749,7 @@
       }
     }
 
-    // تحديث شريط الصوت ليعرض اسم المشتبه به وشعوره وصوته المستقل
+    // تحديث شريط الصوت ليعرض اسم المشتبه به وشعوره وصوته المستقل وبورتريه تعبيره الحي
     if (dom.vocalSpeakerLabel) {
       dom.vocalSpeakerLabel.textContent = `🗣️ إفادة: ${result.suspect.name}`;
     }
@@ -3694,6 +3759,12 @@
     if (dom.vocalReactionText) {
       dom.vocalReactionText.textContent = `«${result.spokenResponse}»`;
     }
+    updateVocalSpeakerPortrait(
+      result.suspect,
+      result.emotion,
+      result.outcomeType === 'ALIBI_BROKEN'
+    );
+    renderSceneCastStrip(lastRenderedTurnData);
 
     // إضافة فقرة المواجهة إلى المشهد الحالي حتى يوثقها اللاعب بصريا
     if (dom.narrativeBody) {
@@ -4189,6 +4260,7 @@
             if (dom.vocalSpeakerLabel) dom.vocalSpeakerLabel.textContent = `🗣️ إفادة: ${sus.name}`;
             if (dom.vocalEmotionBadge) dom.vocalEmotionBadge.textContent = 'توتر وانفعال دفاعي';
             if (dom.vocalReactionText) dom.vocalReactionText.textContent = `«${sus.alibi}»`;
+            updateVocalSpeakerPortrait(sus, 'توتر وانفعال دفاعي', Boolean(sus.alibiBroken));
             audioEngine.speakSingleText(sus.alibi, 'توتر وانفعال دفاعي', true, sus.voice || null);
           }
         });
