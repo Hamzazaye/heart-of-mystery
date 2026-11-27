@@ -179,11 +179,15 @@ class MysteryAudioEngine {
     const combined = `${baseEmotion} ${clean}`;
 
     // 1. انهيار واعتراف تحت الضغط (عند كسر حجة المشتبه به)
+    const fushaFrame =
+      'Perform in eloquent Modern Standard Arabic (Fusha) with crisp natural pronunciation and vivid theatrical acting: ';
+
     if (/أعترف|لا مفر|كيف طابقت|كيف عثرت|اللعنة|تبا لذلك|لقد حبست|أنا من دبر|أقسم أنني لم/.test(clean) || /انهيار|اعتراف/.test(baseEmotion)) {
       return {
         label: 'انهيار واعتراف تحت الضغط',
         aura: 'shock',
         style:
+          fushaFrame +
           'cornered suspect breaking down under interrogation, breathless, trembling voice cracking with panic, guilt, and desperate confession',
         tagPrefix: '<heavy breath> ',
         rateMultiplier: 1.04,
@@ -200,6 +204,7 @@ class MysteryAudioEngine {
         label: 'صدمة وذهول درامي',
         aura: 'shock',
         style:
+          fushaFrame +
           'gasping, shocked, out of breath, high-tension dramatic mystery revelation with trembling emotional urgency and vivid theatrical inflection',
         tagPrefix: '<gasp> ',
         rateMultiplier: 1.03,
@@ -213,6 +218,7 @@ class MysteryAudioEngine {
         label: 'همس مرعوب وترقب',
         aura: 'whisper',
         style:
+          fushaFrame +
           'whispers, hushed spine-chilling whisper close to the microphone, filled with creeping dread, shallow breath, and intimate noir suspense',
         tagPrefix: '<breath> ',
         rateMultiplier: 0.94,
@@ -226,6 +232,7 @@ class MysteryAudioEngine {
         label: 'تحذير حاد وتوتر لاهث',
         aura: 'danger',
         style:
+          fushaFrame +
           'tense, urgent, speaking rapidly with high adrenaline, sharp dramatic warning tone charged with imminent danger',
         tagPrefix: '<heavy breath> ',
         rateMultiplier: 1.05,
@@ -239,6 +246,7 @@ class MysteryAudioEngine {
         label: 'رهبة ومهابة علمية',
         aura: 'awe',
         style:
+          fushaFrame +
           'deep resonant voice filled with cinematic awe, cosmic mystery, and intellectual gravitas',
         tagPrefix: '<breath> ',
         rateMultiplier: 0.96,
@@ -252,6 +260,7 @@ class MysteryAudioEngine {
         label: 'توتر وانفعال دفاعي',
         aura: 'danger',
         style:
+          fushaFrame +
           'agitated, defensive suspect trying to hide nervousness, rapid guarded delivery with underlying tension',
         tagPrefix: '<short pause> ',
         rateMultiplier: 1.03,
@@ -265,6 +274,7 @@ class MysteryAudioEngine {
         label: 'شجن عميق وندم',
         aura: 'sorrow',
         style:
+          fushaFrame +
           'melancholic, sorrowful, speaking slowly with a heavy sigh, deeply emotional and poignant voice heavy with heartbreak and hidden grief',
         tagPrefix: '<sigh> ',
         rateMultiplier: 0.93,
@@ -278,6 +288,7 @@ class MysteryAudioEngine {
         label: 'تساؤل ماكر وتشكيك',
         aura: 'probing',
         style:
+          fushaFrame +
           'sarcastic, shrewd, probing detective voice with sharp vocal emphasis on questions, dark irony, and knowing suspicion',
         tagPrefix: '<short pause> ',
         rateMultiplier: 0.98,
@@ -291,6 +302,7 @@ class MysteryAudioEngine {
         label: 'حزم وثقة استقصائية',
         aura: 'verdict',
         style:
+          fushaFrame +
           'commanding, authoritative, resolute master detective delivering the final undeniable truth with calm power',
         tagPrefix: '<short pause> ',
         rateMultiplier: 0.97,
@@ -304,6 +316,7 @@ class MysteryAudioEngine {
         label: 'تحليل علمي دقيق',
         aura: 'forensic',
         style:
+          fushaFrame +
           'focused, razor-sharp forensic analyst examining physical evidence with intense concentration and clarity',
         tagPrefix: '',
         rateMultiplier: 0.99,
@@ -317,6 +330,7 @@ class MysteryAudioEngine {
         label: 'تصاعد درامي حاسم',
         aura: 'climax',
         style:
+          fushaFrame +
           'theatrical cliffhanger narration, slowing down with deep gravitas, intense emotional weight, and dramatic suspense on the final words',
         tagPrefix: '<short pause> ',
         rateMultiplier: 0.96,
@@ -328,9 +342,11 @@ class MysteryAudioEngine {
     return {
       label: isReaction ? (baseEmotion || 'همس تفاعلي') : 'سرد سينمائي متدرج',
       aura: 'cinema',
-      style: isReaction
-        ? 'vividly expressive, theatrical Arabic mystery narrator reacting directly to the detective with intense emotion and natural vocal dynamics'
-        : 'expressive theatrical Arabic mystery actor with rich emotional variation, dynamic pitch inflection, and gripping noir atmosphere',
+      style:
+        fushaFrame +
+        (isReaction
+          ? 'vividly expressive mystery character reacting directly to the detective with intense emotion and natural vocal dynamics'
+          : 'expressive noir mystery actor with rich emotional variation, dynamic pitch inflection, and gripping atmosphere'),
       tagPrefix: isReaction ? '<breath> ' : '',
       rateMultiplier: 1.0,
       pitchBrowser: 0.9
@@ -483,17 +499,16 @@ class MysteryAudioEngine {
     const totalLogicalSteps = (reactionEnabled ? 1 : 0) + narrativeSegments.length;
 
     try {
-      // فحص الملف الصوتي الكامل المحفوظ مسبقا للمشهد قبل أي استدعاء سحابي
-      let multiNarrativePromise = this.fetchPrebakedStaticAudioBlob(narrativeText).catch(() => null);
+      // تشغيل Live Gemini 3.8 Flash TTS أولا لاستعادة الأداء التمثيلي الحي، مع حفظ السرد في الكاش والرجوع للملفات الثابتة فقط كاحتياطي
+      let multiNarrativePromise = null;
       if (narrativeSegments.length > 0 && isGemini38Tts && hasGeminiAccess) {
-        multiNarrativePromise = multiNarrativePromise.then(staticBlob => {
-          if (staticBlob) return staticBlob;
-          return this.fetchGemini38MultiTurnAudioBlob(
-            narrativeSegments,
-            apiKey,
-            modelName
-          ).catch(() => null);
-        });
+        multiNarrativePromise = this.fetchGemini38MultiTurnAudioBlob(
+          narrativeSegments,
+          apiKey,
+          modelName
+        ).catch(() => null);
+      } else if (narrativeSegments.length > 0) {
+        multiNarrativePromise = this.fetchPrebakedStaticAudioBlob(narrativeText).catch(() => null);
       }
 
       if (reactionEnabled) {
@@ -528,11 +543,8 @@ class MysteryAudioEngine {
       }
 
       if (narrativeSegments.length > 0 && this.speechSessionId === activeSession) {
-        let prebakedOrCloudBlob = multiNarrativePromise ? await multiNarrativePromise : null;
-        if (!prebakedOrCloudBlob) {
-          prebakedOrCloudBlob = await this.fetchPrebakedStaticAudioBlob(narrativeText);
-        }
-        if (prebakedOrCloudBlob || (isGemini38Tts && hasGeminiAccess)) {
+        let wavBlob = multiNarrativePromise ? await multiNarrativePromise : null;
+        if ((wavBlob || (isGemini38Tts && hasGeminiAccess)) && this.speechSessionId === activeSession) {
           const firstSeg = narrativeSegments[0];
           this.initAudioContext();
           this.setSpeakingState(true, `الراوي: ${firstSeg.profile.label}`);
@@ -544,8 +556,7 @@ class MysteryAudioEngine {
             this.onEmotionShift(firstSeg.profile.label);
           }
 
-          let wavBlob = prebakedOrCloudBlob;
-          if (!wavBlob && this.speechSessionId === activeSession) {
+          if (!wavBlob && isGemini38Tts && hasGeminiAccess && this.speechSessionId === activeSession) {
             this.playTapeWarmupCue();
             this.setSynthesizingState(
               true,
@@ -557,11 +568,18 @@ class MysteryAudioEngine {
                 apiKey,
                 modelName
               );
+            } catch (_) {
+              wavBlob = null;
             } finally {
               if (this.speechSessionId === activeSession) {
                 this.setSynthesizingState(false);
               }
             }
+          }
+
+          // احتياطي فوري من الصوت المحفوظ فقط إذا تعذر الاتصال السحابي الحي
+          if (!wavBlob && this.speechSessionId === activeSession) {
+            wavBlob = await this.fetchPrebakedStaticAudioBlob(narrativeText).catch(() => null);
           }
 
           if (wavBlob && this.speechSessionId === activeSession) {
@@ -678,14 +696,6 @@ class MysteryAudioEngine {
     const { signal } = this.abortController;
 
     try {
-      // 1. فحص الملف الصوتي المحفوظ مسبقا في المشروع (/audio/clips/*.mp3) أولا في جميع الأوضاع لمنع أي صوت روبوتي أو استهلاك API
-      const prebakedBlob = await this.fetchPrebakedStaticAudioBlob(text);
-      if (prebakedBlob && this.speechSessionId === currentSession) {
-        const baseSpeed = Number(this.settings.speed) || 1.0;
-        await this.playAudioBlob(prebakedBlob, baseSpeed, currentSession);
-        return;
-      }
-
       const activeEngine = this.settings.engine;
       const apiKey = (this.settings.geminiApiKey || '').trim();
       const cloudKey = (this.settings.cloudTtsApiKey || apiKey).trim();
@@ -716,6 +726,12 @@ class MysteryAudioEngine {
         const plainText = this.stripInlineVocalTags(text);
         await this.speakWithGoogleCloudTts(plainText, profile, isReaction, cloudKey, signal, currentSession);
       } else {
+        const prebakedBlob = await this.fetchPrebakedStaticAudioBlob(text);
+        if (prebakedBlob && this.speechSessionId === currentSession) {
+          const baseSpeed = Number(this.settings.speed) || 1.0;
+          await this.playAudioBlob(prebakedBlob, baseSpeed, currentSession);
+          return;
+        }
         const plainText = this.stripInlineVocalTags(text);
         await this.speakWithBrowserTts(plainText, profile, isReaction, currentSession);
       }
@@ -723,6 +739,14 @@ class MysteryAudioEngine {
       if (err?.name === 'AbortError' || this.speechSessionId !== currentSession) {
         return;
       }
+      try {
+        const fallbackStatic = await this.fetchPrebakedStaticAudioBlob(text);
+        if (fallbackStatic && this.speechSessionId === currentSession) {
+          const baseSpeed = Number(this.settings.speed) || 1.0;
+          await this.playAudioBlob(fallbackStatic, baseSpeed, currentSession);
+          return;
+        }
+      } catch (_) {}
       if (typeof this.onEngineFallbackNotice === 'function') {
         this.onEngineFallbackNotice('محرك النطق المحلي التفاعلي (نشط مؤقتا)');
       }
@@ -801,11 +825,6 @@ class MysteryAudioEngine {
     });
 
     const combinedPlainForLookup = segments.map(s => s.text).join(' ');
-    const staticMultiBlob = await this.fetchPrebakedStaticAudioBlob(combinedPlainForLookup);
-    if (staticMultiBlob) {
-      return staticMultiBlob;
-    }
-
     const normMultiKey = `NORM_MULTI::${voice}::${this.normalizeAudioLookupKey(combinedPlainForLookup)}`;
     if (this.audioCache.has(normMultiKey)) {
       return this.audioCache.get(normMultiKey);
@@ -988,7 +1007,7 @@ class MysteryAudioEngine {
    * منظم معدل الطلبات (Rate-Limit Safe Queue) لمنع تجاوز حصة API (429) عند توليد كلام جديد
    */
   async enqueueRateLimitedCloudTts(taskFn) {
-    const MIN_GAP_MS = 3600;
+    const MIN_GAP_MS = 900;
     const runTask = async () => {
       const elapsed = Date.now() - this.lastCloudTtsRequestAt;
       if (elapsed < MIN_GAP_MS && this.lastCloudTtsRequestAt > 0) {
@@ -1006,7 +1025,7 @@ class MysteryAudioEngine {
     if (typeof indexedDB === 'undefined') return Promise.resolve(null);
     return new Promise(resolve => {
       try {
-        const req = indexedDB.open('MysteryAudioCacheDB_v1', 1);
+        const req = indexedDB.open('MysteryAudioCacheDB_v2', 1);
         req.onupgradeneeded = e => {
           const db = e.target.result;
           if (!db.objectStoreNames.contains('blobs')) {
@@ -1063,12 +1082,6 @@ class MysteryAudioEngine {
       typeof profileOrEmotion === 'object' && profileOrEmotion !== null
         ? profileOrEmotion
         : this.deriveChunkEmotionProfile(text, String(profileOrEmotion || ''), isReaction, 0, 1);
-
-    // 1. فحص الملفات الصوتية المحفوظة مسبقا في المشروع (/audio/clips/*.mp3) بدون أي استدعاء API
-    const staticBlob = await this.fetchPrebakedStaticAudioBlob(text);
-    if (staticBlob) {
-      return staticBlob;
-    }
 
     const voice = voiceOverride || this.settings.voiceName || 'Charon';
     const normSingleKey = `NORM_SINGLE::${voice}::${this.normalizeAudioLookupKey(text)}`;
@@ -1267,62 +1280,120 @@ class MysteryAudioEngine {
   }
 
   getGemini38SpeechStyle(emotion = '', isReaction = false) {
+    const fushaFrame =
+      'Perform in eloquent Modern Standard Arabic (Fusha) with crisp natural pronunciation and vivid theatrical acting: ';
     if (emotion.includes('انهيار') || emotion.includes('اعتراف')) {
-      return 'cornered suspect breaking down under interrogation, breathless, trembling voice cracking with panic and confession';
+      return fushaFrame + 'cornered suspect breaking down under interrogation, breathless, trembling voice cracking with panic and confession';
     }
     if (emotion.includes('همس')) {
-      return 'whispered urgently, mysterious, hushed and suspenseful tone';
+      return fushaFrame + 'whispered urgently, mysterious, hushed and suspenseful tone';
     }
     if (emotion.includes('صدمة') || emotion.includes('ذهول')) {
-      return 'shocked, breathless, dramatic plot twist revelation with intense emotion';
+      return fushaFrame + 'shocked, breathless, dramatic plot twist revelation with intense emotion';
     }
     if (emotion.includes('تحذير') || emotion.includes('خطر')) {
-      return 'tense, urgent warning tone, serious and suspenseful';
+      return fushaFrame + 'tense, urgent warning tone, serious and suspenseful';
     }
     if (emotion.includes('رهبة') || emotion.includes('مهابة')) {
-      return 'deep resonant voice filled with cinematic awe, cosmic mystery, and intellectual gravitas';
+      return fushaFrame + 'deep resonant voice filled with cinematic awe, cosmic mystery, and intellectual gravitas';
     }
     if (emotion.includes('انفعال') || emotion.includes('دفاع')) {
-      return 'agitated, defensive suspect trying to hide nervousness, rapid guarded delivery';
+      return fushaFrame + 'agitated, defensive suspect trying to hide nervousness, rapid guarded delivery';
     }
     if (emotion.includes('شجن') || emotion.includes('حزن') || emotion.includes('ندم')) {
-      return 'melancholic, sorrowful, deeply emotional and poignant tone';
+      return fushaFrame + 'melancholic, sorrowful, deeply emotional and poignant tone';
     }
     if (emotion.includes('سخرية') || emotion.includes('ماكر') || emotion.includes('تساؤل')) {
-      return 'calm, enigmatic, subtly ironic and probing detective tone';
+      return fushaFrame + 'calm, enigmatic, subtly ironic and probing detective tone';
     }
     if (emotion.includes('حزم') || emotion.includes('ثقة')) {
-      return 'commanding, authoritative master detective delivering undeniable truth';
+      return fushaFrame + 'commanding, authoritative master detective delivering undeniable truth';
     }
     if (emotion.includes('تحليل') || emotion.includes('علمي')) {
-      return 'focused, razor-sharp forensic scientist analyzing physical evidence';
+      return fushaFrame + 'focused, razor-sharp forensic scientist analyzing physical evidence';
     }
     if (isReaction) {
-      return 'expressive, mysterious, dramatic narrator reaction';
+      return fushaFrame + 'expressive, mysterious, dramatic character reaction';
     }
-    return 'expressive Arabic mystery actor with rich emotional variation and dramatic suspense';
+    return fushaFrame + 'expressive mystery actor with rich emotional variation and dramatic suspense';
   }
 
   /**
-   * مُشكِّل الحركات الأساسية الذكي (Essential Arabic Diacritizer for Accurate Pronunciation)
-   * يضيف التشكيل الصوتي الأساسي على الأفعال المبنية للمجهول، المصطلحات العلمية والجنائية،
-   * وأسماء الشخصيات والأماكن المعاصرة لضمان نطق عربي سليم وفصيح داخليا في جميع محركات النطق.
+   * مُشكِّل الحركات الصوتية الداخلي للـ TTS فقط (TTS-Only Internal Vowel & Shadda Enhancer)
+   * يضبط الحركات الداخلية والشدة للأفعال المبنية للمجهول والأسماء والمصطلحات الملتبسة
+   * دون فرض حركات إعراب نهائية خاطئة على الأسماء، ودون لمس النص الظاهر في الشاشة نهائيا.
    */
   applyEssentialArabicDiacritics(rawText) {
     if (!rawText) return '';
     let t = String(rawText);
 
     const lexicon = [
-      // الأفعال المبنية للمجهول والكلمات التي يتغير معناها بدون تشكيل
+      // عبارات ومركبات جنائية ومكانية طويلة (أولوية مطلقة بدون تقييد إعراب آخر الكلمة)
+      ['كبير الباحثين', 'كَبِير البَاحِثِين'],
+      ['كبير المهندسين', 'كَبِير المُهَنْدِسِين'],
+      ['مسؤول الأمن', 'مَسْؤُول الأَمْن'],
+      ['القرينة الفاصلة', 'القَرِينَة الفَاصِلَة'],
+      ['القرائن المادية', 'القَرَائِن المَادِّيَّة'],
+      ['المشتبه بهم', 'المُشْتَبَه بِهِم'],
+      ['المشتبه به', 'المُشْتَبَه بِه'],
+      ['الدليل القاطع', 'الدَّلِيل القَاطِع'],
+      ['حجة غيابه', 'حُجَّة غِيَابِه'],
+      ['حجة الغياب', 'حُجَّة الغِيَاب'],
+      ['مسرح الجريمة', 'مَسْرَح الجَرِيمَة'],
+      ['غرفة الاتهام', 'غُرْفَة الاتِّهَام'],
+      ['المعالج التنبؤي', 'المُعَالِج التَّنَبُّؤِي'],
+      ['الحافظة المبردة', 'الحَافِظَة المُبَرَّدَة'],
+      ['غرفة التبريد', 'غُرْفَة التَّبْرِيد'],
+      ['الهالوثان العصبي', 'الهَالُوثَان العَصَبِي'],
+      ['مصل نيورو-ألفا', 'مَصْل نِيُورُو أَلْفَا'],
+      ['قرص المعايرة الذري', 'قُرْص المُعَايَرَة الذَّرِّي'],
+      ['جهاز الطاقة الأزرق', 'جِهَاز الطَّاقَة الأَزْرَق'],
+      ['مرصد الأفق', 'مَرْصَد الأُفُق'],
+      ['المصحة الجبلية', 'المَصَحَّة الجَبَلِيَّة'],
+      ['المحطة القطبية', 'المَحَطَّة القُطْبِيَّة'],
+      ['الصدى التاسع', 'الصَّدَى التَّاسِع'],
+      ['المختبر البحري الغارق', 'المُخْتَبَر البَحْرِي الغَارِق'],
+      ['المختبر الموصد', 'المُخْتَبَر المُوصَد'],
+      ['القبة الزجاجية', 'القُبَّة الزُّجَاجِيَّة'],
+      ['جزيرة الضباب الأسود', 'جَزِيرَة الضَّبَاب الأَسْوَد'],
+      ['جزيرة الضباب', 'جَزِيرَة الضَّبَاب'],
+      ['السفينة أوريون', 'السَّفِينَة أُورْيُون'],
+      ['سفينة أوريون', 'سَفِينَة أُورْيُون'],
+      ['قمرة القيادة', 'قُمْرَة القِيَادَة'],
+      ['مقصورة القاضي', 'مَقْصُورَة القَاضِي'],
+      ['خزانة الملاحة', 'خِزَانَة المِلَاحَة'],
+      ['خزانة الأرشيف', 'خِزَانَة الأَرْشِيف'],
+      ['مدفأة القاعة', 'مِدْفَأَة القَاعَة'],
+      ['فاقدا للوعي', 'فَاقِدًا لِلْوَعْي'],
+      ['فقدا للوعي', 'فَقْدًا لِلْوَعْي'],
+      ['سائل التبريد', 'سَائِل التَّبْرِيد'],
+      ['برادة الحديد', 'بُرَادَة الحَدِيد'],
+      ['رذاذا منوما', 'رَذَاذًا مُنَوِّمًا'],
+      ['رذاذ منوم', 'رَذَاذ مُنَوِّم'],
+      ['الشق الكوني', 'الشَّقّ الكَوْنِي'],
+      ['شق كوني', 'شَقّ كَوْنِي'],
+      ['تم فتح', 'تَمَّ فَتْح'],
+      ['تم قطع', 'تَمَّ قَطْع'],
+      ['كسر حجة', 'كَسْر حُجَّة'],
+      ['كسر حجج', 'كَسْر حُجَج'],
+      ['سجل نوبات', 'سِجِلّ نَوْبَات'],
+      ['سجل الحراسة', 'سِجِلّ الحِرَاسَة'],
+      ['سجل الدخول', 'سِجِلّ الدُّخُول'],
+      ['سجل أوامر', 'سِجِلّ أَوَامِر'],
+      ['سجل الرصد', 'سِجِلّ الرَّصْد'],
+      ['في سجل', 'فِي سِجِلّ'],
+      ['قد سجل', 'قَدْ سُجِّلَ'],
+      // الأفعال المبنية للمجهول والأفعال الدقيقة في الحكي والاستجواب
       ['وجدت', 'وُجِدَتْ'],
       ['وجد', 'وُجِدَ'],
       ['عثر', 'عُثِرَ'],
       ['قتل', 'قُتِلَ'],
       ['سرقت', 'سُرِقَتْ'],
       ['سرق', 'سُرِقَ'],
-      ['أغلق', 'أُغْلِقَ'],
       ['أغلقت', 'أُغْلِقَتْ'],
+      ['أغلق', 'أُغْلِقَ'],
       ['فتحت', 'فُتِحَتْ'],
+      ['لفتح', 'لِفَتْح'],
       ['فتح', 'فُتِحَ'],
       ['كتبت', 'كُتِبَتْ'],
       ['كتب', 'كُتِبَ'],
@@ -1331,75 +1402,212 @@ class MysteryAudioEngine {
       ['احتجز', 'احْتُجِزَ'],
       ['سمع', 'سُمِعَ'],
       ['قطع', 'قُطِعَ'],
-      ['كسر', 'كَسْرِ'],
+      ['قطعت', 'قُطِعَتْ'],
+      ['سجلت', 'سُجِّلَتْ'],
+      ['وضعت', 'وُضِعَتْ'],
+      ['وضع', 'وُضِعَ'],
+      ['حبس', 'حُبِسَ'],
+      ['حبست', 'حُبِسَتْ'],
+      ['فصل', 'فُصِلَ'],
+      ['فصلت', 'فُصِلَتْ'],
+      ['أطلقت', 'أُطْلِقَتْ'],
+      ['أطلقتها', 'أُطْلِقَتْهَا'],
+      ['أخفيت', 'أُخْفِيَتْ'],
+      ['انتزعت', 'انْتُزِعَتْ'],
       ['انكسرت', 'انْكَسَرَتْ'],
-      // المصطلحات الجنائية والعلمية المعاصرة
-      ['المحقق', 'المُحَقِّقُ'],
-      ['محقق', 'مُحَقِّقٌ'],
-      ['المشتبه بهم', 'المُشْتَبَهُ بِهِمْ'],
-      ['المشتبه به', 'المُشْتَبَهُ بِهِ'],
+      ['تلطخت', 'تَلَطَّخَتْ'],
+      ['أفقد', 'أَفْقَدَ'],
+      ['دبر', 'دَبَّرَ'],
+      ['دبرت', 'دَبَّرْتُ'],
+      ['يخفي', 'يُخْفِي'],
+      ['تخفي', 'تُخْفِي'],
+      ['يثبت', 'يُثْبِت'],
+      ['تثبت', 'تُثْبِت'],
+      ['يؤكد', 'يُؤَكِّد'],
+      ['تؤكد', 'تُؤَكِّد'],
+      ['ينكر', 'يُنْكِر'],
+      ['تنكر', 'تُنْكِر'],
+      ['يزعم', 'يَزْعُم'],
+      ['تزعم', 'تَزْعُم'],
+      ['يدعي', 'يَدَّعِي'],
+      ['تدعي', 'تَدَّعِي'],
+      ['يطابق', 'يُطَابِق'],
+      ['تطابق', 'تُطَابِق'],
+      ['طابقت', 'طَابَقْتَ'],
+      ['تعمد', 'تَعَمَّدَ'],
+      ['ارتكب', 'ارْتَكَبَ'],
+      ['يتسلل', 'يَتَسَلَّل'],
+      ['تسلل', 'تَسَلَّلَ'],
+      ['يرتجف', 'يَرْتَجِف'],
+      ['ارتجف', 'ارْتَجَفَ'],
+      // مفردات ومصطلحات التحقيق الملبسة بدون تشكيل (حركات داخلية + شدة فقط)
+      ['المحقق', 'المُحَقِّق'],
+      ['محقق', 'مُحَقِّق'],
       ['الجاني', 'الجَانِي'],
-      ['الدليل القاطع', 'الدَّلِيلُ القَاطِعُ'],
-      ['الدليل', 'الدَّلِيلُ'],
-      ['الأدلة', 'الأَدِلَّةِ'],
-      ['حجة غيابه', 'حُجَّةُ غِيَابِهِ'],
-      ['حجة الغياب', 'حُجَّةُ الغِيَابِ'],
-      ['مسرح الجريمة', 'مَسْرَحِ الجَرِيمَةِ'],
-      ['غرفة الاتهام', 'غُرْفَةِ الاتِّهَامِ'],
-      ['المعالج التنبؤي', 'المُعَالِجِ التَّنَبُّؤِيِّ'],
-      ['الحافظة المبردة', 'الحَافِظَةِ المُبَرَّدَةِ'],
-      ['الهالوثان العصبي', 'الهَالُوثَانِ العَصَبِيِّ'],
-      ['مصل نيورو-ألفا', 'مَصْلِ نِيُورُو أَلْفَا'],
-      ['قرص المعايرة الذري', 'قُرْصِ المُعَايَرَةِ الذَّرِّيِّ'],
-      ['جهاز الطاقة الأزرق', 'جِهَازُ الطَّاقَةِ الأَزْرَقُ'],
-      ['مرصد الأفق', 'مَرْصَدِ الأُفُقِ'],
-      ['المصحة الجبلية', 'المَصَحَّةِ الجَبَلِيَّةِ'],
-      ['المحطة القطبية', 'المَحَطَّةِ القُطْبِيَّةِ'],
-      ['الصدى التاسع', 'الصَّدَى التَّاسِعِ'],
-      ['المختبر البحري الغارق', 'المُخْتَبَرِ البَحْرِيِّ الغَارِقِ'],
-      ['جزيرة الضباب', 'جَزِيرَةِ الضَّبَابِ'],
-      ['السفينة أوريون', 'السَّفِينَةِ أُورْيُون'],
-      ['سفينة أوريون', 'سَفِينَةِ أُورْيُون'],
-      // أسماء الشخصيات المعاصرة في جميع القضايا
-      ['المهندس كريم نصار', 'المُهَنْدِسُ كَرِيم نَصَّار'],
+      ['الفاعل', 'الفَاعِل'],
+      ['الضحية', 'الضَّحِيَّة'],
+      ['الدليل', 'الدَّلِيل'],
+      ['الأدلة', 'الأَدِلَّة'],
+      ['القرينة', 'القَرِينَة'],
+      ['قرينة', 'قَرِينَة'],
+      ['القرائن', 'القَرَائِن'],
+      ['الشبهات', 'الشُّبُهَات'],
+      ['إفادات', 'إِفَادَات'],
+      ['إفادة', 'إِفَادَة'],
+      ['شهادة', 'شَهَادَة'],
+      ['قفل', 'قُفْل'],
+      ['أقفال', 'أَقْفَال'],
+      ['سجل', 'سِجِلّ'],
+      ['سجلات', 'سِجِلَّات'],
+      ['نوبات', 'نَوْبَات'],
+      ['خزانة', 'خِزَانَة'],
+      ['خزائن', 'خَزَائِن'],
+      ['مقصورة', 'مَقْصُورَة'],
+      ['قمرة', 'قُمْرَة'],
+      ['قبة', 'قُبَّة'],
+      ['القبة', 'القُبَّة'],
+      ['فنار', 'فَنَار'],
+      ['الفنار', 'الفَنَار'],
+      ['قبو', 'قَبْو'],
+      ['القبو', 'القَبْو'],
+      ['مدفأة', 'مِدْفَأَة'],
+      ['بوصلة', 'بُوصَلَة'],
+      ['مرصد', 'مَرْصَد'],
+      ['المرصد', 'المَرْصَد'],
+      ['مصعد', 'مِصْعَد'],
+      ['المصعد', 'المِصْعَد'],
+      ['صمام', 'صِمَام'],
+      ['تهوية', 'تَهْوِيَة'],
+      ['التهوية', 'التَّهْوِيَة'],
+      ['أسطوانة', 'أُسْطُوَانَة'],
+      ['بصمة', 'بَصْمَة'],
+      ['بصمات', 'بَصَمَات'],
+      ['شارة', 'شَارَة'],
+      ['ختم', 'خَتْم'],
+      ['الختم', 'الخَتْم'],
+      ['شرخ', 'شَرْخ'],
+      ['مشروخ', 'مَشْرُوخ'],
+      ['مشروخة', 'مَشْرُوخَة'],
+      ['ثلمة', 'ثُلْمَة'],
+      ['مفصلات', 'مِفْصَلَات'],
+      ['قصاصة', 'قُصَاصَة'],
+      ['مسجل', 'مُسَجِّل'],
+      ['مذياع', 'مِذْيَاع'],
+      ['مظلة', 'مِظَلَّة'],
+      ['معطف', 'مِعْطَف'],
+      ['قفاز', 'قُفَّاز'],
+      ['عقار', 'عَقَار'],
+      ['كبسولة', 'كَبْسُولَة'],
+      ['رذاذ', 'رَذَاذ'],
+      ['منوم', 'مُنَوِّم'],
+      ['تردد', 'تَرَدُّد'],
+      ['ترددات', 'تَرَدُّدَات'],
+      ['خادم', 'خَادِم'],
+      ['مختبر', 'مُخْتَبَر'],
+      ['المختبر', 'المُخْتَبَر'],
+      ['موصد', 'مُوصَد'],
+      ['موصدة', 'مُوصَدَة'],
+      ['مبردة', 'مُبَرَّدَة'],
+      ['ممغنطة', 'مُمَغْنَطَة'],
+      ['مشفرة', 'مُشَفَّرَة'],
+      ['معطل', 'مُعَطَّل'],
+      ['معطلة', 'مُعَطَّلَة'],
+      ['مقلوب', 'مَقْلُوب'],
+      ['متوقفة', 'مُتَوَقِّفَة'],
+      ['متجمد', 'مُتَجَمِّد'],
+      ['وصية', 'وَصِيَّة'],
+      ['شريحة', 'شَرِيحَة'],
+      ['شرائح', 'شَرَائِح'],
+      ['بطاقة', 'بِطَاقَة'],
+      ['غواص', 'غَوَّاص'],
+      ['غواصين', 'غَوَّاصِين'],
+      ['الغواصين', 'الغَوَّاصِين'],
+      ['قطبية', 'قُطْبِيَّة'],
+      ['مصحة', 'مَصَحَّة'],
+      ['قرص', 'قُرْص'],
+      ['القرص', 'القُرْص'],
+      ['مفتاح', 'مِفْتَاح'],
+      ['درج', 'دُرْج'],
+      ['حبر', 'حِبْر'],
+      ['الكمي', 'الكَمِّي'],
+      ['كمي', 'كَمِّي'],
+      ['الضباب', 'الضَّبَاب'],
+      ['الصقيع', 'الصَّقِيع'],
+      ['أولا', 'أَوَّلًا'],
+      ['فجأة', 'فَجْأَةً'],
+      ['فورا', 'فَوْرًا'],
+      ['سابقا', 'سَابِقًا'],
+      ['تماما', 'تَمَامًا'],
+      ['حقا', 'حَقًّا'],
+      ['تبا', 'تَبًّا'],
+      // أسماء الشخصيات المعاصرة بتشكيل داخلي دقيق
+      ['المهندس كريم نصار', 'المُهَنْدِس كَرِيم نَصَّار'],
       ['كريم نصار', 'كَرِيم نَصَّار'],
-      ['الدكتور طارق زيدان', 'الدُّكْتُورُ طَارِق زَيْدَان'],
+      ['الدكتور طارق زيدان', 'الدُّكْتُور طَارِق زَيْدَان'],
       ['طارق زيدان', 'طَارِق زَيْدَان'],
       ['مازن الكيلاني', 'مَازِن الكِيلَانِي'],
       ['نديم زهران', 'نَدِيم زَهْرَان'],
-      ['الدكتورة سلمى الكيلاني', 'الدُّكْتُورَةُ سَلْمَى الكِيلَانِي'],
-      ['الدكتورة سلمى نصار', 'الدُّكْتُورَةُ سَلْمَى نَصَّار'],
-      ['الدكتورة سلمى', 'الدُّكْتُورَةُ سَلْمَى'],
+      ['الدكتورة سلمى الكيلاني', 'الدُّكْتُورَة سَلْمَى الكِيلَانِي'],
+      ['الدكتورة سلمى نصار', 'الدُّكْتُورَة سَلْمَى نَصَّار'],
+      ['الدكتورة سلمى', 'الدُّكْتُورَة سَلْمَى'],
       ['منصور الجبلي', 'مَنْصُور الجَبَلِي'],
-      ['الدكتور راشد النجدي', 'الدُّكْتُورُ رَاشِد النَّجْدِي'],
-      ['المهندسة مريم الهاشمي', 'المُهَنْدِسَةُ مَرْيَم الهَاشِمِي'],
-      ['الضابط طارق العتيبي', 'الضَّابِطُ طَارِق العُتَيْبِي'],
+      ['الدكتور راشد النجدي', 'الدُّكْتُور رَاشِد النَّجْدِي'],
+      ['راشد النجدي', 'رَاشِد النَّجْدِي'],
+      ['المهندسة مريم الهاشمي', 'المُهَنْدِسَة مَرْيَم الهَاشِمِي'],
+      ['مريم الهاشمي', 'مَرْيَم الهَاشِمِي'],
+      ['الضابط طارق العتيبي', 'الضَّابِط طَارِق العُتَيْبِي'],
+      ['طارق العتيبي', 'طَارِق العُتَيْبِي'],
       ['ليلى الموصلي', 'لَيْلَى المَوْصِلِي'],
-      ['العقيد المتقاعد فريد الشذر', 'العَقِيدُ المُتَقَاعِدُ فَرِيد الشَّذَر'],
-      ['العقيد فريد', 'العَقِيدُ فَرِيدٌ'],
-      ['القاضي سليمان العلام', 'القَاضِي سُلَيْمَانُ العَلَّامُ'],
-      ['القاضي سليمان', 'القَاضِي سُلَيْمَانُ'],
-      ['عمران الحلبي', 'عِمْرَانُ الحَلَبِي'],
+      ['العقيد المتقاعد فريد الشذر', 'العَقِيد المُتَقَاعِد فَرِيد الشَّذَر'],
+      ['فريد الشذر', 'فَرِيد الشَّذَر'],
+      ['العقيد فريد', 'العَقِيد فَرِيد'],
+      ['القاضي سليمان العلام', 'القَاضِي سُلَيْمَان العَلَّام'],
+      ['القاضي سليمان', 'القَاضِي سُلَيْمَان'],
+      ['عمران الحلبي', 'عِمْرَان الحَلَبِي'],
       ['كمال البحيري', 'كَمَال البُحَيْرِي'],
-      ['الباحث زياد الفاروقي', 'البَاحِثُ زِيَاد الفَارُوقِي'],
-      ['الأستاذ يونس', 'الأُسْتَاذُ يُونُسُ'],
-      ['الدكتور مازن الغساني', 'الدُّكْتُورُ مَازِن الغَسَّانِي'],
-      ['الصحفية رنا المقدسي', 'الصَّحَفِيَّةُ رَنَا المَقْدِسِي'],
-      ['القبطان سليم بحري', 'القُبْطَانُ سَلِيم بَحْرِي'],
-      ['الدكتور سنان راشد', 'الدُّكْتُورُ سِنَان رَاشِد'],
-      ['الدكتورة لينا الحسن', 'الدُّكْتُورَةُ لِينَا الحَسَن'],
-      ['المهندس جسار فهد', 'المُهَنْدِسُ جَسَّار فَهْد'],
-      ['الدكتورة ريما نصار', 'الدُّكْتُورَةُ رِيمَا نَصَّار'],
-      ['المهندس غسان الكيلاني', 'المُهَنْدِسُ غَسَّان الكِيلَانِي'],
-      ['القاضية سلافة الأنصاري', 'القَاضِيَةُ سُلَافَةُ الأَنْصَارِي'],
-      ['الكابتن رامي سنان', 'الكَابْتِنُ رَامِي سِنَان'],
-      ['الدكتور منذر العلي', 'الدُّكْتُورُ مُنْذِر العَلِي'],
-      ['المهندسة ليلى الشامي', 'المُهَنْدِسَةُ لَيْلَى الشَّامِي']
-    ];
+      ['الباحث زياد الفاروقي', 'البَاحِث زِيَاد الفَارُوقِي'],
+      ['زياد الفاروقي', 'زِيَاد الفَارُوقِي'],
+      ['الأستاذ يونس', 'الأُسْتَاذ يُونُس'],
+      ['الدكتور مازن الغساني', 'الدُّكْتُور مَازِن الغَسَّانِي'],
+      ['مازن الغساني', 'مَازِن الغَسَّانِي'],
+      ['الصحفية رنا المقدسي', 'الصَّحَفِيَّة رَنَا المَقْدِسِي'],
+      ['رنا المقدسي', 'رَنَا المَقْدِسِي'],
+      ['القبطان سليم بحري', 'القُبْطَان سَلِيم بَحْرِي'],
+      ['سليم بحري', 'سَلِيم بَحْرِي'],
+      ['الدكتور سنان راشد', 'الدُّكْتُور سِنَان رَاشِد'],
+      ['سنان راشد', 'سِنَان رَاشِد'],
+      ['الدكتورة لينا الحسن', 'الدُّكْتُورَة لِينَا الحَسَن'],
+      ['لينا الحسن', 'لِينَا الحَسَن'],
+      ['المهندس جسار فهد', 'المُهَنْدِس جَسَّار فَهْد'],
+      ['جسار فهد', 'جَسَّار فَهْد'],
+      ['الدكتورة ريما نصار', 'الدُّكْتُورَة رِيمَا نَصَّار'],
+      ['المهندس غسان الكيلاني', 'المُهَنْدِس غَسَّان الكِيلَانِي'],
+      ['القاضية سلافة الأنصاري', 'القَاضِيَة سُلَافَة الأَنْصَارِي'],
+      ['الكابتن رامي سنان', 'الكَابْتِن رَامِي سِنَان'],
+      ['الدكتور منذر العلي', 'الدُّكْتُور مُنْذِر العَلِي'],
+      ['المهندسة ليلى الشامي', 'المُهَنْدِسَة لَيْلَى الشَّامِي']
+    ].sort((a, b) => b[0].length - a[0].length);
 
     for (const [word, replacement] of lexicon) {
-      const pattern = new RegExp(`(?<![\\u0621-\\u064A\\u064B-\\u065F])${word}(?![\\u0621-\\u064A\\u064B-\\u065F])`, 'g');
-      t = t.replace(pattern, replacement);
+      if (word.startsWith('ال')) {
+        const lPrefixWord = 'ل' + word.slice(1);
+        const lPattern = new RegExp(`(?<![\\u0621-\\u064A\\u064B-\\u065F])([وف]?)${lPrefixWord}(?![\\u0621-\\u064A\\u064B-\\u065F])`, 'g');
+        t = t.replace(lPattern, (_, pfx) => {
+          const pMap = { 'و': 'وَ', 'ف': 'فَ' };
+          return (pMap[pfx] || '') + 'لِ' + replacement.slice(1);
+        });
+        const alPattern = new RegExp(`(?<![\\u0621-\\u064A\\u064B-\\u065F])([وفبك]?)${word}(?![\\u0621-\\u064A\\u064B-\\u065F])`, 'g');
+        t = t.replace(alPattern, (_, pfx) => {
+          const pMap = { 'و': 'وَ', 'ف': 'فَ', 'ب': 'بِ', 'ك': 'كَ' };
+          return (pMap[pfx] || '') + replacement;
+        });
+      } else {
+        const pattern = new RegExp(`(?<![\\u0621-\\u064A\\u064B-\\u065F])([وف]?)${word}(?![\\u0621-\\u064A\\u064B-\\u065F])`, 'g');
+        t = t.replace(pattern, (_, pfx) => {
+          const pMap = { 'و': 'وَ', 'ف': 'فَ' };
+          return (pMap[pfx] || '') + replacement;
+        });
+      }
     }
     return t;
   }

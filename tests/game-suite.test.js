@@ -222,6 +222,19 @@ test('5. Audio manifest integrity: presets match, all MP3s exist (>512B), 0 orph
   assert.ok(!diskFiles.includes('_queue.json'), '_queue.json must not remain on disk');
   const orphans = diskFiles.filter(f => !referenced.has(f));
   assert.deepEqual(orphans, [], `Unexpected orphan audio clips: ${orphans.join(', ')}`);
+
+  // TTS Engine: verify TTS-only internal Arabic diacritizer avoids forced noun case endings while fixing ambiguous words & keeping Live TTS priority
+  const ttsCtx = { window: {}, console, Math, Date, RegExp, Object, Array, JSON, Set, Map, Promise, AbortController: class { abort() {} } };
+  ttsCtx.window = ttsCtx;
+  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'js', 'tts-engine.js'), 'utf8') + '\nwindow.MysteryAudioEngine = MysteryAudioEngine;', ttsCtx);
+  const tts = new ttsCtx.window.MysteryAudioEngine();
+  const sampleOut = tts.prepareGemini38Transcript('عثر على قفل الحافظة المبردة والدليل القاطع في سجل المختبر', 'صدمة وذهول', true);
+  assert.ok(sampleOut.includes('عُثِرَ'), 'Passive verb عثر should get internal vowels');
+  assert.ok(sampleOut.includes('قُفْل'), 'Ambiguous noun قفل should get internal damma');
+  assert.ok(sampleOut.includes('سِجِلّ'), 'Ambiguous noun سجل should get internal vowels');
+  assert.ok(sampleOut.includes('الدَّلِيل') && !sampleOut.includes('الدَّلِيلُ'), 'Should not force hardcoded nominative damma ending on noun الدليل');
+  const styleOut = tts.getGemini38SpeechStyle('صدمة وذهول', true);
+  assert.ok(styleOut.includes('Modern Standard Arabic') && styleOut.includes('shocked'), 'Live Gemini TTS style should frame Modern Standard Arabic acting');
 });
 
 test('6. Hygiene & Asset budgets: dashes, diacritics, CJK punctuation, CSS vars, DOM IDs, WebP scenes < 150KB', () => {
