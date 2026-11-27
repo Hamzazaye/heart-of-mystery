@@ -128,8 +128,8 @@
     train: 'assets/scenes/train.webp',
     museum: 'assets/scenes/museum.webp',
     island: 'assets/scenes/island.webp',
-    multiverse: 'assets/hero-noir-backdrop.webp',
-    custom: 'assets/hero-noir-backdrop.webp'
+    multiverse: 'assets/scenes/multiverse.webp',
+    custom: 'assets/scenes/custom.webp'
   };
 
   function updateSceneArtwork(scenarioId, chapterTitle = '') {
@@ -153,7 +153,7 @@
     dom.scenarioCards.forEach(card => {
       const sid = card.dataset.scenario;
       const artSrc = SCENE_ARTWORK_MAP[sid];
-      if (!artSrc || sid === 'multiverse' || sid === 'custom') return;
+      if (!artSrc) return;
       if (card.querySelector('.scenario-card-thumb')) return;
       const header = card.querySelector('.scenario-card-header');
       if (!header || !header.parentNode) return;

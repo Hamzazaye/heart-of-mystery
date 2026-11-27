@@ -256,7 +256,7 @@ test('6. Hygiene & Asset budgets: dashes, diacritics, CJK punctuation, CSS vars,
 
   const webpAssets = [
     'assets/hero-noir-backdrop.webp',
-    ...['daily', 'unknown_land', 'manor', 'station', 'train', 'museum', 'island'].map(id => `assets/scenes/${id}.webp`)
+    ...['daily', 'unknown_land', 'manor', 'station', 'train', 'museum', 'island', 'multiverse', 'custom'].map(id => `assets/scenes/${id}.webp`)
   ];
   for (const rel of webpAssets) {
     const abs = path.join(ROOT, rel);
