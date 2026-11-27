@@ -5818,16 +5818,17 @@ body.flashlight-mode-active .narrative-card::after {
   position: relative;
   direction: ltr;
   width: 100%;
-  min-height: 318px;
+  aspect-ratio: 1000 / 520;
+  min-height: 290px;
   border-radius: 14px;
   overflow: hidden;
-  border: 1px solid rgba(56, 189, 248, 0.32);
+  border: 1px solid rgba(56, 189, 248, 0.34);
   background:
-    radial-gradient(circle at 50% 48%, rgba(14, 165, 233, 0.14), rgba(5, 11, 22, 0.96) 76%),
+    radial-gradient(circle at 50% 48%, rgba(14, 165, 233, 0.16), rgba(5, 11, 22, 0.96) 76%),
     #06101e;
   box-shadow:
-    inset 0 0 46px rgba(2, 6, 23, 0.9),
-    0 12px 28px rgba(0, 0, 0, 0.42);
+    inset 0 0 54px rgba(2, 6, 23, 0.92),
+    0 12px 30px rgba(0, 0, 0, 0.45);
 }
 
 .tactical-map-backdrop {
@@ -5835,8 +5836,8 @@ body.flashlight-mode-active .narrative-card::after {
   inset: 0;
   background-size: cover;
   background-position: center;
-  opacity: 0.24;
-  filter: saturate(0.42) contrast(1.2) hue-rotate(175deg) brightness(0.68);
+  opacity: 0.22;
+  filter: saturate(0.4) contrast(1.18) hue-rotate(175deg) brightness(0.65);
   pointer-events: none;
   transition: background-image 360ms ease;
 }
@@ -5846,59 +5847,72 @@ body.flashlight-mode-active .narrative-card::after {
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(to right, rgba(56, 189, 248, 0.08) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(56, 189, 248, 0.08) 1px, transparent 1px),
-    linear-gradient(to right, rgba(56, 189, 248, 0.16) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(56, 189, 248, 0.16) 1px, transparent 1px);
-  background-size: 32px 32px, 32px 32px, 160px 160px, 160px 160px;
+    linear-gradient(to right, rgba(56, 189, 248, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(56, 189, 248, 0.07) 1px, transparent 1px),
+    linear-gradient(to right, rgba(56, 189, 248, 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(56, 189, 248, 0.15) 1px, transparent 1px);
+  background-size: 25px 25px, 25px 25px, 125px 125px, 125px 125px;
 }
+
+.map-hud-bracket {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: rgba(56, 189, 248, 0.65);
+  border-style: solid;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.map-hud-bracket.tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; border-top-left-radius: 3px; }
+.map-hud-bracket.tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; border-top-right-radius: 3px; }
+.map-hud-bracket.bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; border-bottom-left-radius: 3px; }
+.map-hud-bracket.br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; border-bottom-right-radius: 3px; }
 
 .map-compass-badge,
 .map-scale-badge {
   position: absolute;
-  top: 10px;
-  font-size: 0.65rem;
+  top: 12px;
+  font-size: 0.63rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   padding: 2px 8px;
   border-radius: 6px;
-  color: rgba(125, 211, 252, 0.85);
-  background: rgba(7, 15, 28, 0.72);
-  border: 1px solid rgba(56, 189, 248, 0.24);
-  z-index: 2;
+  color: rgba(125, 211, 252, 0.88);
+  background: rgba(7, 15, 28, 0.78);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  z-index: 3;
 }
 
 .map-compass-badge {
-  left: 12px;
+  left: 16px;
 }
 
 .map-scale-badge {
-  right: 12px;
+  right: 16px;
 }
 
 .tactical-radar-sweep {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 680px;
-  height: 680px;
-  margin-left: -340px;
-  margin-top: -340px;
+  width: 112%;
+  aspect-ratio: 1;
   border-radius: 50%;
   background: conic-gradient(
     from 0deg,
     rgba(56, 189, 248, 0.14) 0deg,
-    rgba(56, 189, 248, 0.04) 38deg,
-    transparent 76deg,
+    rgba(56, 189, 248, 0.03) 34deg,
+    transparent 70deg,
     transparent 360deg
   );
   pointer-events: none;
-  animation: tacticalRadarSweep 9.5s linear infinite;
+  animation: tacticalRadarSweep 10s linear infinite;
 }
 
 @keyframes tacticalRadarSweep {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
 .tactical-map-floorplan,
@@ -5911,37 +5925,48 @@ body.flashlight-mode-active .narrative-card::after {
 }
 
 .tactical-map-floorplan .bp-wall {
-  fill: rgba(10, 24, 46, 0.36);
-  stroke: rgba(56, 189, 248, 0.45);
-  stroke-width: 2.2;
+  fill: rgba(10, 24, 46, 0.34);
+  stroke: rgba(56, 189, 248, 0.52);
+  stroke-width: 2px;
+  vector-effect: non-scaling-stroke;
 }
 
 .tactical-map-floorplan .bp-room {
   fill: rgba(14, 165, 233, 0.08);
-  stroke: rgba(125, 211, 252, 0.32);
-  stroke-width: 1.5;
+  stroke: rgba(125, 211, 252, 0.35);
+  stroke-width: 1.4px;
   stroke-dasharray: 5 4;
+  vector-effect: non-scaling-stroke;
+}
+
+.tactical-map-floorplan .bp-detail {
+  fill: rgba(56, 189, 248, 0.07);
+  stroke: rgba(125, 211, 252, 0.25);
+  stroke-width: 1.1px;
+  vector-effect: non-scaling-stroke;
 }
 
 .tactical-map-floorplan .bp-door {
   fill: none;
-  stroke: rgba(245, 185, 95, 0.58);
-  stroke-width: 2;
+  stroke: rgba(245, 185, 95, 0.65);
+  stroke-width: 1.8px;
   stroke-dasharray: 4 3;
+  vector-effect: non-scaling-stroke;
 }
 
 .tactical-map-floorplan .bp-label {
-  fill: rgba(186, 230, 253, 0.72);
+  fill: rgba(224, 242, 254, 0.82);
   font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 700;
   text-anchor: middle;
+  dominant-baseline: middle;
   direction: rtl;
   unicode-bidi: plaintext;
 }
 
 .tactical-map-floorplan .bp-sector-tag {
-  fill: rgba(125, 211, 252, 0.65);
+  fill: rgba(125, 211, 252, 0.72);
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;
@@ -5954,23 +5979,25 @@ body.flashlight-mode-active .narrative-card::after {
 
 .tactical-map-links .map-link-line {
   fill: none;
-  stroke-width: 0.7;
+  stroke-width: 2.2px;
   stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
 }
 
 .tactical-map-links .map-link-line.locked {
-  stroke: rgba(148, 163, 184, 0.45);
-  stroke-dasharray: 1.8 1.8;
+  stroke: rgba(148, 163, 184, 0.52);
+  stroke-dasharray: 6 5;
 }
 
 .tactical-map-links .map-link-line.unlocked {
-  stroke: rgba(52, 211, 153, 0.85);
-  stroke-dasharray: 2.2 1.2;
-  animation: mapTrailFlow 1.8s linear infinite;
+  stroke: rgba(52, 211, 153, 0.92);
+  stroke-dasharray: 7 4;
+  filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.65));
+  animation: mapTrailFlow 1.6s linear infinite;
 }
 
 @keyframes mapTrailFlow {
-  from { stroke-dashoffset: 6.8; }
+  from { stroke-dashoffset: 22; }
   to { stroke-dashoffset: 0; }
 }
 
@@ -5981,44 +6008,62 @@ body.flashlight-mode-active .narrative-card::after {
   z-index: 4;
 }
 
-.map-pin-node {
+/* Zero-size coordinate anchor so exact orb centers match SVG trail endpoints AND clicking never shifts coordinates */
+button.map-pin-node {
   position: absolute;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  background: transparent;
+  width: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
   border: none;
-  padding: 4px;
+  background: transparent;
+  overflow: visible;
   cursor: pointer;
   z-index: 5;
-  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  transform: none !important;
 }
 
-.map-pin-node:hover,
-.map-pin-node:focus-visible {
-  transform: translate(-50%, -54%) scale(1.07);
-  z-index: 15;
+button.map-pin-node:hover,
+button.map-pin-node:focus-visible,
+button.map-pin-node:active:not(:disabled) {
+  transform: none !important;
+  z-index: 16;
   outline: none;
 }
 
+button.map-pin-node:focus-visible .map-pin-beacon {
+  outline: 2px solid var(--accent-gold-bright);
+  outline-offset: 4px;
+}
+
 .map-pin-beacon {
-  position: relative;
-  width: 38px;
-  height: 38px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: 2px solid rgba(148, 163, 184, 0.45);
-  background: rgba(9, 15, 28, 0.94);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
-  transition: all 180ms ease;
+  background: rgba(9, 15, 28, 0.95);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.58);
+  transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 180ms ease, border-color 180ms ease;
+}
+
+button.map-pin-node:hover .map-pin-beacon,
+button.map-pin-node.is-active .map-pin-beacon {
+  transform: translate(-50%, -50%) scale(1.13);
+}
+
+button.map-pin-node:active:not(:disabled) .map-pin-beacon {
+  transform: translate(-50%, -50%) scale(0.92);
 }
 
 .map-pin-icon {
-  font-size: 0.96rem;
+  font-size: 0.98rem;
   line-height: 1;
   font-weight: 800;
 }
@@ -6027,75 +6072,90 @@ body.flashlight-mode-active .narrative-card::after {
   position: absolute;
   inset: -7px;
   border-radius: 50%;
-  border: 2px solid rgba(245, 185, 95, 0.72);
+  border: 2px solid rgba(245, 185, 95, 0.78);
   animation: mapPinPulse 2.1s cubic-bezier(0.16, 1, 0.3, 1) infinite;
   pointer-events: none;
 }
 
 @keyframes mapPinPulse {
   0% {
-    transform: scale(0.82);
-    opacity: 0.9;
+    transform: scale(0.84);
+    opacity: 0.92;
   }
   100% {
-    transform: scale(1.68);
+    transform: scale(1.72);
     opacity: 0;
   }
 }
 
 .map-pin-node.available .map-pin-beacon {
   border-color: var(--accent-gold-bright);
-  background: radial-gradient(circle at 35% 30%, rgba(245, 185, 95, 0.38), rgba(15, 23, 42, 0.96));
-  box-shadow: 0 0 22px rgba(245, 185, 95, 0.45);
+  background: radial-gradient(circle at 35% 30%, rgba(245, 185, 95, 0.4), rgba(15, 23, 42, 0.96));
+  box-shadow: 0 0 22px rgba(245, 185, 95, 0.48);
   color: var(--accent-gold-bright);
 }
 
 .map-pin-node.scanned .map-pin-beacon {
   border-color: #34d399;
   background: radial-gradient(circle at 35% 30%, rgba(16, 185, 129, 0.42), rgba(10, 26, 24, 0.96));
-  box-shadow: 0 0 18px rgba(16, 185, 129, 0.36);
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.38);
   color: #6ee7b7;
 }
 
 .map-pin-node.scanned.red-herring .map-pin-beacon {
   border-color: rgba(148, 163, 184, 0.55);
-  background: rgba(24, 32, 48, 0.9);
+  background: rgba(24, 32, 48, 0.92);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   color: #cbd5e1;
 }
 
 .map-pin-node.locked .map-pin-beacon {
   border-style: dashed;
-  border-color: rgba(148, 163, 184, 0.45);
-  background: rgba(9, 14, 24, 0.78);
+  border-color: rgba(148, 163, 184, 0.48);
+  background: rgba(9, 14, 24, 0.84);
   color: var(--text-muted);
-  opacity: 0.85;
+  opacity: 0.88;
 }
 
 .map-pin-label {
+  position: absolute;
+  top: 25px;
+  left: 0;
+  transform: translateX(-50%);
   direction: rtl;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(7, 13, 25, 0.92);
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.52);
+  background: rgba(7, 13, 25, 0.94);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.56);
   white-space: nowrap;
-  max-width: 190px;
+  max-width: 196px;
+  pointer-events: auto;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+button.map-pin-node:hover .map-pin-label,
+button.map-pin-node.is-active .map-pin-label {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.72), 0 0 12px rgba(56, 189, 248, 0.24);
+}
+
+.map-pin-node.align-top .map-pin-label {
+  top: auto;
+  bottom: 25px;
 }
 
 .map-pin-node.align-left .map-pin-label {
-  transform: translateX(26%);
+  left: -20px;
+  transform: translateX(0);
 }
 
 .map-pin-node.align-right .map-pin-label {
-  transform: translateX(-26%);
-}
-
-.map-pin-node.align-top {
-  flex-direction: column-reverse;
+  left: auto;
+  right: -20px;
+  transform: translateX(0);
 }
 
 .map-pin-loc {
@@ -6183,22 +6243,37 @@ body.flashlight-mode-active .narrative-card::after {
 
 @media (max-width: 680px) {
   .tactical-map-viewport {
-    min-height: 268px;
+    aspect-ratio: auto;
+    min-height: 292px;
   }
 
   .map-pin-beacon {
-    width: 31px;
-    height: 31px;
+    width: 32px;
+    height: 32px;
   }
 
   .map-pin-icon {
-    font-size: 0.82rem;
+    font-size: 0.84rem;
   }
 
   .map-pin-label {
+    top: 20px;
     padding: 3px 7px;
     max-width: 132px;
     gap: 4px;
+  }
+
+  .map-pin-node.align-top .map-pin-label {
+    top: auto;
+    bottom: 20px;
+  }
+
+  .map-pin-node.align-left .map-pin-label {
+    left: -14px;
+  }
+
+  .map-pin-node.align-right .map-pin-label {
+    right: -14px;
   }
 
   .map-pin-loc {
@@ -6761,6 +6836,10 @@ html[data-theme="detective-light"] .tactical-radar-sweep {
   );
 }
 
+html[data-theme="detective-light"] .map-hud-bracket {
+  border-color: rgba(35, 65, 92, 0.55);
+}
+
 html[data-theme="detective-light"] .tactical-map-floorplan .bp-wall {
   fill: rgba(255, 252, 244, 0.45);
   stroke: rgba(35, 65, 92, 0.65);
@@ -6769,6 +6848,15 @@ html[data-theme="detective-light"] .tactical-map-floorplan .bp-wall {
 html[data-theme="detective-light"] .tactical-map-floorplan .bp-room {
   fill: rgba(35, 65, 92, 0.06);
   stroke: rgba(35, 65, 92, 0.4);
+}
+
+html[data-theme="detective-light"] .tactical-map-floorplan .bp-detail {
+  fill: rgba(35, 65, 92, 0.08);
+  stroke: rgba(35, 65, 92, 0.34);
+}
+
+html[data-theme="detective-light"] .tactical-map-floorplan .bp-door {
+  stroke: rgba(140, 82, 26, 0.72);
 }
 
 html[data-theme="detective-light"] .tactical-map-floorplan .bp-label {

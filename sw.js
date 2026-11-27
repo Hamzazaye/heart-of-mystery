@@ -1,5 +1,5 @@
 /* PWA Service Worker for "قلب الغموض" (Heart of Mystery) */
-const CACHE_NAME = 'heart-of-mystery-v2026-9';
+const CACHE_NAME = 'heart-of-mystery-v2026-10';
 const CORE_ASSETS = [
   '/',
   '/index.html',
