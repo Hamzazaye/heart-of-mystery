@@ -369,14 +369,16 @@ class MysteryAIEngine {
       return await this.callGeminiStructuredTurn(gameState, playerChoiceText);
     } catch (error) {
       console.warn('Gemini API fallback triggered due to:', error.message);
-      const isPresetChoiceChapter =
-        (gameState.turn === 1 || gameState.turn === 2) &&
+      if (playerChoiceText) {
+        const fallbackTurn = await this.generateCaseBibleTurn(gameState, playerChoiceText);
+        fallbackTurn._usedFallbackNotice = true;
+        return fallbackTurn;
+      }
+      if (
         bible &&
         Array.isArray(bible.authoredChapters) &&
-        bible.authoredChapters[gameState.turn] &&
-        Array.isArray(gameState.lastChoices) &&
-        gameState.lastChoices.some(c => c.text === playerChoiceText);
-      if (isPresetChoiceChapter) {
+        bible.authoredChapters[gameState.turn]
+      ) {
         return this.stripDisplayDiacritics(
           this.buildStaticChapterTurn(gameState, bible.authoredChapters[gameState.turn], playerChoiceText)
         );
@@ -523,6 +525,48 @@ class MysteryAIEngine {
   }
 
   /**
+   * كشف التكرار السردي (يمنع النموذج من إعادة سرد الفصل الأول أو المشهد السابق من البداية بعد فعل اللاعب)
+   */
+  isNarrativeRepetitive(candidateNarrative, gameState) {
+    const normalize = txt =>
+      String(txt || '')
+        .replace(/[\u064B-\u065F\u0670]/g, '')
+        .replace(/[^\u0621-\u064Aa-zA-Z0-9\s]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    const candNorm = normalize(candidateNarrative);
+    if (!candNorm) return true;
+
+    const priorTexts = [
+      gameState?.lastNarrative,
+      gameState?.caseBible?.authoredChapters?.[0]?.narrative
+    ].filter(Boolean);
+
+    const candWords = new Set(candNorm.split(' ').filter(w => w.length >= 3));
+    const candHead = candNorm.slice(0, 50);
+
+    for (const prev of priorTexts) {
+      const prevNorm = normalize(prev);
+      if (!prevNorm) continue;
+      if (candHead.length >= 30 && prevNorm.startsWith(candHead)) {
+        return true;
+      }
+      const prevWords = new Set(prevNorm.split(' ').filter(w => w.length >= 3));
+      if (!candWords.size || !prevWords.size) continue;
+      let shared = 0;
+      for (const w of candWords) {
+        if (prevWords.has(w)) shared += 1;
+      }
+      const unionSize = new Set([...candWords, ...prevWords]).size;
+      if (unionSize > 0 && shared / unionSize >= 0.6) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * استدعاء محرك السرد الذكي مع الالتزام الصارم بملف القضية المقفل (Locked Case Bible)
    */
   async callGeminiStructuredTurn(gameState, playerChoiceText) {
@@ -580,6 +624,7 @@ class MysteryAIEngine {
    - يجب إلزاميا أن يبدأ الفصل (في عنوان الفصل chapter_title، وفي تعليق الراوي vocal_reaction، وفي الفقرتين الأولى والثانية من narrative) بتصوير وتجسيد تنفيذ اللاعب لهذا الفعل ونتيجته الفيزيائية والدرامية الفورية في المكان!
    - انتبه لزاوية الضمير: حتى لو كتب اللاعب فعله بضمير المتكلم (مثل: "حاولت أن أحطم الباب بعنف")، حوله فورا في السرد إلى ضمير المخاطب الموجه إلى اللاعب (مثل: "تندفع يا ${gameState.playerName} بكل قوتك لتحطيم الباب بعنف...")؛ ممنوع منعا باتا أن يبدأ السرد بضمير المتكلم (حاولت / اندفعت) ثم يتحول للمخاطب!
    - ممنوع منعا باتا تجاهل الفعل الذي كتبه اللاعب أو كتابة مشهد هادئ منفصل لا يذكر الفعل الذي كتبه.
+   - قاعدة منع التكرار الصارمة: لقد بدأ اللاعب التحقيق بالفعل وسمع المشهد الافتتاحي؛ ممنوع منعا باتا إعادة وصف الغرفة من البداية أو إعادة تقديم المشتبه بهم الثلاثة أو إعادة سرد حججهم الأولية المذكورة سابقا. ابدأ فورا من لحظة تنفيذ الفعل «${activeActionText}» وما أحدثه من تطور جديد!
 2. ثبات القصة والشخصيات المقفلة (ممنوع تشويه القصة أو اختراع شخصيات):
    - أنت تكتب حصريا داخل قضية: "${bible.title || gameState.scenarioTitle}".
    - الشخصيات الوحيدة الموجودة في هذا المسرح هي حصرا هذه الشخصيات الثلاث: [${allowedSuspectNames}].
@@ -626,7 +671,7 @@ class MysteryAIEngine {
     const userPrompt = `الفصل ${gameState.turn + 1} من قضية "${bible.title || gameState.scenarioTitle}":
 المحقق: ${gameState.playerName} (نهج التحقيق: ${detectiveStyle})
 الشخصيات الثلاث الحصرية في هذه القضية (ممنوع ذكر أي شخصية خارجهم): ${allowedSuspectNames}
-ملخص المشهد السابق الذي يقف فيه اللاعب الآن:
+أحداث قديمة انتهت بالفعل (ممنوع تكرارها أو إعادة وصفها، استكمل الحدث مما بعدها فقط):
 ${previousSceneSnippet || bible.authoredChapters?.[0]?.narrative?.slice(0, 450) || gameState.scenarioPrompt}
 
 سجل المشتبه بهم وإفاداتهم:
@@ -761,6 +806,10 @@ ${cluesLedger}
     }
 
     const parsed = JSON.parse(rawJson);
+
+    if (playerChoiceText && this.isNarrativeRepetitive(parsed.narrative, gameState)) {
+      throw new Error('Repetitive opening narrative detected');
+    }
 
     // ضمان ربط الدليل المكتشف بملف القضية الأصلي وعدم السماح بتويست غير مستحق
     if (nextUnlockableClue && (!parsed.new_clue || !parsed.new_clue.title)) {

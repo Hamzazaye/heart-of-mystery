@@ -189,6 +189,20 @@ test('4. Free-action semantic branching produces 4 distinct moods and reactions'
   ]);
   assert.equal(moods.size, 4, 'Expected 4 distinct moods across force/inspect/stealth/confront');
   assert.equal(reactions.size, 4, 'Expected 4 distinct vocal reactions across semantic branches');
+
+  // Regression guard: ensure taking an action detects and blocks opening-scene repetition
+  const openingText = bible.authoredChapters[0].narrative;
+  assert.equal(
+    ai.isNarrativeRepetitive(openingText, { caseBible: bible, lastNarrative: openingText }),
+    true,
+    'Repeating opening narrative after an action must be detected'
+  );
+  assert.equal(
+    ai.isNarrativeRepetitive(forceRes.narrative, { caseBible: bible, lastNarrative: openingText }),
+    false,
+    'Fresh action-driven narrative must not be flagged as repetitive'
+  );
+  assert.ok(!forceRes.narrative.startsWith(openingText.slice(0, 40)), 'Action turn must advance beyond Chapter 1 text');
 });
 
 test('5. Audio manifest integrity: presets match, all MP3s exist (>512B), 0 orphans, 0 _queue.json', () => {

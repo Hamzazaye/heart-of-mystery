@@ -3573,6 +3573,7 @@
   async function executeTurnGeneration(playerChoiceText) {
     const myToken = ++turnGenerationToken;
     const isOpeningTurn = gameState.turn === 0 && !playerChoiceText;
+    audioEngine.stopSpeaking();
     setLoadingState(true);
     ensureGameStateHasLockedBible();
 
@@ -3581,6 +3582,7 @@
       const turnData = await aiEngine.generateTurn(gameState, playerChoiceText);
       if (myToken !== turnGenerationToken) return;
 
+      turnData._playerAction = playerChoiceText ? String(playerChoiceText).trim() : '';
       currentTurnData = turnData;
       hotspotInspectedThisTurn = false;
 
@@ -3843,6 +3845,12 @@
 
     dom.narrativeBody.innerHTML = '';
     dom.narrativeBody.style.fontSize = `${narrativeFontSizeRem}rem`;
+    if (turnData._playerAction && gameState.turn > 1) {
+      const actionEcho = document.createElement('div');
+      actionEcho.className = 'turn-action-echo';
+      actionEcho.textContent = `⚡ تنفيذ قرارك (الفصل ${gameState.turn}): «${cleanStr(turnData._playerAction)}»`;
+      dom.narrativeBody.appendChild(actionEcho);
+    }
     const paragraphs = cleanStr(turnData.narrative || '')
       .split(/\n+/)
       .map(p => p.trim())
